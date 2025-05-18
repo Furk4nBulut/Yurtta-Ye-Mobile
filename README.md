@@ -2,93 +2,39 @@
 
 KYK Yurt Yemek Takibi Mobil Uygulaması
 
-## Planlanan Proje Yapısı
-yurt_menu_app/
-├── android/
-│   ├── app/
-│   │   ├── src/
-│   │   │   ├── main/
-│   │   │   │   ├── AndroidManifest.xml
-│   │   │   │   ├── res/
-│   │   │   │   │   ├── drawable/
-│   │   │   │   │   └── values/
-│   │   │   │   │       └── strings.xml
-│   │   │   │   └── kotlin/
-│   │   │   │       └── MainActivity.kt
-│   │   │   └── build.gradle
-│   │   └── build.gradle
-├── ios/
-│   ├── Runner/
-│   │   ├── Info.plist
-│   │   ├── Assets.xcassets/
-│   │   │   ├── AppIcon.appiconset/
-│   │   │   └── LaunchImage.imageset/
-│   │   └── Runner.xcodeproj/
-│   └── Podfile
+YurttaYe-Mobile/
 ├── lib/
-│   ├── core/
-│   │   ├── config/
-│   │   │   ├── app_config.dart
-│   │   │   └── theme.dart
-│   │   ├── constants/
-│   │   │   ├── api_endpoints.dart
-│   │   │   └── colors.dart
-│   │   ├── extensions/
-│   │   │   └── string_extensions.dart
-│   │   └── utils/
-│   │       └── network_manager.dart
-│   ├── features/
-│   │   ├── auth/
-│   │   │   ├── data/
-│   │   │   │   ├── models/
-│   │   │   │   │   └── user.dart
-│   │   │   │   ├── repositories/
-│   │   │   │   │   └── auth_repository.dart
-│   │   │   │   └── services/
-│   │   │   │       └── auth_service.dart
-│   │   │   ├── presentation/
-│   │   │   │   ├── screens/
-│   │   │   │   │   ├── login_screen.dart
-│   │   │   │   │   └── register_screen.dart
-│   │   │   │   └── viewmodels/
-│   │   │   │       └── auth_viewmodel.dart
-│   │   └── menu/
-│   │       ├── data/
-│   │       │   ├── models/
-│   │       │   │   └── menu_item.dart
-│   │       │   ├── repositories/
-│   │       │   │   └── menu_repository.dart
-│   │       │   └── services/
-│   │       │       └── menu_service.dart
-│   │       ├── presentation/
-│   │       │   ├── screens/
-│   │       │   │   ├── menu_screen.dart
-│   │       │   │   └── menu_detail_screen.dart
-│   │       │   ├── widgets/
-│   │       │   │   ├── menu_card.dart
-│   │       │   │   └── category_filter.dart
-│   │       │   └── viewmodels/
-│   │       │       └── menu_viewmodel.dart
-│   ├── l10n/
-│   │   ├── app_en.arb
-│   │   └── app_tr.arb
-│   └── main.dart
+│   ├── models/
+│   │   ├── city.dart                 // Şehir: id, name
+│   │   ├── menu.dart                 // Menü: id, cityId, mealType, date, energy, items
+│   │   ├── menu_item.dart            // Menü öğesi: id, category, name, gram
+│   ├── services/
+│   │   ├── api_service.dart          // API çağrıları
+│   │   ├── auth_service.dart         // JWT yönetimi
+│   ├── screens/
+│   │   ├── splash_screen.dart        // Açılış ekranı
+│   │   ├── home_screen.dart          // Menü sorgulama
+│   │   ├── menu_screen.dart          // Menü detayları
+│   ├── widgets/
+│   │   ├── city_dropdown.dart        // Şehir dropdown
+│   │   ├── meal_type_selector.dart   // Öğün seçici
+│   │   ├── date_picker.dart          // Tarih seçici
+│   │   ├── menu_item_card.dart       // Menü öğesi kartı
+│   ├── providers/
+│   │   ├── menu_provider.dart        // State yönetimi
+│   ├── utils/
+│   │   ├── constants.dart            // API URL, renkler
+│   │   ├── helpers.dart              // Yardımcı fonksiyonlar
+│   ├── routes/
+│   │   ├── app_routes.dart           // Rotalar
+│   ├── themes/
+│   │   ├── app_theme.dart            // Tema
+│   ├── main.dart                     // Giriş noktası
 ├── assets/
 │   ├── images/
-│   │   ├── logo.png
-│   │   └── placeholder.jpg
-│   └── fonts/
-│       └── Roboto.ttf
+│   │   ├── logo.png                 // Logo
+│   ├── fonts/
+│   │   ├── Roboto-Regular.ttf       // Font (opsiyonel)
 ├── test/
-│   ├── unit/
-│   │   ├── menu_service_test.dart
-│   │   └── menu_viewmodel_test.dart
-│   └── widget/
-│       └── menu_screen_test.dart
-├── integration_test/
-│   └── app_test.dart
-├── pubspec.yaml
-├── analysis_options.yaml
-├── .gitignore
-├── README.md
-└── LICENSE# Yurtta-Ye-Mobile
+│   ├── widget_test.dart             // Testler
+├── pubspec.yaml                     // Bağımlılıklar
