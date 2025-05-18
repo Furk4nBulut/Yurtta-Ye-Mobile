@@ -29,7 +29,7 @@ class MenuProvider with ChangeNotifier {
     try {
       _cities = await _apiService.getCities();
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceFirst('Exception: ', '');
     }
 
     _isLoading = false;
@@ -48,7 +48,7 @@ class MenuProvider with ChangeNotifier {
         date: _selectedDate,
       );
     } catch (e) {
-      _error = e.toString();
+      _error = e.toString().replaceFirst('Exception: ', '');
     }
 
     _isLoading = false;

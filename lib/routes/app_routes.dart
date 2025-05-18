@@ -9,7 +9,7 @@ final GoRouter router = GoRouter(
       builder: (context, state) => const HomeScreen(),
     ),
     GoRoute(
-      path: '/menu/:id',
+      path: '/Menu/:id',
       builder: (context, state) {
         final id = int.parse(state.pathParameters['id']!);
         return MenuDetailScreen(menuId: id);

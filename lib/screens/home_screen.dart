@@ -58,7 +58,12 @@ class HomeScreen extends StatelessWidget {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text('Hata: ${provider.error}'),
+                          Text(
+                            provider.error!.contains('Connection refused')
+                                ? 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı ve sunucu adresini kontrol edin.'
+                                : 'Hata: ${provider.error}',
+                            textAlign: TextAlign.center,
+                          ),
                           const SizedBox(height: 8),
                           ElevatedButton(
                             onPressed: () => provider.fetchMenus(),
