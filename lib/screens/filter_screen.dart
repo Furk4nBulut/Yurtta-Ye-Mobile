@@ -37,9 +37,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
 
     // Delay initial fetch to prioritize UI
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 100));
       final provider = Provider.of<MenuProvider>(context, listen: false);
       provider.fetchCities();
+      await Future.delayed(const Duration(milliseconds: 500));
       provider.fetchMenus(reset: true);
       setState(() => _isInitialLoad = false);
     });
