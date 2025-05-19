@@ -3,13 +3,17 @@ class MenuItem {
   final String name;
   final String gram;
 
-  MenuItem({required this.category, required this.name, required this.gram});
+  MenuItem({
+    required this.category,
+    required this.name,
+    required this.gram,
+  });
 
   factory MenuItem.fromJson(Map<String, dynamic> json) {
     return MenuItem(
-      category: json['category'] as String,
-      name: json['name'] as String,
-      gram: json['gram'] as String,
+      category: json['category'] as String? ?? '',
+      name: json['name'] as String? ?? '',
+      gram: json['gram'] as String? ?? '',
     );
   }
 }

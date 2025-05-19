@@ -1,147 +1,224 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
-import 'package:yurttaye_mobile/utils/constants.dart';
-import 'package:yurttaye_mobile/widgets/exit_dialog.dart';
-import 'package:yurttaye_mobile/widgets/filter_card.dart';
-import 'package:yurttaye_mobile/widgets/loading_indicator.dart';
-import 'package:yurttaye_mobile/widgets/error_view.dart';
-import 'package:yurttaye_mobile/widgets/menu_list.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
+import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedMealType = AppConfig.mealTypes[0]; // Default to 'Kahvaltı'
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 500),
-    );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    final menuProvider = Provider.of<MenuProvider>(context, listen: false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      menuProvider.fetchCities();
-      menuProvider.fetchMenus();
-      _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    Provider.of<MenuProvider>(context, listen: false).fetchMenus();
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false,
-      onPopInvoked: (didPop) async {
-        if (didPop) return;
-        final shouldExit = await ExitDialog.show(context);
-        if (shouldExit) {
-          SystemNavigator.pop();
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('KYK Menü'),
-          automaticallyImplyLeading: false,
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                Provider.of<MenuProvider>(context, listen: false).clearFilters();
-                _controller.reset();
-                _controller.forward();
-              },
-              tooltip: 'Filtreleri Temizle',
+    final provider = Provider.of<MenuProvider>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('YurttaYe'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.filter_alt),
+            onPressed: () => context.pushNamed('filter'),
+          ),
+        ],
+      ),
+      body: provider.isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : provider.error != null
+          ? Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text('Hata: ${provider.error}'),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () => provider.fetchMenus(),
+              child: const Text('Yeniden Dene'),
             ),
           ],
         ),
-        body: RefreshIndicator(
-          onRefresh: () async {
-            final provider = Provider.of<MenuProvider>(context, listen: false);
-            await provider.fetchMenus();
-            _controller.reset();
-            _controller.forward();
-          },
-          color: Constants.kykBlue600,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Padding(
-              padding: const EdgeInsets.all(Constants.space4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Menüleri Keşfet',
-                    style: TextStyle(
-                      fontSize: Constants.text2xl,
-                      fontWeight: FontWeight.w700,
-                      color: Constants.gray800,
+      )
+          : provider.menus.isEmpty
+          ? const Center(child: Text('Hiçbir menü bulunamadı'))
+          : SingleChildScrollView(
+        child: Column(
+          children: [
+            _buildTodayMealCard(provider),
+            _buildMealTypeToggle(),
+            _buildUpcomingMeals(provider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTodayMealCard(MenuProvider provider) {
+    final today = AppConfig.apiDateFormat.format(DateTime.now());
+    final menu = provider.menus.firstWhere(
+          (menu) =>
+      AppConfig.apiDateFormat.format(menu.date) == today &&
+          menu.mealType == _selectedMealType,
+      orElse: () => provider.menus.firstWhere(
+            (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
+        orElse: () => Menu(
+          id: 0,
+          cityId: 0,
+          mealType: '',
+          date: DateTime.now(),
+          energy: '',
+          items: [],
+        ),
+      ),
+    );
+
+    if (menu.id == 0) {
+      return const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Center(child: Text('Bugünkü menü bulunamadı')),
+          ),
+        ),
+      );
+    }
+
+    final items = menu.items; // Show all items
+    print('Items for ${_selectedMealType}: $items');
+
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => context.pushNamed('menu_detail', pathParameters: {'id': menu.id.toString()}),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Bugünün Yemeği (${menu.mealType})',
+                  style: AppTheme.theme.textTheme.displaySmall,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  DateFormat('dd MMMM yyyy').format(menu.date),
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                if (items.isEmpty)
+                  const Text('Bu öğün için yemek bulunamadı')
+                else
+                  ...items.map((item) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: Row(
+                      children: [
+                        Expanded(child: Text('${item.name} (${item.category})')),
+                        Text(item.gram.isEmpty ? '-' : item.gram, style: const TextStyle(color: Colors.grey)),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: Constants.space4),
-                  const FilterCard(),
-                  const SizedBox(height: Constants.space4),
-                  Consumer<MenuProvider>(
-                    builder: (context, provider, child) {
-                      if (provider.isLoading) {
-                        return const LoadingIndicator();
-                      }
-                      if (provider.error != null) {
-                        return ErrorView(
-                          error: provider.error!,
-                          onRetry: () {
-                            provider.fetchMenus();
-                            _controller.reset();
-                            _controller.forward();
-                          },
-                        );
-                      }
-                      if (provider.menus.isEmpty) {
-                        return Card(
-                          elevation: 1,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(Constants.space4),
-                            child: Text(
-                              'Menü bulunamadı.',
-                              style: TextStyle(
-                                fontSize: Constants.textBase,
-                                color: Constants.gray600,
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                      return MenuList(
-                        todayMenu: provider.todayMenu,
-                        menus: provider.menus,
-                        fadeAnimation: _fadeAnimation,
-                      );
-                    },
-                  ),
-                ],
-              ),
+                  )),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.local_fire_department, size: 16, color: Colors.deepOrange),
+                    const SizedBox(width: 4),
+                    Text(menu.energy.isEmpty ? 'Bilgi yok' : menu.energy),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMealTypeToggle() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: AppConfig.mealTypes.map((mealType) {
+          return _buildMealTypeButton(mealType);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildMealTypeButton(String mealType) {
+    final isSelected = _selectedMealType == mealType;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.0),
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isSelected ? Colors.deepOrange : Colors.grey[300],
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          onPressed: () => setState(() => _selectedMealType = mealType),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                mealType == 'Kahvaltı' ? Icons.wb_sunny : Icons.nightlight_round,
+                size: 16,
+                color: isSelected ? Colors.white : Colors.black,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                mealType,
+                style: TextStyle(color: isSelected ? Colors.white : Colors.black),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUpcomingMeals(MenuProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Gelecek Yemekler',
+            style: AppTheme.theme.textTheme.displaySmall,
+          ),
+          const SizedBox(height: 8),
+          ...provider.menus.take(5).map((menu) => Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: Card(
+              child: ListTile(
+                leading: const Icon(Icons.calendar_today, color: Colors.deepOrange),
+                title: Text(DateFormat('dd MMMM').format(menu.date)),
+                subtitle: Text('${menu.items.length} çeşit yemek (${menu.mealType})'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => context.pushNamed('menu_detail', pathParameters: {'id': menu.id.toString()}),
+              ),
+            ),
+          )),
+        ],
       ),
     );
   }

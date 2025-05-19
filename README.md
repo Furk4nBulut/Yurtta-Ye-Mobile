@@ -9,16 +9,12 @@ YurttaYe-Mobile/
 │   ├── screens/                   # Ekranlar
 │   │   ├── home_screen.dart      # Ana ekran: Menü listesi ve filtreler
 │   │   ├── menu_detail_screen.dart # Menü detay ekranı
-│   ├── widgets/                   # Yeniden kullanılabilir widget’lar
-│   │   ├── city_dropdown.dart    # Şehir seçimi
-│   │   ├── meal_type_selector.dart # Öğün türü seçimi
-│   │   ├── date_picker.dart      # Tarih seçici
-│   │   ├── menu_card.dart        # Menü kartı
-│   │   ├── menu_item_card.dart   # Menü öğesi kartı
+│   │   ├── splash_screen 
 │   ├── providers/                 # Durum yönetimi
 │   │   ├── menu_provider.dart    # Menü ve şehir verileri
 │   ├── utils/                     # Yardımcı dosyalar
 │   │   ├── constants.dart        # API URL, renkler
+│   │   ├── config.dart       
 │   ├── routes/                    # Rotalama
 │   │   ├── app_routes.dart       # go_router rotaları
 │   ├── themes/                    # Tema

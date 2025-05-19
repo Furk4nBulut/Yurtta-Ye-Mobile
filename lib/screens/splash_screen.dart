@@ -1,74 +1,52 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
+  const SplashScreen({Key? key}) : super(key: key);
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _fadeAnimation;
-
+class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    );
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _controller.forward();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.replace('/'); // HomeScreen'e geçiş ve yığını temizle
+        context.goNamed('home');
       }
     });
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Constants.kykBlue600,
-      body: Center(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
+      body: Container(
+        decoration: AppTheme.gradientDecoration,
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'assets/images/logo.png',
-                width: 120,
-                height: 120,
-                semanticLabel: 'YurttaYe Logosu',
-              ),
-              const SizedBox(height: Constants.space4),
-              Text(
+              Image.asset('assets/images/logo.png', width: 80, height: 80),
+              const SizedBox(height: 20),
+              const Text(
                 'YurttaYe',
                 style: TextStyle(
-                  fontSize: Constants.text2xl,
-                  fontWeight: FontWeight.w700,
-                  color: Constants.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-              const SizedBox(height: Constants.space2),
-              Text(
-                'KYK Yurt Menüleri',
-                style: TextStyle(
-                  fontSize: Constants.textBase,
-                  color: Constants.gray100,
-                ),
+              const SizedBox(height: 10),
+              const Text(
+                'Yurt Yemekleri Uygulaması',
+                style: TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+              const SizedBox(height: 30),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
               ),
             ],
           ),
