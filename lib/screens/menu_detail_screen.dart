@@ -4,8 +4,8 @@ import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
-import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:intl/intl.dart';
+import 'package:yurttaye_mobile/widgets/meal_card.dart';
 
 class MenuDetailScreen extends StatefulWidget {
   final int menuId;
@@ -39,24 +39,50 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         body: Center(
           child: Text(
             'Menü bulunamadı',
-            style: Theme.of(context).textTheme.bodyLarge, // Use Theme.of(context)
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ),
       );
     }
+
+    // Find menu for the selected meal type and same date
+    final selectedDate = AppConfig.apiDateFormat.format(menu.date);
+    final filteredMenu = provider.menus.firstWhere(
+          (m) =>
+      m.mealType == _selectedMealType &&
+          AppConfig.apiDateFormat.format(m.date) == selectedDate,
+      orElse: () => Menu(
+        id: 0,
+        cityId: 0,
+        mealType: _selectedMealType,
+        date: menu.date,
+        energy: '',
+        items: [],
+      ),
+    );
 
     return Scaffold(
       appBar: AppBar(title: const Text('Yemek Detayı')),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeader(menu),
+            _buildHeader(filteredMenu.id != 0 ? filteredMenu : menu),
             _buildMealTypeToggle(),
-            Padding(
+            filteredMenu.id != 0
+                ? Padding(
               padding: const EdgeInsets.all(16.0),
-              child: MealCard(menu: menu, isDetailed: true, onTap: null),
+              child: AbsorbPointer(
+                child: MealCard(menu: filteredMenu, isDetailed: true, onTap: null),
+              ),
+            )
+                : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Seçilen öğün türü için menü bulunamadı',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
             ),
-            _buildNutritionInfo(menu),
+            _buildNutritionInfo(filteredMenu.id != 0 ? filteredMenu : menu),
           ],
         ),
       ),
@@ -66,7 +92,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   Widget _buildHeader(Menu menu) {
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: AppTheme.gradientDecoration(context), // Pass context
+      decoration: AppTheme.gradientDecoration(context),
       child: Row(
         children: [
           const Icon(Icons.calendar_today, color: Colors.white, size: 32),
@@ -77,11 +103,11 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               children: [
                 Text(
                   DateFormat('dd MMMM yyyy').format(menu.date),
-                  style: AppTheme.mealTitleStyle(context), // Pass context
+                  style: AppTheme.mealTitleStyle(context),
                 ),
                 Text(
                   '${menu.items.length} çeşit yemek (${menu.mealType})',
-                  style: AppTheme.mealSubtitleStyle(context), // Pass context
+                  style: AppTheme.mealSubtitleStyle(context),
                 ),
               ],
             ),
@@ -118,12 +144,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             children: [
               Text(
                 'Besin Değerleri',
-                style: Theme.of(context).textTheme.displaySmall, // Use Theme.of(context)
+                style: Theme.of(context).textTheme.displaySmall,
               ),
               const SizedBox(height: 8),
               Text(
                 menu.energy.isEmpty ? 'Bilgi yok' : menu.energy,
-                style: Theme.of(context).textTheme.bodyLarge, // Use Theme.of(context)
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
             ],
           ),
