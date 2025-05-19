@@ -112,6 +112,24 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           },
                         );
                       }
+                      if (provider.menus.isEmpty) {
+                        return Card(
+                          elevation: 1,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(Constants.space4),
+                            child: Text(
+                              'Menü bulunamadı.',
+                              style: TextStyle(
+                                fontSize: Constants.textBase,
+                                color: Constants.gray600,
+                              ),
+                            ),
+                          ),
+                        );
+                      }
                       return MenuList(
                         todayMenu: provider.todayMenu,
                         menus: provider.menus,

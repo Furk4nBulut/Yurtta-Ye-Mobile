@@ -17,7 +17,6 @@ class TodayMenuCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: Constants.gray50,
       child: InkWell(
         onTap: () => context.go('/menu/${menu.id}'),
         borderRadius: BorderRadius.circular(12),
@@ -31,35 +30,28 @@ class TodayMenuCard extends StatelessWidget {
                 children: [
                   Text(
                     'Günün Menüsü: ${AppConfig.mealTypes[menu.mealType] ?? menu.mealType}',
-                    style: TextStyle(
-                      fontSize: Constants.textXl,
-                      fontWeight: FontWeight.w700,
-                      color: Constants.kykBlue600,
+                    style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                   Icon(
                     Icons.arrow_forward_ios,
-                    color: Constants.kykBlue600,
+                    color: Theme.of(context).colorScheme.primary,
                     size: 20,
+                    semanticLabel: 'Menü Detayları',
                   ),
                 ],
               ),
               const SizedBox(height: Constants.space2),
               Text(
                 AppConfig.displayDateFormat.format(menu.date),
-                style: TextStyle(
-                  fontSize: Constants.textSm,
-                  color: Constants.gray600,
-                ),
+                style: Theme.of(context).textTheme.bodySmall,
               ),
               const SizedBox(height: Constants.space3),
               Text(
                 'Yemekler',
-                style: TextStyle(
-                  fontSize: Constants.textBase,
-                  fontWeight: FontWeight.w600,
-                  color: Constants.gray800,
-                ),
+                style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: Constants.space2),
               ...menu.items.map((item) => MenuItemCard(item: item)).toList(),

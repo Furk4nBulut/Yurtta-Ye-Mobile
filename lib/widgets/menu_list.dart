@@ -43,7 +43,7 @@ class MenuList extends StatelessWidget {
           ),
           const SizedBox(height: Constants.space4),
         ],
-        if (menus.isNotEmpty)
+        if (menus.isNotEmpty) ...[
           Text(
             'Diğer Menüler',
             style: TextStyle(
@@ -52,22 +52,32 @@ class MenuList extends StatelessWidget {
               color: Constants.gray800,
             ),
           ),
-        const SizedBox(height: Constants.space2),
-        FadeTransition(
-          opacity: fadeAnimation,
-          child: ListView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: menus.length,
-            itemBuilder: (context, index) {
-              final menu = menus[index];
-              if (todayMenu != null && menu.id == todayMenu!.id) {
-                return const SizedBox.shrink();
-              }
-              return MenuCard(menu: menu);
-            },
+          const SizedBox(height: Constants.space2),
+          FadeTransition(
+            opacity: fadeAnimation,
+            child: SizedBox(
+              height: 120,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                itemCount: menus.length,
+                itemBuilder: (context, index) {
+                  final menu = menus[index];
+                  if (todayMenu != null && menu.id == todayMenu!.id) {
+                    return const SizedBox.shrink();
+                  }
+                  return Padding(
+                    padding: const EdgeInsets.only(right: Constants.space3),
+                    child: SizedBox(
+                      width: 250,
+                      child: MenuCard(menu: menu),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-        ),
+        ],
       ],
     );
   }
