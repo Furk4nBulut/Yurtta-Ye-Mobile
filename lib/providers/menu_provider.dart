@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ class MenuProvider with ChangeNotifier {
 
   List<City> get cities => _cities;
   List<Menu> get menus => _menus;
-  List<Menu> get allMenus => _allMenus; // Getter for unfiltered menus
+  List<Menu> get allMenus => _allMenus;
   int? get selectedCityId => _selectedCityId;
   String? get selectedMealType => _selectedMealType;
   String? get selectedDate => _selectedDate;
@@ -71,7 +72,7 @@ class MenuProvider with ChangeNotifier {
       if (reset) {
         _page = 1;
         _menus = [];
-        _allMenus = []; // Reset unfiltered list
+        _allMenus = [];
         _hasMore = true;
       }
       _error = null;
@@ -84,18 +85,16 @@ class MenuProvider with ChangeNotifier {
         date: _selectedDate,
         page: _page,
         pageSize: _pageSize,
-      );
+      ).timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException('Filtered menus API request timed out'));
       print('Menus fetched (page $_page): ${newMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
 
-      // Fetch unfiltered menus for HomeScreen if reset
-      if (reset) {
-        final allNewMenus = await _apiService.getMenus(
-          page: _page,
-          pageSize: _pageSize,
-        );
-        _allMenus = [..._allMenus, ...allNewMenus];
-        print('Unfiltered menus fetched (page $_page): ${_allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
-      }
+      // Fetch unfiltered menus
+      final allNewMenus = await _apiService.getMenus(
+        page: _page,
+        pageSize: _pageSize * 2, // Larger page size for unfiltered to ensure enough upcoming meals
+      ).timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException('Unfiltered menus API request timed out'));
+      _allMenus = [..._allMenus, ...allNewMenus];
+      print('Unfiltered menus fetched (page $_page, total: ${_allMenus.length}): ${_allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
 
       if (newMenus.isEmpty || newMenus.length < _pageSize) {
         _hasMore = false;
@@ -106,10 +105,12 @@ class MenuProvider with ChangeNotifier {
     } catch (e) {
       print('Server-side pagination failed: $e');
       try {
-        final allMenus = await _apiService.getMenus();
+        final allMenus = await _apiService.getMenus().timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException('All menus API request timed out'));
         print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
         if (reset) {
-          _allMenus = allMenus; // Store unfiltered menus
+          _allMenus = allMenus; // Replace for reset
+        } else {
+          _allMenus = [..._allMenus, ...allMenus]; // Append for pagination
         }
         final filteredMenus = allMenus.where((menu) {
           bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
@@ -131,8 +132,8 @@ class MenuProvider with ChangeNotifier {
         print('Filtered menus (page $_page): ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
       } catch (e) {
         _error = e.toString();
-        _menus = [];
-        _allMenus = []; // Clear unfiltered list on error
+        _menus = []; // Clear filtered menus
+        // Retain _allMenus to avoid losing data
         _hasMore = false;
         print('Error fetching menus: $e');
       }

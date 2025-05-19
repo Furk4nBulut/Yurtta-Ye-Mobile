@@ -25,7 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // Defer fetchMenus to avoid calling notifyListeners during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<MenuProvider>(context, listen: false).fetchMenus();
+      final provider = Provider.of<MenuProvider>(context, listen: false);
+      provider.fetchMenus(reset: true);
+      print('Initiating fetchMenus from HomeScreen initState');
     });
   }
 
@@ -44,22 +46,41 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: provider.isLoading
+      body: provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
           ? const ShimmerLoading()
           : provider.error != null
           ? AppErrorWidget(
         error: provider.error!,
-        onRetry: provider.fetchMenus,
+        onRetry: () {
+          provider.fetchMenus(reset: true);
+          print('Retrying fetchMenus from HomeScreen error widget');
+        },
       )
-          : provider.menus.isEmpty
+          : provider.menus.isEmpty && provider.allMenus.isEmpty
           ? Center(
-        child: Text(
-          'Hiçbir menü bulunamadı',
-          style: AppTheme.theme.textTheme.bodyLarge,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Hiçbir menü bulunamadı',
+              style: AppTheme.theme.textTheme.bodyLarge,
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                Provider.of<MenuProvider>(context, listen: false).fetchMenus(reset: true);
+                print('Retry button pressed in HomeScreen');
+              },
+              child: const Text('Tekrar Dene'),
+            ),
+          ],
         ),
       )
           : RefreshIndicator(
-        onRefresh: provider.fetchMenus,
+        onRefresh: () async {
+          await provider.fetchMenus(reset: true);
+          print('RefreshIndicator triggered in HomeScreen');
+        },
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           child: Column(
@@ -162,16 +183,17 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUpcomingMeals(MenuProvider provider) {
-    final upcomingMenus = provider.menus
-        .where((menu) => menu.date.isAfter(DateTime.now()))
-        .take(5)
+    final upcomingMenus = provider.allMenus
+        .where((menu) =>
+    menu.date.isAfter(DateTime.now()) && menu.mealType == _selectedMealType)
+        .take(7) // Show exactly 7 meals
         .toList();
 
     if (upcomingMenus.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(16.0),
         child: Text(
-          'Gelecek yemekler bulunamadı',
+          'Gelecek $_selectedMealType bulunamadı',
           style: AppTheme.theme.textTheme.bodyLarge,
         ),
       );
@@ -183,7 +205,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Gelecek Yemekler',
+            'Gelecek Yemekler ($_selectedMealType)',
             style: AppTheme.theme.textTheme.displayMedium,
           ),
           const SizedBox(height: 8),
