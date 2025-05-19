@@ -4,8 +4,8 @@ import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
+import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/category_section.dart';
-
 
 class MealCard extends StatelessWidget {
   final Menu menu;
@@ -18,6 +18,18 @@ class MealCard extends StatelessWidget {
     this.isDetailed = false,
     this.onTap,
   }) : super(key: key);
+
+  // Map meal types to icons
+  IconData _getMealTypeIcon(String mealType) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return Icons.breakfast_dining;
+      case 'Akşam Yemeği':
+        return Icons.dinner_dining;
+      default:
+        return Icons.restaurant_menu;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,56 +44,99 @@ class MealCard extends StatelessWidget {
 
     return Card(
       child: InkWell(
-        onTap: onTap ?? () => context.pushNamed('menu_detail', pathParameters: {'id': menu.id.toString()}),
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
+        onTap: onTap ??
+                () => context.pushNamed(
+              'menu_detail',
+              pathParameters: {'id': menu.id.toString()},
+            ),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Constants.gray200, width: 1),
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Icon(
-                    menu.mealType == 'Kahvaltı' ? Icons.wb_sunny : Icons.nightlight_round,
-                    color: Colors.deepOrange,
-                    size: 24,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      isDetailed ? menu.mealType : 'Bugünün Yemeği (${menu.mealType})',
-                      style: AppTheme.theme.textTheme.displaySmall,
+              // Header with gradient and icon
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(Constants.space4),
+                decoration: AppTheme.gradientDecoration,
+                child: Row(
+                  children: [
+                    Icon(
+                      _getMealTypeIcon(menu.mealType),
+                      color: Constants.white,
+                      size: Constants.textXl,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: Constants.space2),
+                    Expanded(
+                      child: Text(
+                        isDetailed
+                            ? menu.mealType
+                            : 'Bugünün ${menu.mealType}',
+                        style: AppTheme.mealTitleStyle,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 8),
-              Text(
-                DateFormat('dd MMMM yyyy').format(menu.date),
-                style: AppTheme.theme.textTheme.bodySmall,
-              ),
-              const SizedBox(height: 16),
-              if (menu.items.isEmpty)
-                Text(
-                  'Bu öğün için yemek bulunamadı',
-                  style: AppTheme.theme.textTheme.bodyMedium,
-                )
-              else
-                ...categories.entries.map((entry) => CategorySection(
-                  category: entry.key,
-                  items: entry.value,
-                  isExpanded: isDetailed,
-                )),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  const Icon(Icons.local_fire_department, size: 16, color: Colors.deepOrange),
-                  const SizedBox(width: 4),
-                  Text(
-                    menu.energy.isEmpty ? 'Bilgi yok' : menu.energy,
-                    style: AppTheme.theme.textTheme.bodyMedium,
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(Constants.space4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('dd MMMM yyyy').format(menu.date),
+                      style: AppTheme.theme.textTheme.bodySmall?.copyWith(
+                        color: Constants.gray600,
+                      ),
+                    ),
+                    const SizedBox(height: Constants.space3),
+                    if (menu.items.isEmpty)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: Constants.textBase,
+                            color: Constants.gray600,
+                          ),
+                          const SizedBox(width: Constants.space2),
+                          Text(
+                            'Bu öğün için yemek bulunamadı',
+                            style: AppTheme.theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      )
+                    else
+                      ...categories.entries.map(
+                            (entry) => CategorySection(
+                          category: entry.key,
+                          items: entry.value,
+                          isExpanded: isDetailed,
+                        ),
+                      ),
+                    const SizedBox(height: Constants.space3),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.local_fire_department,
+                          size: Constants.textBase,
+                          color: Constants.kykYellow400,
+                        ),
+                        const SizedBox(width: Constants.space2),
+                        Text(
+                          menu.energy.isEmpty ? 'Kalori bilgisi yok' : menu.energy,
+                          style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                            color: Constants.gray800,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

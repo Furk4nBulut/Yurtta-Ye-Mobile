@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
@@ -27,7 +28,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 10),
+      duration: const Duration(milliseconds: 500),
     );
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.2),
@@ -35,16 +36,14 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
 
-    // Delay initial fetch to prioritize UI
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<MenuProvider>(context, listen: false);
       provider.fetchCities();
-      await Future.delayed(const Duration(milliseconds: 10));
+      await Future.delayed(const Duration(milliseconds: 500));
       provider.fetchMenus(reset: true);
       setState(() => _isInitialLoad = false);
     });
 
-    // Infinite scrolling
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
           !Provider.of<MenuProvider>(context, listen: false).isLoading &&
@@ -68,7 +67,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Filtrele'),
+        title: const Text('Yemek Filtrele'),
         actions: [
           TextButton(
             onPressed: () {
@@ -79,7 +78,13 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               );
               print('Filters cleared: cityId=${provider.selectedCityId}, mealType=${provider.selectedMealType}, date=${provider.selectedDate}');
             },
-            child: const Text('Sıfırla', style: TextStyle(color: Colors.white)),
+            child: Text(
+              'Sıfırla',
+              style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                color: Constants.white,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ),
         ],
       ),
@@ -89,51 +94,61 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             ? const ShimmerLoading()
             : SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(Constants.space4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // City Filter
+                // City Filter (Chips with Icons)
                 Text(
-                  'Şehir',
+                  'Şehir Seç',
                   style: AppTheme.theme.textTheme.displaySmall,
                 ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<int>(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    filled: true,
-                    fillColor: Colors.grey[200],
-                  ),
-                  value: provider.selectedCityId,
-                  hint: const Text('Bir şehir seçin'),
-                  isExpanded: true,
-                  items: provider.cities.map((city) {
-                    return DropdownMenuItem<int>(
-                      value: city.id,
-                      child: Text(city.name),
+                const SizedBox(height: Constants.space3),
+                provider.cities.isEmpty
+                    ? Text(
+                  'Şehirler yükleniyor...',
+                  style: AppTheme.theme.textTheme.bodyMedium,
+                )
+                    : Wrap(
+                  spacing: Constants.space2,
+                  runSpacing: Constants.space2,
+                  children: provider.cities.map((city) {
+                    final isSelected = provider.selectedCityId == city.id;
+                    return ChoiceChip(
+                      label: Text(city.name),
+                      avatar: Icon(
+                        Icons.location_city,
+                        size: Constants.textSm,
+                        color: isSelected ? Constants.gray800 : Constants.gray600,
+                      ),
+                      selected: isSelected,
+                      onSelected: (selected) {
+                        provider.setSelectedCity(selected ? city.id : null);
+                        print('Selected cityId: ${selected ? city.id : null}');
+                      },
                     );
                   }).toList(),
-                  onChanged: (value) {
-                    provider.setSelectedCity(value);
-                    print('Selected cityId: $value');
-                  },
                 ),
-                const SizedBox(height: 16),
-                // Meal Type Filter
+                const SizedBox(height: Constants.space6),
+                // Meal Type Filter (Chips with Icons)
                 Text(
                   'Öğün Tipi',
                   style: AppTheme.theme.textTheme.displaySmall,
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: Constants.space3),
                 Wrap(
-                  spacing: 8,
+                  spacing: Constants.space2,
+                  runSpacing: Constants.space2,
                   children: AppConfig.mealTypes.map((mealType) {
+                    final isSelected = provider.selectedMealType == mealType;
                     return ChoiceChip(
                       label: Text(mealType),
-                      selected: provider.selectedMealType == mealType,
+                      avatar: Icon(
+                        mealType == 'Kahvaltı' ? Icons.breakfast_dining : Icons.dinner_dining,
+                        size: Constants.textSm,
+                        color: isSelected ? Constants.gray800 : Constants.gray600,
+                      ),
+                      selected: isSelected,
                       onSelected: (selected) {
                         provider.setSelectedMealType(selected ? mealType : null);
                         print('Selected mealType: ${selected ? mealType : null}');
@@ -141,15 +156,15 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 16),
-                // Date Filter
+                const SizedBox(height: Constants.space6),
+                // Date Filter (Button with Calendar Icon)
                 Text(
-                  'Tarih',
+                  'Tarih Seç',
                   style: AppTheme.theme.textTheme.displaySmall,
                 ),
-                const SizedBox(height: 8),
-                InkWell(
-                  onTap: () async {
+                const SizedBox(height: Constants.space3),
+                OutlinedButton.icon(
+                  onPressed: () async {
                     final picked = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
@@ -163,30 +178,37 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       print('Selected date: $formattedDate');
                     }
                   },
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      suffixIcon: const Icon(Icons.calendar_today),
+                  icon: Icon(
+                    Icons.calendar_today,
+                    size: Constants.textBase,
+                    color: Constants.kykBlue600,
+                  ),
+                  label: Text(
+                    _selectedDate == null
+                        ? 'Tarih seçin'
+                        : AppConfig.displayDateFormat.format(_selectedDate!),
+                    style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                      color: Constants.gray800,
                     ),
-                    child: Text(
-                      _selectedDate == null
-                          ? 'Tarih seçin'
-                          : AppConfig.displayDateFormat.format(_selectedDate!),
-                      style: AppTheme.theme.textTheme.bodyMedium,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: Constants.gray200),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: Constants.space4,
+                      vertical: Constants.space3,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: Constants.space8),
                 // Results Section
                 Text(
                   'Filtrelenmiş Menüler',
                   style: AppTheme.theme.textTheme.displayMedium,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: Constants.space4),
                 provider.isLoading && provider.menus.isEmpty
                     ? const ShimmerLoading()
                     : provider.error != null
@@ -197,10 +219,12 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     : provider.menus.isEmpty
                     ? Center(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    padding: const EdgeInsets.symmetric(vertical: Constants.space4),
                     child: Text(
                       'Seçilen filtrelerle menü bulunamadı.',
-                      style: AppTheme.theme.textTheme.bodyMedium?.copyWith(color: Colors.red),
+                      style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                        color: Constants.kykBlue600,
+                      ),
                     ),
                   ),
                 )
@@ -213,14 +237,14 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     if (index == provider.menus.length && provider.hasMore) {
                       return const Center(
                         child: Padding(
-                          padding: EdgeInsets.all(16.0),
+                          padding: EdgeInsets.all(Constants.space4),
                           child: CircularProgressIndicator(),
                         ),
                       );
                     }
                     final menu = provider.menus[index];
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 16.0),
+                      padding: const EdgeInsets.only(bottom: Constants.space4),
                       child: MealCard(
                         menu: menu,
                         isDetailed: false,
