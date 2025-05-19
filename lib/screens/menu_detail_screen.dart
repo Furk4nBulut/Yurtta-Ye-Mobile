@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/utils/config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/menu_item_card.dart';
 
@@ -33,7 +33,7 @@ class MenuDetailScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${menu.mealType == 'Breakfast' ? 'Sabah' : 'Akşam'} - ${DateFormat('dd.MM.yyyy').format(menu.date)}',
+                  '${AppConfig.mealTypes[menu.mealType] ?? menu.mealType} - ${AppConfig.displayDateFormat.format(menu.date)}',
                   style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),

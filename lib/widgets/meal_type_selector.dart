@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/utils/config.dart';
 
 class MealTypeSelector extends StatelessWidget {
   const MealTypeSelector({super.key});
@@ -12,10 +13,14 @@ class MealTypeSelector extends StatelessWidget {
         return DropdownButton<String>(
           hint: const Text('Öğün Seç'),
           value: provider.selectedMealType,
-          items: const [
-            DropdownMenuItem(value: null, child: Text('Tüm Öğünler')),
-            DropdownMenuItem(value: 'Breakfast', child: Text('Sabah')),
-            DropdownMenuItem(value: 'Dinner', child: Text('Akşam')),
+          items: [
+            DropdownMenuItem(value: null, child: Text(AppConfig.allMealTypesLabel)),
+            ...AppConfig.mealTypes.entries.map(
+                  (entry) => DropdownMenuItem(
+                value: entry.key,
+                child: Text(entry.value),
+              ),
+            ),
           ],
           onChanged: (String? newValue) {
             provider.setSelectedMealType(newValue);

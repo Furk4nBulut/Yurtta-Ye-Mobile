@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/utils/config.dart';
 
 class DatePicker extends StatelessWidget {
   const DatePicker({super.key});
@@ -19,13 +19,13 @@ class DatePicker extends StatelessWidget {
               lastDate: DateTime(2030),
             );
             if (picked != null) {
-              provider.setSelectedDate(DateFormat('yyyy-MM-dd').format(picked));
+              provider.setSelectedDate(AppConfig.apiDateFormat.format(picked));
             }
           },
           child: Text(
             provider.selectedDate == null
                 ? 'Tarih Seç'
-                : DateFormat('dd.MM.yyyy').format(DateTime.parse(provider.selectedDate!)),
+                : AppConfig.displayDateFormat.format(DateTime.parse(provider.selectedDate!)),
           ),
         );
       },
