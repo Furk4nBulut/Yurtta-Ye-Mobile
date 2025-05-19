@@ -14,39 +14,88 @@ class MenuDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menü Detayları'),
-        backgroundColor: Constants.primaryColor,
-      ),
       body: Consumer<MenuProvider>(
         builder: (context, provider, child) {
           final menu = provider.menus.firstWhere(
                 (m) => m.id == menuId,
-            orElse: () => Menu(id: 0, cityId: 0, mealType: '', date: DateTime.now(), energy: '', items: []),
+            orElse: () => Menu(
+              id: 0,
+              cityId: 0,
+              mealType: '',
+              date: DateTime.now(),
+              energy: '',
+              items: [],
+            ),
           );
           if (menu.id == 0) {
-            return const Center(child: Text('Menü bulunamadı.'));
-          }
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${AppConfig.mealTypes[menu.mealType] ?? menu.mealType} - ${AppConfig.displayDateFormat.format(menu.date)}',
-                  style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            return Center(
+              child: Text(
+                'Menü bulunamadı.',
+                style: TextStyle(
+                  fontSize: Constants.textBase,
+                  color: Constants.gray700,
                 ),
-                const SizedBox(height: 8),
-                Text('Enerji: ${menu.energy}', style: const TextStyle(fontSize: 16)),
-                const SizedBox(height: 16),
-                const Text('Yemekler', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                Expanded(
-                  child: ListView(
-                    children: menu.items.map((item) => MenuItemCard(item: item)).toList(),
+              ),
+            );
+          }
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                backgroundColor: Constants.blue500,
+                foregroundColor: Constants.white,
+                pinned: true,
+                expandedHeight: 200,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: Text(
+                    AppConfig.mealTypes[menu.mealType] ?? menu.mealType,
+                    style: TextStyle(
+                      fontSize: Constants.textXl,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  background: Container(
+                    color: Constants.blue500,
+                    child: Center(
+                      child: Text(
+                        AppConfig.displayDateFormat.format(menu.date),
+                        style: TextStyle(
+                          fontSize: Constants.textLg,
+                          color: Constants.gray200,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.all(Constants.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Enerji: ${menu.energy}',
+                        style: TextStyle(
+                          fontSize: Constants.textBase,
+                          color: Constants.gray700,
+                        ),
+                      ),
+                      const SizedBox(height: Constants.space4),
+                      Text(
+                        'Yemekler',
+                        style: TextStyle(
+                          fontSize: Constants.textXl,
+                          fontWeight: FontWeight.w600,
+                          color: Constants.gray900,
+                        ),
+                      ),
+                      const SizedBox(height: Constants.space2),
+                      ...menu.items.map((item) => MenuItemCard(item: item)),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           );
         },
       ),

@@ -12,15 +12,43 @@ class MenuCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      elevation: 2,
-      child: ListTile(
-        title: Text(
-          '${AppConfig.mealTypes[menu.mealType] ?? menu.mealType} - ${AppConfig.displayDateFormat.format(menu.date)}',
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Text('Enerji: ${menu.energy}'),
-        trailing: Icon(Icons.arrow_forward, color: Constants.primaryColor),
+      child: InkWell(
         onTap: () => context.go('/menu/${menu.id}'),
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.all(Constants.space4),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${AppConfig.mealTypes[menu.mealType] ?? menu.mealType}',
+                    style: TextStyle(
+                      fontSize: Constants.textLg,
+                      fontWeight: FontWeight.w600,
+                      color: Constants.gray900,
+                    ),
+                  ),
+                  const SizedBox(height: Constants.space1),
+                  Text(
+                    AppConfig.displayDateFormat.format(menu.date),
+                    style: TextStyle(
+                      fontSize: Constants.textSm,
+                      color: Constants.gray700,
+                    ),
+                  ),
+                ],
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: Constants.blue500,
+                size: 20,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

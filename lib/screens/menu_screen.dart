@@ -15,7 +15,7 @@ class MenuScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menü Detayları'),
-        backgroundColor: Constants.primaryColor,
+        backgroundColor: Constants.amber400,
       ),
       body: Consumer<MenuProvider>(
         builder: (context, provider, child) {

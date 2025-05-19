@@ -7,85 +7,149 @@ import 'package:yurttaye_mobile/widgets/date_picker.dart';
 import 'package:yurttaye_mobile/widgets/meal_type_selector.dart';
 import 'package:yurttaye_mobile/widgets/menu_card.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final menuProvider = Provider.of<MenuProvider>(context, listen: false);
+  State<HomeScreen> createState() => _HomeScreenState();
+}
 
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    final menuProvider = Provider.of<MenuProvider>(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       menuProvider.fetchCities();
       menuProvider.fetchMenus();
+      _controller.forward();
     });
+  }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('YurttaYe Menü'),
-        backgroundColor: Constants.primaryColor,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => menuProvider.clearFilters(),
+            onPressed: () {
+              Provider.of<MenuProvider>(context, listen: false).clearFilters();
+            },
             tooltip: 'Filtreleri Temizle',
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Menü Sorgula',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            const CityDropdown(),
-            const SizedBox(height: 8),
-            const MealTypeSelector(),
-            const SizedBox(height: 8),
-            const DatePicker(),
-            const SizedBox(height: 16),
-            Expanded(
-              child: Consumer<MenuProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-                  if (provider.error != null) {
-                    return Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            provider.error!.contains('Connection refused')
-                                ? 'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı ve sunucu adresini kontrol edin.'
-                                : 'Hata: ${provider.error}',
-                            textAlign: TextAlign.center,
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final provider = Provider.of<MenuProvider>(context, listen: false);
+          await provider.fetchMenus();
+          _controller.reset();
+          _controller.forward();
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: const EdgeInsets.all(Constants.space4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Menü Sorgula',
+                  style: TextStyle(
+                    fontSize: Constants.text2xl,
+                    fontWeight: FontWeight.w700,
+                    color: Constants.gray900,
+                  ),
+                ),
+                const SizedBox(height: Constants.space4),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Constants.space4),
+                    child: Column(
+                      children: [
+                        const CityDropdown(),
+                        const SizedBox(height: Constants.space3),
+                        const MealTypeSelector(),
+                        const SizedBox(height: Constants.space3),
+                        const DatePicker(),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: Constants.space4),
+                Consumer<MenuProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (provider.error != null) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              provider.error!.contains('Connection refused')
+                                  ? 'Sunucuya bağlanılamadı.'
+                                  : 'Hata: ${provider.error}',
+                              style: TextStyle(
+                                fontSize: Constants.textBase,
+                                color: Constants.gray700,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: Constants.space3),
+                            ElevatedButton(
+                              onPressed: () => provider.fetchMenus(),
+                              child: const Text('Tekrar Dene'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    if (provider.menus.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'Menü bulunamadı.',
+                          style: TextStyle(
+                            fontSize: Constants.textBase,
+                            color: Constants.gray700,
                           ),
-                          const SizedBox(height: 8),
-                          ElevatedButton(
-                            onPressed: () => provider.fetchMenus(),
-                            child: const Text('Tekrar Dene'),
-                          ),
-                        ],
+                        ),
+                      );
+                    }
+                    return FadeTransition(
+                      opacity: _fadeAnimation,
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: provider.menus.length,
+                        itemBuilder: (context, index) {
+                          return MenuCard(menu: provider.menus[index]);
+                        },
                       ),
                     );
-                  }
-                  if (provider.menus.isEmpty) {
-                    return const Center(child: Text('Menü bulunamadı.'));
-                  }
-                  return ListView.builder(
-                    itemCount: provider.menus.length,
-                    itemBuilder: (context, index) {
-                      return MenuCard(menu: provider.menus[index]);
-                    },
-                  );
-                },
-              ),
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

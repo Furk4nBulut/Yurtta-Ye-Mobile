@@ -5,11 +5,11 @@ import 'package:yurttaye_mobile/routes/app_routes.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const YurttaYeApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class YurttaYeApp extends StatelessWidget {
+  const YurttaYeApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => MenuProvider()),
       ],
       child: MaterialApp.router(
-        title: 'YurttaYe Menü',
+        title: 'YurttaYe',
         theme: AppTheme.theme,
         routerConfig: router,
         debugShowCheckedModeBanner: false,
