@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
@@ -18,12 +20,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _selectedMealType = AppConfig.mealTypes[0]; // Default to 'Kahvaltı'
+  int _selectedMealIndex = 0; // 0: Kahvaltı, 1: Akşam Yemeği
 
   @override
   void initState() {
     super.initState();
-    // Defer fetchMenus to avoid calling notifyListeners during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MenuProvider>(context, listen: false);
       provider.fetchMenus(reset: true);
@@ -34,15 +35,29 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('YurttaYe'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.filter_alt),
-            onPressed: () => context.pushNamed('filter'),
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
+              color: Constants.white,
+            ),
+            tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+            onPressed: () {
+              themeProvider.toggleTheme();
+              print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.filter_list),
             tooltip: 'Filtrele',
+            onPressed: () => context.pushNamed('filter'),
           ),
         ],
       ),
@@ -61,17 +76,24 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Icon(
+              Icons.restaurant_menu,
+              size: Constants.text2xl * 2,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            const SizedBox(height: Constants.space4),
             Text(
               'Hiçbir menü bulunamadı',
-              style: AppTheme.theme.textTheme.bodyLarge,
+              style: Theme.of(context).textTheme.displayMedium,
             ),
-            const SizedBox(height: 16),
-            ElevatedButton(
+            const SizedBox(height: Constants.space3),
+            OutlinedButton.icon(
               onPressed: () {
                 Provider.of<MenuProvider>(context, listen: false).fetchMenus(reset: true);
                 print('Retry button pressed in HomeScreen');
               },
-              child: const Text('Tekrar Dene'),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Tekrar Dene'),
             ),
           ],
         ),
@@ -86,22 +108,38 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildTodayMealCard(provider),
-              _buildMealTypeToggle(),
-              _buildUpcomingMeals(provider),
+              _buildTodayMealCard(provider, selectedMealType),
+              _buildUpcomingMeals(provider, selectedMealType, screenWidth),
             ],
           ),
         ),
       ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedMealIndex,
+        onTap: (index) {
+          setState(() => _selectedMealIndex = index);
+          print('Selected meal type: ${AppConfig.mealTypes[index]}');
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.breakfast_dining),
+            label: 'Kahvaltı',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.dinner_dining),
+            label: 'Akşam Yemeği',
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _buildTodayMealCard(MenuProvider provider) {
+  Widget _buildTodayMealCard(MenuProvider provider, String selectedMealType) {
     final today = AppConfig.apiDateFormat.format(DateTime.now());
     final menu = provider.menus.firstWhere(
           (menu) =>
       AppConfig.apiDateFormat.format(menu.date) == today &&
-          menu.mealType == _selectedMealType,
+          menu.mealType == selectedMealType,
       orElse: () => provider.menus.firstWhere(
             (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
         orElse: () => provider.menus.isNotEmpty
@@ -119,15 +157,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (menu.id == 0) {
       return Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: Constants.space4,
+          vertical: Constants.space2,
+        ),
         child: Card(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Center(
-              child: Text(
-                'Bugünkü menü bulunamadı',
-                style: AppTheme.theme.textTheme.bodyLarge,
-              ),
+            padding: const EdgeInsets.all(Constants.space3),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.info_outline,
+                  size: Constants.textBase,
+                  color: Theme.of(context).iconTheme.color,
+                ),
+                const SizedBox(width: Constants.space2),
+                Text(
+                  'Bugünkü menü bulunamadı',
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
             ),
           ),
         ),
@@ -135,109 +184,87 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Constants.space4,
+        vertical: Constants.space2,
+      ),
       child: MealCard(menu: menu),
     );
   }
 
-  Widget _buildMealTypeToggle() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: AppConfig.mealTypes.map((mealType) {
-          return _buildMealTypeButton(mealType);
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildMealTypeButton(String mealType) {
-    final isSelected = _selectedMealType == mealType;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected ? Colors.deepOrange : Colors.grey[200],
-            foregroundColor: isSelected ? Colors.white : Colors.black,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            elevation: isSelected ? 2 : 0,
-          ),
-          onPressed: () => setState(() => _selectedMealType = mealType),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                mealType == 'Kahvaltı' ? Icons.wb_sunny : Icons.nightlight_round,
-                size: 16,
-                color: isSelected ? Colors.white : Colors.black,
-              ),
-              const SizedBox(width: 8),
-              Text(mealType),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildUpcomingMeals(MenuProvider provider) {
+  Widget _buildUpcomingMeals(MenuProvider provider, String selectedMealType, double screenWidth) {
     final upcomingMenus = provider.allMenus
         .where((menu) =>
-    menu.date.isAfter(DateTime.now()) && menu.mealType == _selectedMealType)
-        .take(7) // Show exactly 7 meals
-        .toList();
+    menu.date.isAfter(DateTime.now()) && menu.mealType == selectedMealType)
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date))
+      ..take(7);
 
     if (upcomingMenus.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Text(
-          'Gelecek $_selectedMealType bulunamadı',
-          style: AppTheme.theme.textTheme.bodyLarge,
+        padding: const EdgeInsets.symmetric(
+          horizontal: Constants.space4,
+          vertical: Constants.space2,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: Constants.textBase,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            const SizedBox(width: Constants.space2),
+            Text(
+              'Gelecek $selectedMealType bulunamadı',
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ],
         ),
       );
     }
 
+    final cardWidth = screenWidth * 0.65; // 65% of screen width, max 280
+
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(
+        horizontal: Constants.space4,
+        vertical: Constants.space2,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Gelecek Yemekler ($_selectedMealType)',
-            style: AppTheme.theme.textTheme.displayMedium,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Gelecek Yemekler ($selectedMealType)',
+                style: Theme.of(context).textTheme.displayMedium,
+              ),
+              Icon(
+                Icons.arrow_forward,
+                size: Constants.textBase,
+                color: Constants.kykBlue600,
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 150,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              itemCount: upcomingMenus.length,
-              itemBuilder: (context, index) {
-                final menu = upcomingMenus[index];
+          const SizedBox(height: Constants.space3),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: upcomingMenus.map((menu) {
                 return Container(
-                  width: 250,
-                  margin: const EdgeInsets.only(right: 16),
-                  child: Card(
-                    child: ListTile(
-                      title: Text(
-                        DateFormat('dd MMMM').format(menu.date),
-                        style: AppTheme.theme.textTheme.bodyLarge,
-                      ),
-                      subtitle: Text(
-                        '${menu.items.length} çeşit (${menu.mealType})',
-                        style: AppTheme.theme.textTheme.bodySmall,
-                      ),
-                      trailing: const Icon(Icons.chevron_right, color: Colors.deepOrange),
-                      onTap: () => context.pushNamed(
-                        'menu_detail',
-                        pathParameters: {'id': menu.id.toString()},
-                      ),
+                  width: cardWidth.clamp(200.0, 280.0), // Responsive width
+                  margin: const EdgeInsets.only(right: Constants.space3),
+                  child: MealCard(
+                    menu: menu,
+                    isDetailed: false,
+                    onTap: () => context.pushNamed(
+                      'menu_detail',
+                      pathParameters: {'id': menu.id.toString()},
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
           ),
         ],

@@ -48,7 +48,7 @@ class CategorySection extends StatelessWidget {
               const SizedBox(width: Constants.space2),
               Text(
                 category,
-                style: AppTheme.categoryTitleStyle,
+                style: AppTheme.categoryTitleStyle(context),
               ),
             ],
           ),
@@ -68,7 +68,7 @@ class CategorySection extends StatelessWidget {
                     Expanded(
                       child: Text(
                         '${item.name} (${item.gram})',
-                        style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Constants.gray800,
                         ),
                       ),
@@ -80,7 +80,7 @@ class CategorySection extends StatelessWidget {
           else
             Text(
               items.map((item) => item.name).join(', '),
-              style: AppTheme.theme.textTheme.bodySmall?.copyWith(
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Constants.gray600,
               ),
               maxLines: 2,

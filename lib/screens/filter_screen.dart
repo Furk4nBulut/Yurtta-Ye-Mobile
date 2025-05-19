@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
@@ -20,7 +21,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   DateTime? _selectedDate;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+
   final ScrollController _scrollController = ScrollController();
+
   bool _isInitialLoad = true;
 
   @override
@@ -74,13 +77,21 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               provider.clearFilters();
               setState(() => _selectedDate = null);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Filtreler sıfırlandı')),
+                SnackBar(
+                  content: Text(
+                    'Filtreler sıfırlandı',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Constants.white,
+                    ),
+                  ),
+                  backgroundColor: Constants.kykBlue600,
+                ),
               );
               print('Filters cleared: cityId=${provider.selectedCityId}, mealType=${provider.selectedMealType}, date=${provider.selectedDate}');
             },
             child: Text(
               'Sıfırla',
-              style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: Constants.white,
                 fontWeight: FontWeight.w500,
               ),
@@ -98,16 +109,25 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // City Filter (Chips with Icons)
                 Text(
                   'Şehir Seç',
-                  style: AppTheme.theme.textTheme.displaySmall,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
                 const SizedBox(height: Constants.space3),
                 provider.cities.isEmpty
-                    ? Text(
-                  'Şehirler yükleniyor...',
-                  style: AppTheme.theme.textTheme.bodyMedium,
+                    ? Row(
+                  children: [
+                    Icon(
+                      Icons.hourglass_empty,
+                      size: Constants.textBase,
+                      color: Constants.gray600,
+                    ),
+                    const SizedBox(width: Constants.space2),
+                    Text(
+                      'Şehirler yükleniyor...',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ],
                 )
                     : Wrap(
                   spacing: Constants.space2,
@@ -126,14 +146,16 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                         provider.setSelectedCity(selected ? city.id : null);
                         print('Selected cityId: ${selected ? city.id : null}');
                       },
+                      visualDensity: VisualDensity.standard,
+                      pressElevation: 4,
+                      selectedShadowColor: Constants.kykYellow400.withOpacity(0.3),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: Constants.space6),
-                // Meal Type Filter (Chips with Icons)
                 Text(
                   'Öğün Tipi',
-                  style: AppTheme.theme.textTheme.displaySmall,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
                 const SizedBox(height: Constants.space3),
                 Wrap(
@@ -153,14 +175,16 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                         provider.setSelectedMealType(selected ? mealType : null);
                         print('Selected mealType: ${selected ? mealType : null}');
                       },
+                      visualDensity: VisualDensity.standard,
+                      pressElevation: 4,
+                      selectedShadowColor: Constants.kykYellow400.withOpacity(0.3),
                     );
                   }).toList(),
                 ),
                 const SizedBox(height: Constants.space6),
-                // Date Filter (Button with Calendar Icon)
                 Text(
                   'Tarih Seç',
-                  style: AppTheme.theme.textTheme.displaySmall,
+                  style: Theme.of(context).textTheme.displaySmall,
                 ),
                 const SizedBox(height: Constants.space3),
                 OutlinedButton.icon(
@@ -170,6 +194,19 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       initialDate: DateTime.now(),
                       firstDate: DateTime.now().subtract(const Duration(days: 365)),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
+                      builder: (context, child) {
+                        return Theme(
+                          data: Theme.of(context).copyWith(
+                            colorScheme: Theme.of(context).colorScheme.copyWith(
+                              primary: Constants.kykBlue600,
+                              surface: Theme.of(context).brightness == Brightness.dark
+                                  ? Constants.gray800
+                                  : Constants.white,
+                            ),
+                          ),
+                          child: child!,
+                        );
+                      },
                     );
                     if (picked != null) {
                       setState(() => _selectedDate = picked);
@@ -187,26 +224,15 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     _selectedDate == null
                         ? 'Tarih seçin'
                         : AppConfig.displayDateFormat.format(_selectedDate!),
-                    style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Constants.gray800,
-                    ),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(color: Constants.gray200),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: Constants.space4,
-                      vertical: Constants.space3,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                 ),
                 const SizedBox(height: Constants.space8),
-                // Results Section
                 Text(
                   'Filtrelenmiş Menüler',
-                  style: AppTheme.theme.textTheme.displayMedium,
+                  style: Theme.of(context).textTheme.displayMedium,
                 ),
                 const SizedBox(height: Constants.space4),
                 provider.isLoading && provider.menus.isEmpty
@@ -220,11 +246,22 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     ? Center(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: Constants.space4),
-                    child: Text(
-                      'Seçilen filtrelerle menü bulunamadı.',
-                      style: AppTheme.theme.textTheme.bodyMedium?.copyWith(
-                        color: Constants.kykBlue600,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: Constants.textBase,
+                          color: Constants.kykBlue600,
+                        ),
+                        const SizedBox(width: Constants.space2),
+                        Text(
+                          'Seçilen filtrelerle menü bulunamadı.',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Constants.kykBlue600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 )
@@ -235,10 +272,12 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                   itemCount: provider.menus.length + (provider.hasMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == provider.menus.length && provider.hasMore) {
-                      return const Center(
+                      return Center(
                         child: Padding(
-                          padding: EdgeInsets.all(Constants.space4),
-                          child: CircularProgressIndicator(),
+                          padding: const EdgeInsets.all(Constants.space4),
+                          child: CircularProgressIndicator(
+                            color: Constants.kykBlue600,
+                          ),
                         ),
                       );
                     }
@@ -248,7 +287,10 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       child: MealCard(
                         menu: menu,
                         isDetailed: false,
-                        onTap: null,
+                        onTap: () => context.pushNamed(
+                          'menu_detail',
+                          pathParameters: {'id': menu.id.toString()},
+                        ),
                       ),
                     );
                   },
