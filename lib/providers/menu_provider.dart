@@ -10,18 +10,20 @@ import 'package:yurttaye_mobile/utils/config.dart';
 class MenuProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   List<City> _cities = [];
-  List<Menu> _menus = [];
+  List<Menu> _menus = []; // Filtered menus
+  List<Menu> _allMenus = []; // Unfiltered menus for HomeScreen
   int? _selectedCityId;
   String? _selectedMealType;
   String? _selectedDate;
   bool _isLoading = false;
   String? _error;
-  int _page = AppConfig.initialPage; // AppConfig'ten alınan başlangıç sayfası
-  final int _pageSize = AppConfig.pageSize; // Reduced for faster initial load
+  int _page = AppConfig.initialPage;
+  final int _pageSize = AppConfig.pageSize;
   bool _hasMore = true;
 
   List<City> get cities => _cities;
   List<Menu> get menus => _menus;
+  List<Menu> get allMenus => _allMenus; // Getter for unfiltered menus
   int? get selectedCityId => _selectedCityId;
   String? get selectedMealType => _selectedMealType;
   String? get selectedDate => _selectedDate;
@@ -69,11 +71,13 @@ class MenuProvider with ChangeNotifier {
       if (reset) {
         _page = 1;
         _menus = [];
+        _allMenus = []; // Reset unfiltered list
         _hasMore = true;
       }
       _error = null;
       notifyListeners();
 
+      // Fetch filtered menus
       final newMenus = await _apiService.getMenus(
         cityId: _selectedCityId,
         mealType: _selectedMealType,
@@ -82,6 +86,16 @@ class MenuProvider with ChangeNotifier {
         pageSize: _pageSize,
       );
       print('Menus fetched (page $_page): ${newMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+
+      // Fetch unfiltered menus for HomeScreen if reset
+      if (reset) {
+        final allNewMenus = await _apiService.getMenus(
+          page: _page,
+          pageSize: _pageSize,
+        );
+        _allMenus = [..._allMenus, ...allNewMenus];
+        print('Unfiltered menus fetched (page $_page): ${_allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+      }
 
       if (newMenus.isEmpty || newMenus.length < _pageSize) {
         _hasMore = false;
@@ -94,6 +108,9 @@ class MenuProvider with ChangeNotifier {
       try {
         final allMenus = await _apiService.getMenus();
         print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+        if (reset) {
+          _allMenus = allMenus; // Store unfiltered menus
+        }
         final filteredMenus = allMenus.where((menu) {
           bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
           bool matchesMealType = _selectedMealType == null || menu.mealType == _selectedMealType;
@@ -115,6 +132,7 @@ class MenuProvider with ChangeNotifier {
       } catch (e) {
         _error = e.toString();
         _menus = [];
+        _allMenus = []; // Clear unfiltered list on error
         _hasMore = false;
         print('Error fetching menus: $e');
       }

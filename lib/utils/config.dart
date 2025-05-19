@@ -16,6 +16,6 @@ class AppConfig {
   static final DateFormat displayDateFormat = DateFormat('dd.MM.yyyy');
 
   // Sayfalama ayarları
-  static const int pageSize = 2; // Sayfa başına menü
+  static const int pageSize = 5; // Sayfa başına menü
   static const int initialPage = 1;
 }

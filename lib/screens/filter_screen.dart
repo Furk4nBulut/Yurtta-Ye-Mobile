@@ -27,7 +27,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: const Duration(milliseconds: 10),
     );
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.2),
@@ -39,7 +39,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final provider = Provider.of<MenuProvider>(context, listen: false);
       provider.fetchCities();
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 10));
       provider.fetchMenus(reset: true);
       setState(() => _isInitialLoad = false);
     });
