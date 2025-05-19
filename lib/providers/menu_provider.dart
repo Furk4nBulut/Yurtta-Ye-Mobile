@@ -22,20 +22,6 @@ class MenuProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  Menu? get todayMenu {
-    if (_menus.isEmpty) return null;
-    final today = AppConfig.apiDateFormat.format(DateTime.now());
-    try {
-      return _menus.firstWhere(
-            (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
-        orElse: () => _menus.first,
-      );
-    } catch (e) {
-      print('Error finding todayMenu: $e');
-      return null;
-    }
-  }
-
   Future<void> fetchCities() async {
     try {
       _isLoading = true;
@@ -44,7 +30,7 @@ class MenuProvider with ChangeNotifier {
       _cities = await _apiService.getCities();
       print('Cities fetched: ${_cities.map((c) => {'id': c.id, 'name': c.name}).toList()}');
     } catch (e) {
-      _error = 'Şehirler yüklenemedi: $e';
+      _error = e.toString();
       print('Error fetching cities: $e');
     } finally {
       _isLoading = false;
@@ -57,15 +43,31 @@ class MenuProvider with ChangeNotifier {
       _isLoading = true;
       _error = null;
       notifyListeners();
+      // Try server-side filtering
       _menus = await _apiService.getMenus(
         cityId: _selectedCityId,
         mealType: _selectedMealType,
         date: _selectedDate,
       );
-      print('Menus fetched: ${_menus.map((m) => m.toJson()).toList()}');
+      print('Menus fetched: ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
     } catch (e) {
-      _error = 'Menüler yüklenemedi: $e';
-      print('Error fetching menus: $e');
+      print('Server-side filtering failed: $e');
+      // Fallback to client-side filtering
+      try {
+        final allMenus = await _apiService.getMenus();
+        print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+        _menus = allMenus.where((menu) {
+          bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
+          bool matchesMealType = _selectedMealType == null || menu.mealType == _selectedMealType;
+          bool matchesDate = _selectedDate == null || AppConfig.apiDateFormat.format(menu.date) == _selectedDate;
+          return matchesCity && matchesMealType && matchesDate;
+        }).toList();
+        print('Filtered menus: ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+      } catch (e) {
+        _error = e.toString();
+        _menus = [];
+        print('Error fetching menus: $e');
+      }
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -74,19 +76,23 @@ class MenuProvider with ChangeNotifier {
 
   void setSelectedCity(int? cityId) {
     _selectedCityId = cityId;
+    print('Setting cityId: $cityId');
     fetchMenus();
   }
 
   void setSelectedMealType(String? mealType) {
     if (mealType != null && !AppConfig.mealTypes.contains(mealType)) {
+      print('Invalid mealType: $mealType');
       return;
     }
     _selectedMealType = mealType;
+    print('Setting mealType: $mealType');
     fetchMenus();
   }
 
   void setSelectedDate(String? date) {
     _selectedDate = date;
+    print('Setting date: $date');
     fetchMenus();
   }
 
@@ -94,6 +100,7 @@ class MenuProvider with ChangeNotifier {
     _selectedCityId = null;
     _selectedMealType = null;
     _selectedDate = null;
+    print('Clearing filters');
     fetchMenus();
   }
 }

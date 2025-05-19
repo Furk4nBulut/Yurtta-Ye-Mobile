@@ -10,7 +10,6 @@ import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -24,7 +23,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<MenuProvider>(context, listen: false).fetchMenus();
+    // Defer fetchMenus to avoid calling notifyListeners during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<MenuProvider>(context, listen: false).fetchMenus();
+    });
   }
 
   @override
