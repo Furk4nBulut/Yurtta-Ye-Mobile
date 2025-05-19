@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/widgets/error_widget.dart';
+import 'package:yurttaye_mobile/widgets/meal_card.dart';
+import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
 import 'package:intl/intl.dart';
+import 'package:yurttaye_mobile/models/menu.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -34,34 +38,36 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.filter_alt),
             onPressed: () => context.pushNamed('filter'),
+            tooltip: 'Filtrele',
           ),
         ],
       ),
       body: provider.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const ShimmerLoading()
           : provider.error != null
-          ? Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Hata: ${provider.error}'),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => provider.fetchMenus(),
-              child: const Text('Yeniden Dene'),
-            ),
-          ],
-        ),
+          ? AppErrorWidget(
+        error: provider.error!,
+        onRetry: provider.fetchMenus,
       )
           : provider.menus.isEmpty
-          ? const Center(child: Text('Hiçbir menü bulunamadı'))
-          : SingleChildScrollView(
-        child: Column(
-          children: [
-            _buildTodayMealCard(provider),
-            _buildMealTypeToggle(),
-            _buildUpcomingMeals(provider),
-          ],
+          ? Center(
+        child: Text(
+          'Hiçbir menü bulunamadı',
+          style: AppTheme.theme.textTheme.bodyLarge,
+        ),
+      )
+          : RefreshIndicator(
+        onRefresh: provider.fetchMenus,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTodayMealCard(provider),
+              _buildMealTypeToggle(),
+              _buildUpcomingMeals(provider),
+            ],
+          ),
         ),
       ),
     );
@@ -75,7 +81,9 @@ class _HomeScreenState extends State<HomeScreen> {
           menu.mealType == _selectedMealType,
       orElse: () => provider.menus.firstWhere(
             (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
-        orElse: () => Menu(
+        orElse: () => provider.menus.isNotEmpty
+            ? provider.menus.first
+            : Menu(
           id: 0,
           cityId: 0,
           mealType: '',
@@ -87,74 +95,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     if (menu.id == 0) {
-      return const Padding(
-        padding: EdgeInsets.all(16.0),
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Card(
           child: Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Center(child: Text('Bugünkü menü bulunamadı')),
+            padding: const EdgeInsets.all(16.0),
+            child: Center(
+              child: Text(
+                'Bugünkü menü bulunamadı',
+                style: AppTheme.theme.textTheme.bodyLarge,
+              ),
+            ),
           ),
         ),
       );
     }
 
-    final items = menu.items; // Show all items
-    print('Items for ${_selectedMealType}: $items');
-
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () => context.pushNamed('menu_detail', pathParameters: {'id': menu.id.toString()}),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Bugünün Yemeği (${menu.mealType})',
-                  style: AppTheme.theme.textTheme.displaySmall,
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  DateFormat('dd MMMM yyyy').format(menu.date),
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 16),
-                if (items.isEmpty)
-                  const Text('Bu öğün için yemek bulunamadı')
-                else
-                  ...items.map((item) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      children: [
-                        Expanded(child: Text('${item.name} (${item.category})')),
-                        Text(item.gram.isEmpty ? '-' : item.gram, style: const TextStyle(color: Colors.grey)),
-                      ],
-                    ),
-                  )),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.local_fire_department, size: 16, color: Colors.deepOrange),
-                    const SizedBox(width: 4),
-                    Text(menu.energy.isEmpty ? 'Bilgi yok' : menu.energy),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: MealCard(menu: menu),
     );
   }
 
   Widget _buildMealTypeToggle() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: AppConfig.mealTypes.map((mealType) {
@@ -171,8 +136,10 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 4.0),
         child: ElevatedButton(
           style: ElevatedButton.styleFrom(
-            backgroundColor: isSelected ? Colors.deepOrange : Colors.grey[300],
+            backgroundColor: isSelected ? Colors.deepOrange : Colors.grey[200],
+            foregroundColor: isSelected ? Colors.white : Colors.black,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            elevation: isSelected ? 2 : 0,
           ),
           onPressed: () => setState(() => _selectedMealType = mealType),
           child: Row(
@@ -184,10 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 color: isSelected ? Colors.white : Colors.black,
               ),
               const SizedBox(width: 8),
-              Text(
-                mealType,
-                style: TextStyle(color: isSelected ? Colors.white : Colors.black),
-              ),
+              Text(mealType),
             ],
           ),
         ),
@@ -196,6 +160,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUpcomingMeals(MenuProvider provider) {
+    final upcomingMenus = provider.menus
+        .where((menu) => menu.date.isAfter(DateTime.now()))
+        .take(5)
+        .toList();
+
+    if (upcomingMenus.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Text(
+          'Gelecek yemekler bulunamadı',
+          style: AppTheme.theme.textTheme.bodyLarge,
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
@@ -203,21 +182,40 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           Text(
             'Gelecek Yemekler',
-            style: AppTheme.theme.textTheme.displaySmall,
+            style: AppTheme.theme.textTheme.displayMedium,
           ),
           const SizedBox(height: 8),
-          ...provider.menus.take(5).map((menu) => Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Card(
-              child: ListTile(
-                leading: const Icon(Icons.calendar_today, color: Colors.deepOrange),
-                title: Text(DateFormat('dd MMMM').format(menu.date)),
-                subtitle: Text('${menu.items.length} çeşit yemek (${menu.mealType})'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.pushNamed('menu_detail', pathParameters: {'id': menu.id.toString()}),
-              ),
+          SizedBox(
+            height: 150,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: upcomingMenus.length,
+              itemBuilder: (context, index) {
+                final menu = upcomingMenus[index];
+                return Container(
+                  width: 250,
+                  margin: const EdgeInsets.only(right: 16),
+                  child: Card(
+                    child: ListTile(
+                      title: Text(
+                        DateFormat('dd MMMM').format(menu.date),
+                        style: AppTheme.theme.textTheme.bodyLarge,
+                      ),
+                      subtitle: Text(
+                        '${menu.items.length} çeşit (${menu.mealType})',
+                        style: AppTheme.theme.textTheme.bodySmall,
+                      ),
+                      trailing: const Icon(Icons.chevron_right, color: Colors.deepOrange),
+                      onTap: () => context.pushNamed(
+                        'menu_detail',
+                        pathParameters: {'id': menu.id.toString()},
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
-          )),
+          ),
         ],
       ),
     );

@@ -4,6 +4,7 @@ import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:intl/intl.dart';
 
 class MenuDetailScreen extends StatefulWidget {
@@ -35,7 +36,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     if (menu.id == 0) {
       return Scaffold(
         appBar: AppBar(title: const Text('Yemek Detayı')),
-        body: const Center(child: Text('Menü bulunamadı')),
+        body: Center(
+          child: Text(
+            'Menü bulunamadı',
+            style: AppTheme.theme.textTheme.bodyLarge,
+          ),
+        ),
       );
     }
 
@@ -44,9 +50,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildDateHeader(menu),
+            _buildHeader(menu),
             _buildMealTypeToggle(),
-            _buildMealItems(menu),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: MealCard(menu: menu, isDetailed: true, onTap: null),
+            ),
             _buildNutritionInfo(menu),
           ],
         ),
@@ -54,26 +63,28 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildDateHeader(Menu menu) {
+  Widget _buildHeader(Menu menu) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: AppTheme.gradientDecoration,
       child: Row(
         children: [
-          const Icon(Icons.calendar_today, color: Colors.white),
+          const Icon(Icons.calendar_today, color: Colors.white, size: 32),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                DateFormat('dd MMMM yyyy').format(menu.date),
-                style: AppTheme.mealTitleStyle,
-              ),
-              Text(
-                '${menu.items.length} çeşit yemek (${menu.mealType})',
-                style: AppTheme.mealSubtitleStyle,
-              ),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  DateFormat('dd MMMM yyyy').format(menu.date),
+                  style: AppTheme.mealTitleStyle,
+                ),
+                Text(
+                  '${menu.items.length} çeşit yemek (${menu.mealType})',
+                  style: AppTheme.mealSubtitleStyle,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -83,87 +94,37 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   Widget _buildMealTypeToggle() {
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: Row(
+      child: Wrap(
+        spacing: 8,
         children: AppConfig.mealTypes.map((mealType) {
-          return Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: _buildMealTypeChip(mealType),
+          return ChoiceChip(
+            label: Text(mealType),
+            selected: _selectedMealType == mealType,
+            onSelected: (selected) => setState(() => _selectedMealType = mealType),
           );
         }).toList(),
       ),
     );
   }
 
-  Widget _buildMealTypeChip(String mealType) {
-    final isSelected = _selectedMealType == mealType;
-    return ChoiceChip(
-      label: Text(mealType),
-      selected: isSelected,
-      selectedColor: Colors.deepOrange,
-      labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.black),
-      onSelected: (selected) => setState(() => _selectedMealType = mealType),
-    );
-  }
-
-  Widget _buildMealItems(Menu menu) {
-    final items = menu.items; // Show all items
-    print('Items for ${menu.mealType} in MenuDetail: $items');
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Yemekler',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              if (items.isEmpty)
-                const Text('Bu öğün için yemek bulunamadı')
-              else
-                ...items.map((item) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          '${item.name} (${item.category})',
-                          style: const TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      Chip(
-                        label: Text(item.gram.isEmpty ? '-' : item.gram),
-                        backgroundColor: Colors.deepOrange.withOpacity(0.2),
-                      ),
-                    ],
-                  ),
-                )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Widget _buildNutritionInfo(Menu menu) {
     return Padding(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Besin Değerleri',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: AppTheme.theme.textTheme.displaySmall,
               ),
               const SizedBox(height: 8),
-              Text(menu.energy.isEmpty ? 'Bilgi yok' : menu.energy),
+              Text(
+                menu.energy.isEmpty ? 'Bilgi yok' : menu.energy,
+                style: AppTheme.theme.textTheme.bodyLarge,
+              ),
             ],
           ),
         ),
