@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
-import 'package:yurttaye_mobile/widgets/city_dropdown.dart';
-import 'package:yurttaye_mobile/widgets/date_picker.dart';
-import 'package:yurttaye_mobile/widgets/meal_type_selector.dart';
-import 'package:yurttaye_mobile/widgets/menu_card.dart';
-import 'package:yurttaye_mobile/widgets/today_menu_card.dart';
+import 'package:yurttaye_mobile/widgets/exit_dialog.dart';
+import 'package:yurttaye_mobile/widgets/filter_card.dart';
+import 'package:yurttaye_mobile/widgets/loading_indicator.dart';
+import 'package:yurttaye_mobile/widgets/error_view.dart';
+import 'package:yurttaye_mobile/widgets/menu_list.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        final shouldExit = await ExitDialog.show(context);
+        if (shouldExit) {
+          SystemNavigator.pop();
+        }
+      },
       child: Scaffold(
         appBar: AppBar(
           title: const Text('KYK Menü'),
@@ -87,108 +95,27 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                     ),
                   ),
                   const SizedBox(height: Constants.space4),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Constants.space4),
-                      child: Column(
-                        children: [
-                          const CityDropdown(),
-                          const SizedBox(height: Constants.space3),
-                          const MealTypeSelector(),
-                          const SizedBox(height: Constants.space3),
-                          const DatePicker(),
-                        ],
-                      ),
-                    ),
-                  ),
+                  const FilterCard(),
                   const SizedBox(height: Constants.space4),
                   Consumer<MenuProvider>(
                     builder: (context, provider, child) {
                       if (provider.isLoading) {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(Constants.kykBlue600),
-                          ),
-                        );
+                        return const LoadingIndicator();
                       }
                       if (provider.error != null) {
-                        return Center(
-                          child: Column(
-                            children: [
-                              Text(
-                                provider.error!.contains('Connection refused')
-                                    ? 'Sunucuya bağlanılamadı.'
-                                    : 'Hata: ${provider.error}',
-                                style: TextStyle(
-                                  fontSize: Constants.textBase,
-                                  color: Constants.gray600,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: Constants.space3),
-                              ElevatedButton(
-                                onPressed: () {
-                                  provider.fetchMenus();
-                                  _controller.reset();
-                                  _controller.forward();
-                                },
-                                child: const Text('Tekrar Dene'),
-                              ),
-                            ],
-                          ),
+                        return ErrorView(
+                          error: provider.error!,
+                          onRetry: () {
+                            provider.fetchMenus();
+                            _controller.reset();
+                            _controller.forward();
+                          },
                         );
                       }
-                      // Günün Menüsü Bölümü
-                      final todayMenu = provider.todayMenu;
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (todayMenu != null) ...[
-                            TodayMenuCard(menu: todayMenu),
-                            const SizedBox(height: Constants.space4),
-                          ] else ...[
-                            Card(
-                              child: Padding(
-                                padding: const EdgeInsets.all(Constants.space4),
-                                child: Text(
-                                  'Bugün için menü bulunamadı.',
-                                  style: TextStyle(
-                                    fontSize: Constants.textBase,
-                                    color: Constants.gray600,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: Constants.space4),
-                          ],
-                          // Diğer Menüler
-                          if (provider.menus.isNotEmpty)
-                            Text(
-                              'Diğer Menüler',
-                              style: TextStyle(
-                                fontSize: Constants.textXl,
-                                fontWeight: FontWeight.w600,
-                                color: Constants.gray800,
-                              ),
-                            ),
-                          const SizedBox(height: Constants.space2),
-                          FadeTransition(
-                            opacity: _fadeAnimation,
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: provider.menus.length,
-                              itemBuilder: (context, index) {
-                                final menu = provider.menus[index];
-                                // Günün menüsünü tekrar listelemiyoruz
-                                if (todayMenu != null && menu.id == todayMenu.id) {
-                                  return const SizedBox.shrink();
-                                }
-                                return MenuCard(menu: menu);
-                              },
-                            ),
-                          ),
-                        ],
+                      return MenuList(
+                        todayMenu: provider.todayMenu,
+                        menus: provider.menus,
+                        fadeAnimation: _fadeAnimation,
                       );
                     },
                   ),

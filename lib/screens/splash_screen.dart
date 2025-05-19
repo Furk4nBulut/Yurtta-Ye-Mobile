@@ -26,7 +26,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     _controller.forward();
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        context.go('/home');
+        context.replace('/'); // HomeScreen'e geçiş ve yığını temizle
       }
     });
   }
@@ -39,41 +39,38 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: false, // Disables system back navigation
-      child: Scaffold(
-        backgroundColor: Constants.kykBlue600,
-        body: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  'assets/images/logo.png',
-                  width: 120,
-                  height: 120,
-                  semanticLabel: 'YurttaYe Logosu',
+    return Scaffold(
+      backgroundColor: Constants.kykBlue600,
+      body: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/logo.png',
+                width: 120,
+                height: 120,
+                semanticLabel: 'YurttaYe Logosu',
+              ),
+              const SizedBox(height: Constants.space4),
+              Text(
+                'YurttaYe',
+                style: TextStyle(
+                  fontSize: Constants.text2xl,
+                  fontWeight: FontWeight.w700,
+                  color: Constants.white,
                 ),
-                const SizedBox(height: Constants.space4),
-                Text(
-                  'YurttaYe',
-                  style: TextStyle(
-                    fontSize: Constants.text2xl,
-                    fontWeight: FontWeight.w700,
-                    color: Constants.white,
-                  ),
+              ),
+              const SizedBox(height: Constants.space2),
+              Text(
+                'KYK Yurt Menüleri',
+                style: TextStyle(
+                  fontSize: Constants.textBase,
+                  color: Constants.gray100,
                 ),
-                const SizedBox(height: Constants.space2),
-                Text(
-                  'KYK Yurt Menüleri',
-                  style: TextStyle(
-                    fontSize: Constants.textBase,
-                    color: Constants.gray100,
-                  ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

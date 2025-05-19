@@ -5,23 +5,16 @@ import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
 
 final GoRouter router = GoRouter(
+  initialLocation: '/splash',
   routes: [
     GoRoute(
-      path: '/',
+      path: '/splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/',
+      builder: (context, state) => const HomeScreen(),
       routes: [
-        GoRoute(
-          path: 'home',
-          pageBuilder: (context, state) => CustomPage(
-            child: const HomeScreen(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          ),
-        ),
         GoRoute(
           path: 'menu/:id',
           pageBuilder: (context, state) {

@@ -15,7 +15,7 @@ class YurttaYeApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MenuProvider()),
+        ChangeNotifierProvider(create: (_) => MenuProvider()..fetchCities()..fetchMenus()),
       ],
       child: MaterialApp.router(
         title: 'YurttaYe',
