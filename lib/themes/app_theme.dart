@@ -11,12 +11,12 @@ class AppTheme {
       brightness: Brightness.light,
       primary: Constants.kykBlue600,
       secondary: Constants.kykYellow400,
-      tertiary: Constants.gray200,
+      tertiary: const Color(0xFF0D9488), // Teal accent
       surface: Constants.white,
       background: Constants.gray50,
       error: Colors.red[600],
     ),
-    scaffoldBackgroundColor: Constants.gray100,
+    scaffoldBackgroundColor: Constants.gray50,
     textTheme: GoogleFonts.poppinsTextTheme(
       TextTheme(
         displayLarge: TextStyle(
@@ -36,7 +36,7 @@ class AppTheme {
         ),
         bodyLarge: TextStyle(
           fontSize: Constants.textBase,
-          color: Constants.gray600,
+          color: Constants.gray800, // High contrast for light mode
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textSm,
@@ -49,24 +49,24 @@ class AppTheme {
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
+      elevation: 4, // Increased for depth
       color: Constants.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Square corners
       ),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(
         vertical: Constants.space2,
         horizontal: Constants.space4,
       ),
-      shadowColor: Constants.gray600.withOpacity(0.1),
+      shadowColor: Constants.gray600.withOpacity(0.2), // Stronger shadow
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Constants.kykBlue600,
+        backgroundColor: const Color(0xFF0D9488), // Teal for buttons
         foregroundColor: Constants.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Square corners
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
@@ -76,16 +76,16 @@ class AppTheme {
           fontSize: Constants.textBase,
           fontWeight: FontWeight.w500,
         ),
-        elevation: 3,
-        shadowColor: Constants.gray600.withOpacity(0.2),
+        elevation: 5, // Increased for depth
+        shadowColor: Constants.gray600.withOpacity(0.25),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: Constants.kykBlue600,
-        side: BorderSide(color: Constants.gray200, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: Constants.gray200, width: 1.5),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Square corners
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
@@ -110,12 +110,12 @@ class AppTheme {
         horizontal: Constants.space3,
         vertical: Constants.space2,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Square corners
         side: BorderSide(color: Constants.gray200),
       ),
-      elevation: 1,
-      pressElevation: 4,
+      elevation: 3, // Increased for depth
+      pressElevation: 6,
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Constants.kykBlue600,
@@ -124,6 +124,7 @@ class AppTheme {
       titleTextStyle: GoogleFonts.poppins(
         fontSize: Constants.textXl,
         fontWeight: FontWeight.w600,
+        color: Constants.white,
       ),
       iconTheme: const IconThemeData(
         color: Constants.white,
@@ -166,8 +167,8 @@ class AppTheme {
       brightness: Brightness.dark,
       primary: Constants.kykBlue600,
       secondary: Constants.kykYellow400,
-      tertiary: Constants.gray600,
-      surface: Constants.gray800,
+      tertiary: const Color(0xFF0D9488), // Teal accent
+      surface: Constants.gray600,
       background: Constants.gray800,
       error: Colors.red[400],
     ),
@@ -191,7 +192,7 @@ class AppTheme {
         ),
         bodyLarge: TextStyle(
           fontSize: Constants.textBase,
-          color: Constants.gray100,
+          color: Constants.white, // High contrast for dark mode
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textSm,
@@ -199,29 +200,29 @@ class AppTheme {
         ),
         bodySmall: TextStyle(
           fontSize: Constants.textXs,
-          color: Constants.gray200,
+          color: Constants.gray100,
         ),
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 2,
+      elevation: 4, // Increased for depth
       color: Constants.gray600,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Square corners
       ),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(
         vertical: Constants.space2,
         horizontal: Constants.space4,
       ),
-      shadowColor: Constants.gray800.withOpacity(0.3),
+      shadowColor: Constants.gray800.withOpacity(0.35), // Stronger shadow
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: Constants.kykBlue600,
+        backgroundColor: const Color(0xFF0D9488), // Teal for buttons
         foregroundColor: Constants.white,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Square corners
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
@@ -231,16 +232,16 @@ class AppTheme {
           fontSize: Constants.textBase,
           fontWeight: FontWeight.w500,
         ),
-        elevation: 3,
-        shadowColor: Constants.gray800.withOpacity(0.3),
+        elevation: 5, // Increased for depth
+        shadowColor: Constants.gray800.withOpacity(0.35),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: Constants.kykYellow400,
-        side: BorderSide(color: Constants.gray200, width: 1.5),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+        side: const BorderSide(color: Constants.gray200, width: 1.5),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.zero, // Square corners
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
@@ -265,12 +266,12 @@ class AppTheme {
         horizontal: Constants.space3,
         vertical: Constants.space2,
       ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.zero, // Square corners
         side: BorderSide(color: Constants.gray200),
       ),
-      elevation: 1,
-      pressElevation: 4,
+      elevation: 3, // Increased for depth
+      pressElevation: 6,
     ),
     appBarTheme: AppBarTheme(
       backgroundColor: Constants.kykBlue600,
@@ -279,6 +280,7 @@ class AppTheme {
       titleTextStyle: GoogleFonts.poppins(
         fontSize: Constants.textXl,
         fontWeight: FontWeight.w600,
+        color: Constants.white,
       ),
       iconTheme: const IconThemeData(
         color: Constants.white,
@@ -317,17 +319,13 @@ class AppTheme {
   static TextStyle mealTitleStyle(BuildContext context) => GoogleFonts.poppins(
     fontSize: Constants.text2xl,
     fontWeight: FontWeight.w700,
-    color: Theme.of(context).brightness == Brightness.dark
-        ? Constants.white
-        : Constants.white, // Always white for gradient background
+    color: Constants.white, // White for gradient background
   );
 
   static TextStyle mealSubtitleStyle(BuildContext context) => GoogleFonts.poppins(
     fontSize: Constants.textBase,
     fontWeight: FontWeight.w400,
-    color: Theme.of(context).brightness == Brightness.dark
-        ? Constants.white.withOpacity(0.9)
-        : Constants.white.withOpacity(0.9),
+    color: Constants.white.withOpacity(0.9),
   );
 
   static TextStyle categoryTitleStyle(BuildContext context) => GoogleFonts.poppins(
@@ -340,21 +338,21 @@ class AppTheme {
 
   static BoxDecoration gradientDecoration(BuildContext context) => BoxDecoration(
     gradient: LinearGradient(
-      colors: [Constants.kykBlue600, Constants.kykYellow400],
+      colors: [Constants.kykBlue600, const Color(0xFF0D9488)], // Blue to teal
       begin: Alignment.topLeft,
       end: Alignment.bottomRight,
     ),
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.zero, // Square corners
   );
 
   static BoxDecoration cardHoverDecoration(BuildContext context) => BoxDecoration(
-    borderRadius: BorderRadius.circular(12),
+    borderRadius: BorderRadius.zero, // Square corners
     boxShadow: [
       BoxShadow(
         color: Constants.kykYellow400.withOpacity(
-          Theme.of(context).brightness == Brightness.dark ? 0.3 : 0.2,
+          Theme.of(context).brightness == Brightness.dark ? 0.35 : 0.25,
         ),
-        blurRadius: 8,
+        blurRadius: 10,
         offset: const Offset(0, 4),
       ),
     ],
