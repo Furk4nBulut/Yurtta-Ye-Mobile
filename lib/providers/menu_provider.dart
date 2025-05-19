@@ -1,4 +1,7 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yurttaye_mobile/models/city.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/services/api_service.dart';
@@ -13,6 +16,9 @@ class MenuProvider with ChangeNotifier {
   String? _selectedDate;
   bool _isLoading = false;
   String? _error;
+  int _page = 1;
+  final int _pageSize = 5; // Reduced for faster initial load
+  bool _hasMore = true;
 
   List<City> get cities => _cities;
   List<Menu> get menus => _menus;
@@ -21,14 +27,32 @@ class MenuProvider with ChangeNotifier {
   String? get selectedDate => _selectedDate;
   bool get isLoading => _isLoading;
   String? get error => _error;
+  bool get hasMore => _hasMore;
 
   Future<void> fetchCities() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cachedCities = prefs.getString('cities');
+
+    if (cachedCities != null) {
+      try {
+        final List<dynamic> json = jsonDecode(cachedCities);
+        _cities = await compute(_parseCities, json);
+        print('Cities loaded from cache: ${_cities.map((c) => {'id': c.id, 'name': c.name}).toList()}');
+        _isLoading = false;
+        notifyListeners();
+        return;
+      } catch (e) {
+        print('Error parsing cached cities: $e');
+      }
+    }
+
     try {
       _isLoading = true;
       _error = null;
       notifyListeners();
       _cities = await _apiService.getCities();
       print('Cities fetched: ${_cities.map((c) => {'id': c.id, 'name': c.name}).toList()}');
+      await prefs.setString('cities', jsonEncode(_cities.map((c) => c.toJson()).toList()));
     } catch (e) {
       _error = e.toString();
       print('Error fetching cities: $e');
@@ -38,34 +62,60 @@ class MenuProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchMenus() async {
+  Future<void> fetchMenus({bool reset = false}) async {
+    if (!_hasMore && !reset) return;
     try {
       _isLoading = true;
+      if (reset) {
+        _page = 1;
+        _menus = [];
+        _hasMore = true;
+      }
       _error = null;
       notifyListeners();
-      // Try server-side filtering
-      _menus = await _apiService.getMenus(
+
+      final newMenus = await _apiService.getMenus(
         cityId: _selectedCityId,
         mealType: _selectedMealType,
         date: _selectedDate,
+        page: _page,
+        pageSize: _pageSize,
       );
-      print('Menus fetched: ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+      print('Menus fetched (page $_page): ${newMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+
+      if (newMenus.isEmpty || newMenus.length < _pageSize) {
+        _hasMore = false;
+      }
+
+      _menus = [..._menus, ...newMenus];
+      _page++;
     } catch (e) {
-      print('Server-side filtering failed: $e');
-      // Fallback to client-side filtering
+      print('Server-side pagination failed: $e');
       try {
         final allMenus = await _apiService.getMenus();
         print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
-        _menus = allMenus.where((menu) {
+        final filteredMenus = allMenus.where((menu) {
           bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
           bool matchesMealType = _selectedMealType == null || menu.mealType == _selectedMealType;
           bool matchesDate = _selectedDate == null || AppConfig.apiDateFormat.format(menu.date) == _selectedDate;
           return matchesCity && matchesMealType && matchesDate;
         }).toList();
-        print('Filtered menus: ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
+
+        final start = (_page - 1) * _pageSize;
+        final end = start + _pageSize;
+        final newMenus = filteredMenus.length > start ? filteredMenus.sublist(start, end > filteredMenus.length ? filteredMenus.length : end) : [];
+
+        if (newMenus.isEmpty || end >= filteredMenus.length) {
+          _hasMore = false;
+        }
+
+        _menus = [..._menus, ...newMenus];
+        _page++;
+        print('Filtered menus (page $_page): ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
       } catch (e) {
         _error = e.toString();
         _menus = [];
+        _hasMore = false;
         print('Error fetching menus: $e');
       }
     } finally {
@@ -77,7 +127,7 @@ class MenuProvider with ChangeNotifier {
   void setSelectedCity(int? cityId) {
     _selectedCityId = cityId;
     print('Setting cityId: $cityId');
-    fetchMenus();
+    fetchMenus(reset: true);
   }
 
   void setSelectedMealType(String? mealType) {
@@ -87,13 +137,13 @@ class MenuProvider with ChangeNotifier {
     }
     _selectedMealType = mealType;
     print('Setting mealType: $mealType');
-    fetchMenus();
+    fetchMenus(reset: true);
   }
 
   void setSelectedDate(String? date) {
     _selectedDate = date;
     print('Setting date: $date');
-    fetchMenus();
+    fetchMenus(reset: true);
   }
 
   void clearFilters() {
@@ -101,6 +151,11 @@ class MenuProvider with ChangeNotifier {
     _selectedMealType = null;
     _selectedDate = null;
     print('Clearing filters');
-    fetchMenus();
+    fetchMenus(reset: true);
   }
+}
+
+// Isolate function for parsing cities
+List<City> _parseCities(List<dynamic> json) {
+  return json.map((e) => City.fromJson(e)).toList();
 }

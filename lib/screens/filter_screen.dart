@@ -19,6 +19,8 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   DateTime? _selectedDate;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
+  final ScrollController _scrollController = ScrollController();
+  bool _isInitialLoad = true;
 
   @override
   void initState() {
@@ -33,15 +35,30 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
     _controller.forward();
 
-    // Fetch initial data
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<MenuProvider>(context, listen: false).fetchMenus();
+    // Delay initial fetch to prioritize UI
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 100));
+      final provider = Provider.of<MenuProvider>(context, listen: false);
+      provider.fetchCities();
+      provider.fetchMenus(reset: true);
+      setState(() => _isInitialLoad = false);
+    });
+
+    // Infinite scrolling
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+          !Provider.of<MenuProvider>(context, listen: false).isLoading &&
+          Provider.of<MenuProvider>(context, listen: false).hasMore) {
+        Provider.of<MenuProvider>(context, listen: false).fetchMenus();
+        print('Fetching next page of menus');
+      }
     });
   }
 
   @override
   void dispose() {
     _controller.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -68,7 +85,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
       ),
       body: SlideTransition(
         position: _slideAnimation,
-        child: SingleChildScrollView(
+        child: _isInitialLoad
+            ? const ShimmerLoading()
+            : SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -168,12 +187,12 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                   style: AppTheme.theme.textTheme.displayMedium,
                 ),
                 const SizedBox(height: 16),
-                provider.isLoading
+                provider.isLoading && provider.menus.isEmpty
                     ? const ShimmerLoading()
                     : provider.error != null
                     ? AppErrorWidget(
                   error: provider.error!,
-                  onRetry: provider.fetchMenus,
+                  onRetry: () => provider.fetchMenus(reset: true),
                 )
                     : provider.menus.isEmpty
                     ? Center(
@@ -185,17 +204,30 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     ),
                   ),
                 )
-                    : Column(
-                  children: provider.menus.map((menu) {
+                    : ListView.builder(
+                  controller: _scrollController,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: provider.menus.length + (provider.hasMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == provider.menus.length && provider.hasMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+                    final menu = provider.menus[index];
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: MealCard(
                         menu: menu,
-                        isDetailed: false, // Collapsed categories
-                        onTap: null, // Disable tap to stay in FilterScreen
+                        isDetailed: false,
+                        onTap: null,
                       ),
                     );
-                  }).toList(),
+                  },
                 ),
               ],
             ),

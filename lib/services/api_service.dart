@@ -1,56 +1,57 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:yurttaye_mobile/models/city.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
-import 'package:yurttaye_mobile/utils/config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
 class ApiService {
   Future<List<City>> getCities() async {
-    final url = '${Constants.apiUrl}${AppConfig.cityEndpoint}';
-    print('Fetching cities from: $url');
-    final response = await _makeRequest(url);
+    final uri = Uri.parse('${Constants.apiUrl}/City');
+    print('Fetching cities from: $uri');
+    final response = await http.get(uri);
     print('Cities response: status=${response.statusCode}, body=${response.body}');
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => City.fromJson(json)).toList();
+      final List<dynamic> json = jsonDecode(response.body);
+      return await compute(_parseCities, json);
     } else {
-      throw Exception('Şehirler yüklenemedi: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load cities: ${response.statusCode}');
     }
   }
 
-  Future<List<Menu>> getMenus({int? cityId, String? mealType, String? date}) async {
+  Future<List<Menu>> getMenus({
+    int? cityId,
+    String? mealType,
+    String? date,
+    int? page,
+    int? pageSize,
+  }) async {
     final queryParams = <String, String>{};
     if (cityId != null) queryParams['cityId'] = cityId.toString();
     if (mealType != null) queryParams['mealType'] = mealType;
     if (date != null) queryParams['date'] = date;
+    if (page != null) queryParams['page'] = page.toString();
+    if (pageSize != null) queryParams['pageSize'] = pageSize.toString();
 
-    final uri = Uri.parse('${Constants.apiUrl}${AppConfig.menuEndpoint}').replace(queryParameters: queryParams);
+    final uri = Uri.parse('${Constants.apiUrl}/Menu').replace(queryParameters: queryParams);
     print('Fetching menus from: $uri');
-    final response = await _makeRequest(uri.toString());
+    final response = await http.get(uri);
     print('Menus response: status=${response.statusCode}, body=${response.body}');
 
     if (response.statusCode == 200) {
-      final List<dynamic> data = jsonDecode(response.body);
-      return data.map((json) => Menu.fromJson(json)).toList();
+      final List<dynamic> json = jsonDecode(response.body);
+      return await compute(_parseMenus, json);
     } else {
-      throw Exception('Menüler yüklenemedi: ${response.statusCode} - ${response.body}');
+      throw Exception('Failed to load menus: ${response.statusCode}');
     }
   }
+}
 
-  Future<http.Response> _makeRequest(String url, {int retries = 3, Duration delay = const Duration(seconds: 2)}) async {
-    for (int i = 0; i < retries; i++) {
-      try {
-        final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 10));
-        if (response.statusCode == 200 || response.statusCode >= 400) {
-          return response;
-        }
-        print('Request failed with status ${response.statusCode}, retrying (${i + 1}/$retries)...');
-      } catch (e) {
-        print('Request error: $e, retrying (${i + 1}/$retries)...');
-      }
-      await Future.delayed(delay);
-    }
-    throw Exception('İstek başarısız: Maksimum deneme sayısına ulaşıldı');
-  }
+// Isolate functions
+List<City> _parseCities(List<dynamic> json) {
+  return json.map((e) => City.fromJson(e)).toList();
+}
+
+List<Menu> _parseMenus(List<dynamic> json) {
+  return json.map((e) => Menu.fromJson(e)).toList();
 }
