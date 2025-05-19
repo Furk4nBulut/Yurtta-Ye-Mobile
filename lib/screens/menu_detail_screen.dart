@@ -25,7 +25,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
-    final themeProvider = Provider.of<ThemeProvider>(context); // Added for theme
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final menu = provider.menus.firstWhere(
           (m) => m.id == widget.menuId,
       orElse: () => Menu(
@@ -41,15 +41,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     if (menu.id == 0) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(
-            'Yemek Detayı',
-            style: GoogleFonts.poppins(
-              fontWeight: FontWeight.w600,
-              fontSize: Constants.textLg,
-            ),
-          ),
-          elevation: 0,
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: const Text('YurttaYe'),
           actions: [
             IconButton(
               icon: Icon(
@@ -98,7 +90,30 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Yemek Detayı')),
+      appBar: AppBar(
+        title: const Text('YurttaYe'),
+        actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
+              color: Constants.white,
+            ),
+            tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+            onPressed: () {
+              themeProvider.toggleTheme();
+              print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
+            },
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.filter_list,
+              color: Constants.white,
+            ),
+            tooltip: 'Filtrele',
+            onPressed: () => context.pushNamed('filter'),
+          ),
+        ],
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -189,9 +204,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header with icon and title - horizontally centered
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center, // Burayı ekledik
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Container(
                       padding: const EdgeInsets.all(Constants.space1),
@@ -221,7 +235,6 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: Constants.space2),
-                // Centered energy value without background
                 Center(
                   child: Tooltip(
                     message: 'Toplam kalori bilgisi',
@@ -243,5 +256,4 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       ),
     );
   }
-
 }
