@@ -11,6 +11,7 @@ import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
+import 'package:yurttaye_mobile/widgets/upcomig_meal_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -85,6 +86,8 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               'Hiçbir menü bulunamadı',
               style: Theme.of(context).textTheme.displayMedium,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: Constants.space3),
             OutlinedButton.icon(
@@ -120,7 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
           setState(() => _selectedMealIndex = index);
           print('Selected meal type: ${AppConfig.mealTypes[index]}');
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.breakfast_dining),
             label: 'Kahvaltı',
@@ -137,9 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildTodayMealCard(MenuProvider provider, String selectedMealType) {
     final today = AppConfig.apiDateFormat.format(DateTime.now());
     final menu = provider.menus.firstWhere(
-          (menu) =>
-      AppConfig.apiDateFormat.format(menu.date) == today &&
-          menu.mealType == selectedMealType,
+          (menu) => AppConfig.apiDateFormat.format(menu.date) == today && menu.mealType == selectedMealType,
       orElse: () => provider.menus.firstWhere(
             (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
         orElse: () => provider.menus.isNotEmpty
@@ -172,9 +173,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Theme.of(context).iconTheme.color,
                 ),
                 const SizedBox(width: Constants.space2),
-                Text(
-                  'Bugünkü menü bulunamadı',
-                  style: Theme.of(context).textTheme.bodyLarge,
+                Expanded(
+                  child: Text(
+                    'Bugünkü menü bulunamadı',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -194,8 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildUpcomingMeals(MenuProvider provider, String selectedMealType, double screenWidth) {
     final upcomingMenus = provider.allMenus
-        .where((menu) =>
-    menu.date.isAfter(DateTime.now()) && menu.mealType == selectedMealType)
+        .where((menu) => menu.date.isAfter(DateTime.now()) && menu.mealType == selectedMealType)
         .toList()
       ..sort((a, b) => a.date.compareTo(b.date))
       ..take(7);
@@ -214,9 +218,13 @@ class _HomeScreenState extends State<HomeScreen> {
               color: Theme.of(context).iconTheme.color,
             ),
             const SizedBox(width: Constants.space2),
-            Text(
-              'Gelecek $selectedMealType bulunamadı',
-              style: Theme.of(context).textTheme.bodyLarge,
+            Expanded(
+              child: Text(
+                'Gelecek $selectedMealType bulunamadı',
+                style: Theme.of(context).textTheme.bodyLarge,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -236,9 +244,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Gelecek Yemekler ($selectedMealType)',
-                style: Theme.of(context).textTheme.displayMedium,
+              Expanded(
+                child: Text(
+                  'Gelecek $selectedMealType',
+                  style: Theme.of(context).textTheme.displayMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
               Icon(
                 Icons.arrow_forward,
@@ -255,9 +267,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Container(
                   width: cardWidth.clamp(200.0, 280.0), // Responsive width
                   margin: const EdgeInsets.only(right: Constants.space3),
-                  child: MealCard(
+                  child: UpcomingMealCard(
                     menu: menu,
-                    isDetailed: false,
                     onTap: () => context.pushNamed(
                       'menu_detail',
                       pathParameters: {'id': menu.id.toString()},

@@ -6,6 +6,7 @@ import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/category_section.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MealCard extends StatefulWidget {
   final Menu menu;
@@ -45,6 +46,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
+  // Returns icon based on meal type
   IconData _getMealTypeIcon(String mealType) {
     switch (mealType) {
       case 'Kahvaltı':
@@ -56,8 +58,22 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     }
   }
 
+  // Shortens meal type for header
+  String _getShortMealType(String mealType) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return 'Sabah';
+      case 'Akşam Yemeği':
+        return 'Akşam';
+      default:
+        return mealType;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    // Group menu items by category
     final categories = widget.menu.items.fold<Map<String, List<MenuItem>>>(
       {},
           (map, item) {
@@ -80,95 +96,126 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
         builder: (context, child) => Transform.scale(
           scale: _scaleAnimation.value,
           child: Card(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Constants.gray200, width: 1),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(Constants.space4),
-                    decoration: AppTheme.gradientDecoration(context),
-                    child: Row(
-                      children: [
-                        Icon(
-                          _getMealTypeIcon(widget.menu.mealType),
-                          color: Constants.white,
-                          size: Constants.textXl,
-                        ),
-                        const SizedBox(width: Constants.space2),
-                        Expanded(
-                          child: Text(
-                            widget.isDetailed
-                                ? widget.menu.mealType
-                                : 'Bugünün ${widget.menu.mealType}',
-                            style: AppTheme.mealTitleStyle(context),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with meal type and date
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(Constants.space2),
+                  decoration: AppTheme.gradientDecoration(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Meal type and icon
+                      Row(
+                        children: [
+                          Icon(
+                            _getMealTypeIcon(widget.menu.mealType),
+                            color: Constants.white,
+                            size: Constants.textSm,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(Constants.space4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          DateFormat('dd MMMM yyyy').format(widget.menu.date),
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Constants.gray600,
-                          ),
-                        ),
-                        const SizedBox(height: Constants.space3),
-                        if (widget.menu.items.isEmpty)
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.info_outline,
-                                size: Constants.textBase,
-                                color: Constants.gray600,
+                          const SizedBox(width: Constants.space1),
+                          Expanded(
+                            child: Text(
+                              widget.isDetailed
+                                  ? _getShortMealType(widget.menu.mealType)
+                                  : 'Bugünün ${_getShortMealType(widget.menu.mealType)}',
+                              style: GoogleFonts.poppins(
+                                fontSize: Constants.textLg,
+                                fontWeight: FontWeight.w600,
+                                color: Constants.white,
                               ),
-                              const SizedBox(width: Constants.space2),
-                              Text(
-                                'Bu öğün için yemek bulunamadı',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ],
-                          )
-                        else
-                          ...categories.entries.map(
-                                (entry) => CategorySection(
-                              category: entry.key,
-                              items: entry.value,
-                              isExpanded: widget.isDetailed,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        const SizedBox(height: Constants.space3),
+                        ],
+                      ),
+                      const SizedBox(height: Constants.space1),
+                      // Date
+                      Text(
+                        DateFormat('dd MMM yyyy').format(widget.menu.date),
+                        style: GoogleFonts.poppins(
+                          fontSize: Constants.textBase,
+                          fontWeight: FontWeight.w500,
+                          color: Constants.white,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                // Body
+                Padding(
+                  padding: const EdgeInsets.all(Constants.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat('dd MMMM yyyy').format(widget.menu.date),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Constants.gray600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: Constants.space3),
+                      if (widget.menu.items.isEmpty)
                         Row(
                           children: [
                             Icon(
-                              Icons.local_fire_department,
+                              Icons.info_outline,
                               size: Constants.textBase,
-                              color: Constants.kykYellow400,
+                              color: Constants.gray600,
                             ),
                             const SizedBox(width: Constants.space2),
-                            Text(
-                              widget.menu.energy.isEmpty ? 'Kalori bilgisi yok' : widget.menu.energy,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                color: Constants.gray800,
-                                fontWeight: FontWeight.w500,
+                            Expanded(
+                              child: Text(
+                                'Bu öğün için yemek bulunamadı',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ],
+                        )
+                      else
+                        ...categories.entries.map(
+                              (entry) => CategorySection(
+                            category: entry.key,
+                            items: entry.value,
+                            isExpanded: widget.isDetailed,
+                          ),
                         ),
-                      ],
-                    ),
+                      const SizedBox(height: Constants.space3),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.local_fire_department,
+                            size: Constants.textBase,
+                            color: Constants.kykYellow400,
+                          ),
+                          const SizedBox(width: Constants.space2),
+                          Expanded(
+                            child: Text(
+                              widget.menu.energy.isEmpty ? 'Kalori bilgisi yok' : widget.menu.energy,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: isDarkMode ? Constants.white : Constants.gray800,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),

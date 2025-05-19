@@ -15,7 +15,6 @@ class CategorySection extends StatelessWidget {
     this.isExpanded = false,
   }) : super(key: key);
 
-  // Map categories to icons
   IconData _getCategoryIcon(String category) {
     switch (category.toLowerCase()) {
       case 'ana yemek':
@@ -46,9 +45,13 @@ class CategorySection extends StatelessWidget {
                 color: Constants.kykBlue600,
               ),
               const SizedBox(width: Constants.space2),
-              Text(
-                category,
-                style: AppTheme.categoryTitleStyle(context),
+              Expanded(
+                child: Text(
+                  category,
+                  style: AppTheme.categoryTitleStyle(context),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
             ],
           ),
@@ -71,6 +74,8 @@ class CategorySection extends StatelessWidget {
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Constants.gray800,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ],
