@@ -16,8 +16,8 @@ class MenuProvider with ChangeNotifier {
   String? _selectedDate;
   bool _isLoading = false;
   String? _error;
-  int _page = 1;
-  final int _pageSize = 5; // Reduced for faster initial load
+  int _page = AppConfig.initialPage; // AppConfig'ten alınan başlangıç sayfası
+  final int _pageSize = AppConfig.pageSize; // Reduced for faster initial load
   bool _hasMore = true;
 
   List<City> get cities => _cities;
