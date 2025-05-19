@@ -23,7 +23,7 @@ class MenuItemCard extends StatelessWidget {
         children: [
           Icon(
             Icons.food_bank_outlined,
-            color: Constants.amber400,
+            color: Constants.kykYellow400,
             size: 24,
           ),
           const SizedBox(width: Constants.space3),
@@ -36,14 +36,14 @@ class MenuItemCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: Constants.textBase,
                     fontWeight: FontWeight.w500,
-                    color: Constants.gray900,
+                    color: Constants.gray800,
                   ),
                 ),
                 Text(
                   '${item.category} - ${item.gram}',
                   style: TextStyle(
                     fontSize: Constants.textSm,
-                    color: Constants.gray700,
+                    color: Constants.gray600,
                   ),
                 ),
               ],

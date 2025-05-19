@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
@@ -33,7 +34,7 @@ class MenuDetailScreen extends StatelessWidget {
                 'Menü bulunamadı.',
                 style: TextStyle(
                   fontSize: Constants.textBase,
-                  color: Constants.gray700,
+                  color: Constants.gray600,
                 ),
               ),
             );
@@ -41,10 +42,15 @@ class MenuDetailScreen extends StatelessWidget {
           return CustomScrollView(
             slivers: [
               SliverAppBar(
-                backgroundColor: Constants.blue500,
+                backgroundColor: Constants.kykBlue600,
                 foregroundColor: Constants.white,
                 pinned: true,
-                expandedHeight: 200,
+                expandedHeight: 180,
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () => context.go('/home'),
+                  tooltip: 'Ana Sayfaya Dön',
+                ),
                 flexibleSpace: FlexibleSpaceBar(
                   title: Text(
                     AppConfig.mealTypes[menu.mealType] ?? menu.mealType,
@@ -54,14 +60,28 @@ class MenuDetailScreen extends StatelessWidget {
                     ),
                   ),
                   background: Container(
-                    color: Constants.blue500,
+                    color: Constants.kykBlue600,
                     child: Center(
-                      child: Text(
-                        AppConfig.displayDateFormat.format(menu.date),
-                        style: TextStyle(
-                          fontSize: Constants.textLg,
-                          color: Constants.gray200,
-                        ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: Constants.space8),
+                          Text(
+                            AppConfig.displayDateFormat.format(menu.date),
+                            style: TextStyle(
+                              fontSize: Constants.textLg,
+                              color: Constants.gray100,
+                            ),
+                          ),
+                          const SizedBox(height: Constants.space2),
+                          Text(
+                            'Enerji: ${menu.energy}',
+                            style: TextStyle(
+                              fontSize: Constants.textBase,
+                              color: Constants.gray100,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -74,23 +94,16 @@ class MenuDetailScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Enerji: ${menu.energy}',
-                        style: TextStyle(
-                          fontSize: Constants.textBase,
-                          color: Constants.gray700,
-                        ),
-                      ),
-                      const SizedBox(height: Constants.space4),
-                      Text(
                         'Yemekler',
                         style: TextStyle(
                           fontSize: Constants.textXl,
                           fontWeight: FontWeight.w600,
-                          color: Constants.gray900,
+                          color: Constants.gray800,
                         ),
                       ),
                       const SizedBox(height: Constants.space2),
                       ...menu.items.map((item) => MenuItemCard(item: item)),
+                      const SizedBox(height: Constants.space4),
                     ],
                   ),
                 ),

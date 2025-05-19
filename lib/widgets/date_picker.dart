@@ -24,10 +24,10 @@ class DatePicker extends StatelessWidget {
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: ColorScheme.light(
-                      primary: Constants.blue500,
+                      primary: Constants.kykBlue600,
                       onPrimary: Constants.white,
                       surface: Constants.white,
-                      onSurface: Constants.gray900,
+                      onSurface: Constants.gray800,
                     ),
                     dialogBackgroundColor: Constants.white,
                   ),
@@ -58,12 +58,12 @@ class DatePicker extends StatelessWidget {
                       : AppConfig.displayDateFormat.format(DateTime.parse(provider.selectedDate!)),
                   style: TextStyle(
                     fontSize: Constants.textBase,
-                    color: Constants.gray700,
+                    color: Constants.gray600,
                   ),
                 ),
                 Icon(
                   Icons.calendar_today,
-                  color: Constants.gray700,
+                  color: Constants.gray600,
                   size: 20,
                 ),
               ],

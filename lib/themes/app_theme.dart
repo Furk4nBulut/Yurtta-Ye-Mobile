@@ -7,36 +7,36 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Constants.blue500,
-        primary: Constants.blue500,
-        secondary: Constants.amber400,
-        surface: Constants.gray100,
-        onSurface: Constants.gray900,
+        seedColor: Constants.kykBlue600,
+        primary: Constants.kykBlue600,
+        secondary: Constants.kykYellow400,
+        surface: Constants.gray50,
+        onSurface: Constants.gray800,
         brightness: Brightness.light,
       ),
-      scaffoldBackgroundColor: Constants.gray100,
+      scaffoldBackgroundColor: Constants.gray50,
       textTheme: GoogleFonts.interTextTheme().copyWith(
         headlineMedium: TextStyle(
           fontSize: Constants.text2xl,
           fontWeight: FontWeight.w700,
-          color: Constants.gray900,
+          color: Constants.gray800,
         ),
         titleLarge: TextStyle(
           fontSize: Constants.textXl,
           fontWeight: FontWeight.w600,
-          color: Constants.gray900,
+          color: Constants.gray800,
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textBase,
-          color: Constants.gray700,
+          color: Constants.gray600,
         ),
         bodySmall: TextStyle(
           fontSize: Constants.textSm,
-          color: Constants.gray700,
+          color: Constants.gray600,
         ),
       ),
       cardTheme: CardThemeData(
-        elevation: 3,
+        elevation: 2,
         color: Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         clipBehavior: Clip.antiAlias,
@@ -48,7 +48,7 @@ class AppTheme {
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: Constants.white,
-          backgroundColor: Constants.blue500,
+          backgroundColor: Constants.kykBlue600,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(
             horizontal: Constants.space4,
@@ -73,7 +73,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Constants.blue500, width: 2),
+          borderSide: BorderSide(color: Constants.kykBlue600, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
@@ -81,7 +81,7 @@ class AppTheme {
         ),
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: Constants.blue500,
+        backgroundColor: Constants.kykBlue600,
         foregroundColor: Constants.white,
         elevation: 0,
         titleTextStyle: GoogleFonts.inter(
@@ -95,6 +95,15 @@ class AppTheme {
         color: Constants.gray200,
         thickness: 1,
         space: Constants.space2,
+      ),
+      iconButtonTheme: IconButtonThemeData(
+        style: ButtonStyle(
+          iconColor: WidgetStateProperty.all(Constants.white),
+          backgroundColor: WidgetStateProperty.all(Constants.kykBlue600),
+          shape: WidgetStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
       ),
     );
   }

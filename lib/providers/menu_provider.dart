@@ -7,52 +7,50 @@ class MenuProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   List<City> _cities = [];
   List<Menu> _menus = [];
-  bool _isLoading = false;
-  String? _error;
   int? _selectedCityId;
   String? _selectedMealType;
   String? _selectedDate;
+  bool _isLoading = false;
+  String? _error;
 
   List<City> get cities => _cities;
   List<Menu> get menus => _menus;
-  bool get isLoading => _isLoading;
-  String? get error => _error;
   int? get selectedCityId => _selectedCityId;
   String? get selectedMealType => _selectedMealType;
   String? get selectedDate => _selectedDate;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
 
   Future<void> fetchCities() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      notifyListeners();
       _cities = await _apiService.getCities();
+      _error = null;
     } catch (e) {
-      _error = e.toString().replaceFirst('Exception: ', '');
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> fetchMenus() async {
-    _isLoading = true;
-    _error = null;
-    notifyListeners();
-
     try {
+      _isLoading = true;
+      notifyListeners();
       _menus = await _apiService.getMenus(
         cityId: _selectedCityId,
         mealType: _selectedMealType,
         date: _selectedDate,
       );
+      _error = null;
     } catch (e) {
-      _error = e.toString().replaceFirst('Exception: ', '');
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   void setSelectedCity(int? cityId) {

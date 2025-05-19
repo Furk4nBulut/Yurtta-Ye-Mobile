@@ -28,7 +28,7 @@ class MenuCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: Constants.textLg,
                       fontWeight: FontWeight.w600,
-                      color: Constants.gray900,
+                      color: Constants.gray800,
                     ),
                   ),
                   const SizedBox(height: Constants.space1),
@@ -36,14 +36,14 @@ class MenuCard extends StatelessWidget {
                     AppConfig.displayDateFormat.format(menu.date),
                     style: TextStyle(
                       fontSize: Constants.textSm,
-                      color: Constants.gray700,
+                      color: Constants.gray600,
                     ),
                   ),
                 ],
               ),
               Icon(
                 Icons.arrow_forward_ios,
-                color: Constants.blue500,
+                color: Constants.kykBlue600,
                 size: 20,
               ),
             ],

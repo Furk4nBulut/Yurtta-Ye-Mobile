@@ -24,7 +24,7 @@ class MealTypeSelector extends StatelessWidget {
               'Öğün Seç',
               style: TextStyle(
                 fontSize: Constants.textBase,
-                color: Constants.gray700,
+                color: Constants.gray600,
               ),
             ),
             items: [
@@ -54,8 +54,9 @@ class MealTypeSelector extends StatelessWidget {
             underline: const SizedBox(),
             icon: Icon(
               Icons.arrow_drop_down,
-              color: Constants.gray700,
+              color: Constants.gray600,
             ),
+            dropdownColor: Constants.white,
           ),
         );
       },
