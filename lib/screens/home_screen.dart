@@ -6,6 +6,7 @@ import 'package:yurttaye_mobile/widgets/city_dropdown.dart';
 import 'package:yurttaye_mobile/widgets/date_picker.dart';
 import 'package:yurttaye_mobile/widgets/meal_type_selector.dart';
 import 'package:yurttaye_mobile/widgets/menu_card.dart';
+import 'package:yurttaye_mobile/widgets/today_menu_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -45,11 +46,11 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false, // Disables system back navigation
+      canPop: false,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('KYK Menü'),
-          automaticallyImplyLeading: false, // Removes back button
+          automaticallyImplyLeading: false,
           actions: [
             IconButton(
               icon: const Icon(Icons.refresh),
@@ -137,27 +138,57 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           ),
                         );
                       }
-                      if (provider.menus.isEmpty) {
-                        return Center(
-                          child: Text(
-                            'Menü bulunamadı.',
-                            style: TextStyle(
-                              fontSize: Constants.textBase,
-                              color: Constants.gray600,
+                      // Günün Menüsü Bölümü
+                      final todayMenu = provider.todayMenu;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (todayMenu != null) ...[
+                            TodayMenuCard(menu: todayMenu),
+                            const SizedBox(height: Constants.space4),
+                          ] else ...[
+                            Card(
+                              child: Padding(
+                                padding: const EdgeInsets.all(Constants.space4),
+                                child: Text(
+                                  'Bugün için menü bulunamadı.',
+                                  style: TextStyle(
+                                    fontSize: Constants.textBase,
+                                    color: Constants.gray600,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: Constants.space4),
+                          ],
+                          // Diğer Menüler
+                          if (provider.menus.isNotEmpty)
+                            Text(
+                              'Diğer Menüler',
+                              style: TextStyle(
+                                fontSize: Constants.textXl,
+                                fontWeight: FontWeight.w600,
+                                color: Constants.gray800,
+                              ),
+                            ),
+                          const SizedBox(height: Constants.space2),
+                          FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: provider.menus.length,
+                              itemBuilder: (context, index) {
+                                final menu = provider.menus[index];
+                                // Günün menüsünü tekrar listelemiyoruz
+                                if (todayMenu != null && menu.id == todayMenu.id) {
+                                  return const SizedBox.shrink();
+                                }
+                                return MenuCard(menu: menu);
+                              },
                             ),
                           ),
-                        );
-                      }
-                      return FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: provider.menus.length,
-                          itemBuilder: (context, index) {
-                            return MenuCard(menu: provider.menus[index]);
-                          },
-                        ),
+                        ],
                       );
                     },
                   ),

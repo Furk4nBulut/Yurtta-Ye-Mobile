@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:yurttaye_mobile/models/city.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/services/api_service.dart';
+import 'package:yurttaye_mobile/utils/config.dart';
 
 class MenuProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
@@ -20,6 +21,13 @@ class MenuProvider with ChangeNotifier {
   String? get selectedDate => _selectedDate;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  Menu? get todayMenu {
+    final today = AppConfig.apiDateFormat.format(DateTime.now());
+    return menus.firstWhere(
+          (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
+    );
+  }
 
   Future<void> fetchCities() async {
     try {
