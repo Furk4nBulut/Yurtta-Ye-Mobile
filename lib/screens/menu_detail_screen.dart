@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart' show GoogleFonts;
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
 import 'package:intl/intl.dart';
+import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
 
 class MenuDetailScreen extends StatefulWidget {
@@ -21,6 +25,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context); // Added for theme
     final menu = provider.menus.firstWhere(
           (m) => m.id == widget.menuId,
       orElse: () => Menu(
@@ -35,7 +40,38 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
     if (menu.id == 0) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Yemek Detayı')),
+        appBar: AppBar(
+          title: Text(
+            'Yemek Detayı',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: Constants.textLg,
+            ),
+          ),
+          elevation: 0,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          actions: [
+            IconButton(
+              icon: Icon(
+                themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
+                color: Constants.white,
+              ),
+              tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+              onPressed: () {
+                themeProvider.toggleTheme();
+                print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
+              },
+            ),
+            IconButton(
+              icon: const Icon(
+                Icons.filter_list,
+                color: Constants.white,
+              ),
+              tooltip: 'Filtrele',
+              onPressed: () => context.pushNamed('filter'),
+            ),
+          ],
+        ),
         body: Center(
           child: Text(
             'Menü bulunamadı',
@@ -134,27 +170,78 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildNutritionInfo(Menu menu) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Besin Değerleri',
-                style: Theme.of(context).textTheme.displaySmall,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                menu.energy.isEmpty ? 'Bilgi yok' : menu.energy,
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-            ],
+      padding: const EdgeInsets.symmetric(
+        horizontal: Constants.space4,
+        vertical: Constants.space2,
+      ),
+      child: Semantics(
+        label: 'Besin değerleri, ${menu.energy.isEmpty ? "bilgi yok" : menu.energy}',
+        child: Card(
+          elevation: 3,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          shadowColor: Constants.gray600.withOpacity(0.3),
+          child: Padding(
+            padding: const EdgeInsets.all(Constants.space3),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with icon and title - horizontally centered
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center, // Burayı ekledik
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(Constants.space1),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Constants.kykYellow400, Constants.kykBlue600],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.local_fire_department,
+                        color: Constants.white,
+                        size: Constants.textSm,
+                      ),
+                    ),
+                    const SizedBox(width: Constants.space2),
+                    Text(
+                      'Besin Değerleri',
+                      style: GoogleFonts.poppins(
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w600,
+                        color: isDarkMode ? Constants.white : Constants.gray800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: Constants.space2),
+                // Centered energy value without background
+                Center(
+                  child: Tooltip(
+                    message: 'Toplam kalori bilgisi',
+                    child: Text(
+                      menu.energy.isEmpty ? 'Bilgi yok' : menu.energy,
+                      style: GoogleFonts.poppins(
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w500,
+                        color: isDarkMode ? Constants.white : Constants.gray800,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
 }
