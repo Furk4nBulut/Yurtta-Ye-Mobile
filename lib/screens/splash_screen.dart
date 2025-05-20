@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:yurttaye_mobile/providers/menu_provider.dart';
-import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -17,9 +15,9 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final provider = Provider.of<MenuProvider>(context, listen: false);
-      await provider.fetchMenus(reset: true);
-      print('SplashScreen: Menus fetched, navigating to home');
+      // Ensure splash screen is shown for at least 2 seconds
+      await Future.delayed(const Duration(seconds: 2));
+      print('SplashScreen: Navigating to home');
       context.goNamed('home');
     });
   }

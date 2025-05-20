@@ -6,6 +6,7 @@ import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
 class ApiService {
+  // Fetch cities from the API
   Future<List<City>> getCities() async {
     final uri = Uri.parse('${Constants.apiUrl}/City');
     print('Fetching cities from: $uri');
@@ -19,6 +20,7 @@ class ApiService {
     }
   }
 
+  // Fetch menus with optional filters and pagination
   Future<List<Menu>> getMenus({
     int? cityId,
     String? mealType,
@@ -47,7 +49,7 @@ class ApiService {
   }
 }
 
-// Isolate functions
+// Isolate functions for parsing JSON data
 List<City> _parseCities(List<dynamic> json) {
   return json.map((e) => City.fromJson(e)).toList();
 }

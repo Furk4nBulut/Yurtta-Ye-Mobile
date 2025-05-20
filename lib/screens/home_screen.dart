@@ -13,7 +13,7 @@ import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
-import 'package:yurttaye_mobile/widgets/upcomig_meal_card.dart';
+import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -25,24 +25,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _selectedMealIndex = 0; // 0: Kahvaltı, 1: Akşam Yemeği
-  DateTime _selectedDate = DateTime.now(); // Track the selected date
-  double _opacity = 1.0; // For fade animation
+  int _selectedMealIndex = 0;
+  DateTime _selectedDate = DateTime.now();
+  double _opacity = 1.0;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MenuProvider>(context, listen: false);
-      provider.fetchMenus(reset: true);
+      provider.fetchCities(); // Fetch cities
+      provider.fetchMenus(reset: true, initialLoad: true); // Fetch initial menus
       print('Initiating fetchMenus from HomeScreen initState');
     });
   }
 
-  // Navigate to previous or next date
   void _changeDate(bool isNext) {
     setState(() {
-      _opacity = 0.5; // Start fade animation
+      _opacity = 0.5;
       _selectedDate = isNext
           ? _selectedDate.add(const Duration(days: 1))
           : _selectedDate.subtract(const Duration(days: 1));
@@ -60,7 +60,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Check if previous or next menus exist
   bool _hasPreviousMenu(MenuProvider provider, String selectedMealType) {
     return provider.menus.any((menu) =>
     menu.date.isBefore(_selectedDate) && menu.mealType == selectedMealType);
@@ -71,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> {
     menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType);
   }
 
-  // Launch the website
   Future<void> _launchWebsite() async {
     const String urlString = 'https://yurttaye.onrender.com/';
     final Uri url = Uri.parse(urlString);
@@ -285,7 +283,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-    final isVerySmallScreen = screenWidth < 350;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -423,13 +420,11 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-
-
         ],
       ),
     );
   }
-  // Yardımcı widget
+
   Widget _buildTimeInfo(BuildContext context, String label, String time) {
     return Column(
       children: [
