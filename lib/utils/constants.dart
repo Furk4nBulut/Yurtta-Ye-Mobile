@@ -25,4 +25,15 @@ class Constants {
   static const double textLg = 18.0;
   static const double textXl = 20.0;
   static const double text2xl = 24.0;
+
+  static const Color kykRed600 = Color(0xFF274BAA); // Warm red
+  static const Color kykGreen400 = Color(0xFF229AC5); // Fresh green
+  static const Color kykOrange400 = Color(0xFF16DFF9); // Vibrant orange
+
+  static const Color gray300 = Color(0xFFD1D5DB);
+  static const Color gray500 = Color(0xFF6B7280);
+  static const Color gray700 = Color(0xFF374151);
+  static const Color gray900 = Color(0xFF111827);
+
 }
+
