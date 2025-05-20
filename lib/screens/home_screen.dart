@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:go_router/go_router.dart';
@@ -47,11 +48,9 @@ class _HomeScreenState extends State<HomeScreen> {
           : _selectedDate.subtract(const Duration(days: 1));
     });
     print('Date changed to: ${AppConfig.apiDateFormat.format(_selectedDate)}');
-    // Reset opacity after animation
     Future.delayed(const Duration(milliseconds: 300), () {
       setState(() => _opacity = 1.0);
     });
-    // Fetch menus for the new date if not already loaded
     final provider = Provider.of<MenuProvider>(context, listen: false);
     if (!provider.menus.any((menu) =>
     AppConfig.apiDateFormat.format(menu.date) ==
@@ -82,7 +81,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
       bool launched = false;
       if (!kIsWeb && canLaunch) {
-        // Try external application for native platforms
         launched = await launchUrl(
           url,
           mode: LaunchMode.externalApplication,
@@ -90,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
         print('External launch attempted: $urlString, Success: $launched');
       }
 
-      // Fallback to platform default if external fails or on web
       if (!launched) {
         if (kIsWeb || canLaunch) {
           launched = await launchUrl(
@@ -125,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
 
     return Scaffold(
-      extendBody: true, // Allow content to extend behind BottomAppBar
+      extendBody: true,
       appBar: AppBar(
         title: const Text('YurttaYe'),
         leading: IconButton(
@@ -182,7 +179,9 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(height: Constants.space3),
             OutlinedButton.icon(
               onPressed: () {
-                Provider.of<MenuProvider>(context, listen: false).fetchMenus(reset: true);
+                Provider.of<MenuProvider>(context, listen: false).fetchMenus(
+                  reset: true,
+                );
                 print('Retry button pressed in HomeScreen');
               },
               icon: const Icon(Icons.refresh),
@@ -205,9 +204,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Today's Meal Card with Navigation Buttons and Meal Time
                 _buildTodayMealCard(provider, selectedMealType, screenWidth),
-                // Upcoming Meals
                 _buildUpcomingMeals(provider, selectedMealType, screenWidth),
               ],
             ),
@@ -230,13 +227,13 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 8.0,
         clipBehavior: Clip.antiAlias,
         child: Container(
-          height: 52.0, // Fixed to prevent overflow
+          height: 52.0,
           padding: const EdgeInsets.symmetric(horizontal: Constants.space1),
           child: BottomNavigationBar(
             currentIndex: _selectedMealIndex,
             onTap: (index) {
               setState(() {
-                _opacity = 0.5; // Trigger fade animation on meal type change
+                _opacity = 0.5;
                 _selectedMealIndex = index;
               });
               Future.delayed(const Duration(milliseconds: 300), () {
@@ -288,7 +285,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
     );
-    final isSmallScreen = screenWidth < 400;
     final isVerySmallScreen = screenWidth < 350;
 
     return Padding(
@@ -299,7 +295,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Navigation Buttons and Date
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -336,7 +331,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: Constants.space2),
-          // Menu Card or Empty State
           menu.id == 0
               ? Card(
             child: Padding(
@@ -363,33 +357,99 @@ class _HomeScreenState extends State<HomeScreen> {
           )
               : MealCard(menu: menu),
           const SizedBox(height: Constants.space2),
-          // Meal Time Information as Text
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Constants.space4,
-              vertical: Constants.space2,
-            ),
-            child: Semantics(
-              label:
-              '$selectedMealType: ${selectedMealType == 'Kahvaltı' ? '06:30 başlangıç - 12:00 bitiş' : '16:00 başlangıç - 23:00 bitiş'}',
-              child: AnimatedOpacity(
-                opacity: _opacity,
-                duration: const Duration(milliseconds: 300),
-                child: Text(
-                  '$selectedMealType: ${selectedMealType == 'Kahvaltı' ? '06:30 başlangıç - 12:00 bitiş' : '16:00 başlangıç - 23:00 bitiş'}',
-                  style: GoogleFonts.poppins(
-                    fontSize: isVerySmallScreen ? 12.0 : 14.0,
-                    fontWeight: FontWeight.w500,
-                    color: Constants.white,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+          AnimatedOpacity(
+            opacity: _opacity,
+            duration: const Duration(milliseconds: 300),
+            child: Card(
+              elevation: 2,
+              shadowColor: Constants.gray300.withOpacity(0.3),
+              color: Theme.of(context).cardColor,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.0),
+                side: BorderSide(
+                  color: Theme.of(context).dividerColor,
+                  width: 0.5,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          selectedMealType == 'Kahvaltı'
+                              ? Icons.breakfast_dining
+                              : Icons.dinner_dining,
+                          size: 20,
+                          color: Constants.kykRed400,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          selectedMealType,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildTimeInfo(
+                          context,
+                          'Başlangıç',
+                          selectedMealType == 'Kahvaltı' ? '06:30' : '16:00',
+                        ),
+                        Container(
+                          height: 20,
+                          width: 1,
+                          color: Theme.of(context).dividerColor,
+                        ),
+                        _buildTimeInfo(
+                          context,
+                          'Bitiş',
+                          selectedMealType == 'Kahvaltı' ? '12:00' : '23:00',
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
+
+
         ],
       ),
+    );
+  }
+  // Yardımcı widget
+  Widget _buildTimeInfo(BuildContext context, String label, String time) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: 10,
+            fontWeight: FontWeight.w500,
+            color: Theme.of(context).textTheme.bodySmall?.color,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          time,
+          style: GoogleFonts.poppins(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 
@@ -432,7 +492,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    final cardWidth = screenWidth * 0.65; // 65% of screen width, max 280
+    final cardWidth = screenWidth * 0.65;
 
     return Padding(
       padding: const EdgeInsets.symmetric(
@@ -466,7 +526,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Row(
               children: upcomingMenus
                   .map((menu) => Container(
-                width: cardWidth.clamp(200.0, 280.0), // Responsive width
+                width: cardWidth.clamp(200.0, 280.0),
                 margin: const EdgeInsets.only(right: Constants.space3),
                 child: UpcomingMealCard(
                   menu: menu,
@@ -479,7 +539,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   .toList(),
             ),
           ),
-          const SizedBox(height: Constants.space4), // Extra padding to ensure visibility
+          const SizedBox(height: Constants.space4),
         ],
       ),
     );
