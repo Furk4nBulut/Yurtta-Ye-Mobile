@@ -52,7 +52,7 @@ class MenuProvider with ChangeNotifier {
       _isLoading = true;
       _error = null;
       notifyListeners();
-      _cities = await _apiService.getCities().timeout(const Duration(seconds: 5));
+      _cities = await _apiService.getCities().timeout(const Duration(seconds: 10));
       print('Cities fetched: ${_cities.map((c) => {'id': c.id, 'name': c.name}).toList()}');
       await prefs.setString('cities', jsonEncode(_cities.map((c) => c.toJson()).toList()));
     } catch (e) {
@@ -103,7 +103,7 @@ class MenuProvider with ChangeNotifier {
         date: initialLoad ? AppConfig.apiDateFormat.format(DateTime.now()) : _selectedDate,
         page: _page,
         pageSize: initialLoad ? 5 : _pageSize, // Smaller page size for initial load
-      ).timeout(const Duration(seconds: 5), onTimeout: () => throw TimeoutException('Filtered menus API request timed out'));
+      ).timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException('Filtered menus API request timed out'));
 
       print('Menus fetched (page $_page): ${newMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
 
@@ -128,7 +128,7 @@ class MenuProvider with ChangeNotifier {
     } catch (e) {
       print('Server-side pagination failed: $e');
       try {
-        final allMenus = await _apiService.getMenus().timeout(const Duration(seconds: 5));
+        final allMenus = await _apiService.getMenus().timeout(const Duration(seconds: 10));
         print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
         if (reset) {
           _allMenus = allMenus;
@@ -173,7 +173,7 @@ class MenuProvider with ChangeNotifier {
       final allNewMenus = await _apiService.getMenus(
         page: _page,
         pageSize: _pageSize * 2,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 10));
       _allMenus = [..._allMenus, ...allNewMenus];
       print('Unfiltered menus fetched in background (page $_page, total: ${_allMenus.length})');
       notifyListeners();
