@@ -11,9 +11,12 @@ import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
+import 'package:yurttaye_mobile/widgets/date_selector.dart';
+import 'package:yurttaye_mobile/widgets/empty_state_widget.dart';
+import 'package:yurttaye_mobile/widgets/upcoming_meals_section.dart';
+import 'package:yurttaye_mobile/widgets/bottom_navigation_bar.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
-import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -34,8 +37,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    
-    // Pulse animasyonu için controller
+    _initializeAnimations();
+    _selectMealTypeByTime();
+    _initializeData();
+  }
+
+  void _initializeAnimations() {
     _pulseController = AnimationController(
       duration: const Duration(seconds: 2),
       vsync: this,
@@ -47,13 +54,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       parent: _pulseController,
       curve: Curves.easeInOut,
     ));
-    
-    // Pulse animasyonunu başlat
     _pulseController.repeat(reverse: true);
-    
-    // Saat algılama ile otomatik yemek türü seçimi
-    _selectMealTypeByTime();
-    
+  }
+
+  void _initializeData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<MenuProvider>(context, listen: false);
       provider.fetchCities();
@@ -66,7 +70,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     final now = DateTime.now();
     final hour = now.hour;
     
-    // 13:00'dan sonra akşam yemeği, 00:00'dan sonra kahvaltı
     if (hour >= 13 || hour < 6) {
       setState(() {
         _selectedMealIndex = 1; // Akşam yemeği
@@ -85,35 +88,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ? _selectedDate.add(const Duration(days: 1))
         : _selectedDate.subtract(const Duration(days: 1));
     
-    // Geçmiş tarih kısıtlaması kaldırıldı - artık istediği tarihe gidebilir
     setState(() {
       _opacity = 0.5;
       _selectedDate = newDate;
     });
+    
     print('Date changed to: ${AppConfig.apiDateFormat.format(_selectedDate)}');
+    
     Future.delayed(const Duration(milliseconds: 300), () {
       setState(() => _opacity = 1.0);
     });
     
     if (!provider.menus.any((menu) =>
-    AppConfig.apiDateFormat.format(menu.date) ==
+        AppConfig.apiDateFormat.format(menu.date) ==
         AppConfig.apiDateFormat.format(_selectedDate))) {
       provider.fetchMenus(reset: false);
       print('Fetching menus for new date: ${AppConfig.apiDateFormat.format(_selectedDate)}');
     }
   }
 
+  void _onMealTypeChanged(int index) {
+    HapticFeedback.lightImpact();
+    final provider = Provider.of<MenuProvider>(context, listen: false);
+    provider.setSelectedMealIndex(index);
+    setState(() {
+      _opacity = 0.5;
+      _selectedMealIndex = index;
+    });
+    Future.delayed(const Duration(milliseconds: 300), () {
+      setState(() => _opacity = 1.0);
+    });
+  }
+
   bool _hasPreviousMenu(MenuProvider provider, String selectedMealType) {
-    // Geçmiş tarih kısıtlaması kaldırıldı - artık tüm geçmiş tarihlerde menü varsa true döndür
     return provider.menus.any((menu) =>
         menu.date.isBefore(_selectedDate) && 
         menu.mealType == selectedMealType &&
-        menu.id != 0); // Boş menü değilse
+        menu.id != 0);
   }
 
   bool _hasNextMenu(MenuProvider provider, String selectedMealType) {
     return provider.menus.any((menu) =>
-    menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType);
+        menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType);
+  }
+
+  bool _hasSelectedDateData(MenuProvider provider, String selectedMealType) {
+    return provider.menus.any((menu) =>
+        AppConfig.apiDateFormat.format(menu.date) == AppConfig.apiDateFormat.format(_selectedDate) &&
+        menu.mealType == selectedMealType);
   }
 
   Future<void> _launchWebsite() async {
@@ -179,7 +201,6 @@ Teşekkürler!''';
       if (canLaunch) {
         await launchUrl(emailUri);
       } else {
-        // Email uygulaması yoksa, email adresini kopyala
         await Clipboard.setData(const ClipboardData(text: email));
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -223,41 +244,88 @@ Teşekkürler!''';
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final screenWidth = MediaQuery.of(context).size.width;
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
-
+    final hasSelectedDateData = _hasSelectedDateData(provider, selectedMealType);
 
     return Scaffold(
       extendBody: true,
-      appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Constants.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.restaurant_menu,
-                color: Constants.white,
-                size: 20,
-              ),
+      appBar: _buildAppBar(themeProvider),
+      body: _buildBody(provider, selectedMealType, hasSelectedDateData),
+      bottomNavigationBar: CustomBottomNavigationBar(
+        selectedMealIndex: _selectedMealIndex,
+        onMealTypeChanged: _onMealTypeChanged,
+        pulseController: _pulseController,
+        pulseAnimation: _pulseAnimation,
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider) {
+    return AppBar(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Constants.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
             ),
-            const SizedBox(width: Constants.space2),
-            Text(
-              'YurttaYe',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textXl,
-                fontWeight: FontWeight.w700,
-                color: Constants.white,
-                letterSpacing: -0.5,
-              ),
+            child: const Icon(
+              Icons.restaurant_menu,
+              color: Constants.white,
+              size: 20,
             ),
-          ],
+          ),
+          const SizedBox(width: Constants.space2),
+          Text(
+            'YurttaYe',
+            style: GoogleFonts.inter(
+              fontSize: Constants.textXl,
+              fontWeight: FontWeight.w700,
+              color: Constants.white,
+              letterSpacing: -0.5,
+            ),
+          ),
+        ],
+      ),
+      leading: IconButton(
+        icon: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Constants.white.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: const Icon(
+            Icons.language,
+            color: Constants.white,
+            size: 20,
+          ),
         ),
-        leading: IconButton(
+        tooltip: 'Website\'yi Ziyaret Et',
+        onPressed: _launchWebsite,
+      ),
+      actions: [
+        IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Constants.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
+              color: Constants.white,
+              size: 20,
+            ),
+          ),
+          tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+          onPressed: () {
+            themeProvider.toggleTheme();
+            print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
+          },
+        ),
+        IconButton(
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -265,384 +333,97 @@ Teşekkürler!''';
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(
-              Icons.language,
+              Icons.filter_list,
               color: Constants.white,
               size: 20,
             ),
           ),
-          tooltip: 'Website\'yi Ziyaret Et',
-          onPressed: _launchWebsite,
+          tooltip: 'Filtrele',
+          onPressed: () => context.pushNamed('filter'),
         ),
-        actions: [
-          IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Constants.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
-                color: Constants.white,
-                size: 20,
-              ),
-            ),
-            tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
-            onPressed: () {
-              themeProvider.toggleTheme();
-              print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
-            },
-          ),
-          IconButton(
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Constants.white.withOpacity(0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(
-                Icons.filter_list,
-                color: Constants.white,
-                size: 20,
-              ),
-            ),
-            tooltip: 'Filtrele',
-            onPressed: () => context.pushNamed('filter'),
-          ),
-        ],
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Constants.kykPrimary.withOpacity(0.1),
-              Constants.white,
-            ],
-          ),
-        ),
-        child: provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
-                ? const ShimmerLoading()
-                : provider.error != null
-                    ? AppErrorWidget(
-                        error: provider.error!,
-                        onRetry: () {
-                          provider.fetchMenus(reset: true);
-                        },
-                      )
-                    : provider.menus.isEmpty && provider.allMenus.isEmpty
-                        ? _buildEmptyState(context, provider)
-                        : RefreshIndicator(
-                            onRefresh: () async {
-                              await provider.fetchMenus(reset: true);
-                            },
-                            child: Padding(
-                              padding: EdgeInsets.only(
-                                bottom: 60.0 + MediaQuery.of(context).padding.bottom,
-                              ),
-                              child: SingleChildScrollView(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildTodayMealCard(provider, selectedMealType, screenWidth),
-                                    _buildUpcomingMeals(provider, selectedMealType, screenWidth),
-                                    const SizedBox(height: Constants.space6),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-      ),
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: themeProvider.isDarkMode ? Constants.kykGray800 : Constants.white,
-          boxShadow: [
-            BoxShadow(
-              color: Constants.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
-            ),
-          ],
-        ),
-        child: SafeArea(
-          child: Container(
-            height: 80,
-            padding: const EdgeInsets.symmetric(horizontal: Constants.space2, vertical: Constants.space2),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                // Kahvaltı butonu
-                Expanded(
-                  child: _buildMealTypeButton(
-                    icon: Icons.breakfast_dining_rounded,
-                    label: 'Kahvaltı',
-                    isSelected: _selectedMealIndex == 0,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      setState(() {
-                        _opacity = 0.5;
-                        _selectedMealIndex = 0;
-                      });
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        setState(() => _opacity = 1.0);
-                      });
-                    },
-                  ),
-                ),
-                
-                // Ortadaki filtre butonu
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: Constants.space2),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      onTap: () {
-                        HapticFeedback.mediumImpact();
-                        // Özel animasyon efekti
-                        _pulseController.stop();
-                        _pulseController.forward().then((_) {
-                          _pulseController.repeat(reverse: true);
-                        });
-                        
-                        context.pushNamed('filter');
-                      },
-                      borderRadius: BorderRadius.circular(20),
-                      child: Ink(
-                        child: AnimatedBuilder(
-                          animation: _pulseAnimation,
-                          builder: (context, child) {
-                            return Transform.scale(
-                              scale: _pulseAnimation.value,
-                              child: Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [Constants.kykPrimary, Constants.kykPrimary.withOpacity(0.8)],
-                                  ),
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Constants.kykPrimary.withOpacity(0.3),
-                                      blurRadius: 6,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Icon(
-                                  Icons.filter_list_rounded,
-                                  color: Constants.white,
-                                  size: 20,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                
-                // Akşam butonu
-                Expanded(
-                  child: _buildMealTypeButton(
-                    icon: Icons.dinner_dining_rounded,
-                    label: 'Akşam',
-                    isSelected: _selectedMealIndex == 1,
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      setState(() {
-                        _opacity = 0.5;
-                        _selectedMealIndex = 1;
-                      });
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        setState(() => _opacity = 1.0);
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
+      ],
     );
   }
 
-  Widget _buildEmptyState(BuildContext context, MenuProvider provider) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Constants.space6),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(Constants.space6),
-              decoration: BoxDecoration(
-                color: Constants.kykGray100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                Icons.restaurant_menu,
-                size: Constants.text2xl * 2,
-                color: Constants.kykPrimary,
-              ),
-            ),
-            const SizedBox(height: Constants.space4),
-            Text(
-              'Henüz menü bulunamadı',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textXl,
-                fontWeight: FontWeight.w600,
-                color: Constants.kykGray700,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Constants.space2),
-            Text(
-              '${DateFormat('dd MMMM yyyy').format(_selectedDate)} tarihi için henüz veri girişi yapılmadı.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textBase,
-                color: Constants.kykGray500,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Constants.space2),
-            Text(
-              'Eğer elinizde menüyle ilgili bir bilgi varsa bulutsoftdev@gmail.com adresine ulaştırarak katkıda bulunabilirsiniz.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textSm,
-                color: Constants.kykGray500,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            
-            // Veri katkısı mesajı
-            Container(
-              padding: const EdgeInsets.all(Constants.space4),
-              decoration: BoxDecoration(
-                color: Constants.kykAccent.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Constants.kykAccent.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Constants.kykAccent,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: const Icon(
-                          Icons.volunteer_activism,
-                          color: Constants.white,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: Constants.space3),
-                      Expanded(
-                        child: Text(
-                          'Veri Katkısı',
-                          style: GoogleFonts.inter(
-                            fontSize: Constants.textLg,
-                            fontWeight: FontWeight.w600,
-                            color: Constants.kykGray700,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Constants.space3),
-                  Text(
-                    'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
-                    style: GoogleFonts.inter(
-                      fontSize: Constants.textBase,
-                      color: Constants.kykGray600,
-                      height: 1.5,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: Constants.space3),
-                  ElevatedButton.icon(
-                    onPressed: () => _launchEmail(),
-                    icon: const Icon(Icons.email),
-                    label: Text(
-                      'Bize Ulaşın',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Constants.kykAccent,
-                      foregroundColor: Constants.white,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: Constants.space4,
-                        vertical: Constants.space2,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: Constants.space4),
-            ElevatedButton.icon(
-              onPressed: () {
-                provider.fetchMenus(reset: true);
-              },
-              icon: const Icon(Icons.refresh),
-              label: Text(
-                'Tekrar Dene',
-                style: GoogleFonts.inter(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.space6,
-                  vertical: Constants.space3,
-                ),
-              ),
-            ),
+  Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Constants.kykPrimary.withOpacity(0.1),
+            Constants.white,
           ],
         ),
       ),
+      child: provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
+          ? const ShimmerLoading()
+          : provider.error != null
+              ? AppErrorWidget(
+                  error: provider.error!,
+                  onRetry: () {
+                    provider.fetchMenus(reset: true);
+                  },
+                )
+              : RefreshIndicator(
+                  onRefresh: () async {
+                    await provider.fetchMenus(reset: true);
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      bottom: 60.0 + MediaQuery.of(context).padding.bottom,
+                    ),
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildDateSelector(provider, selectedMealType),
+                          _buildMainContent(provider, selectedMealType, hasSelectedDateData),
+                          const SizedBox(height: Constants.space6),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
     );
   }
 
-  Widget _buildTodayMealCard(
-      MenuProvider provider,
-      String selectedMealType,
-      double screenWidth,
-      ) {
-    final today = AppConfig.apiDateFormat.format(_selectedDate);
+  Widget _buildDateSelector(MenuProvider provider, String selectedMealType) {
+    return DateSelector(
+      selectedDate: _selectedDate,
+      onDateChanged: _changeDate,
+      hasPreviousMenu: _hasPreviousMenu(provider, selectedMealType),
+      hasNextMenu: _hasNextMenu(provider, selectedMealType),
+      opacity: _opacity,
+    );
+  }
+
+  Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
+    if (!hasSelectedDateData) {
+      return EmptyStateWidget(
+        selectedDate: _selectedDate,
+        onEmailPressed: _launchEmail,
+      );
+    }
+
+    return Column(
+      children: [
+        _buildTodayMealCard(provider, selectedMealType),
+        UpcomingMealsSection(
+          selectedDate: _selectedDate,
+          opacity: _opacity,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTodayMealCard(MenuProvider provider, String selectedMealType) {
+    final selectedDate = AppConfig.apiDateFormat.format(_selectedDate);
     final menu = provider.menus.firstWhere(
-          (menu) =>
-      AppConfig.apiDateFormat.format(menu.date) == today && menu.mealType == selectedMealType,
-      orElse: () => provider.menus.firstWhere(
-            (menu) => AppConfig.apiDateFormat.format(menu.date) == today,
-        orElse: () => provider.menus.isNotEmpty
-            ? provider.menus.first
-            : Menu(
-          id: 0,
-          cityId: 0,
-          mealType: '',
-          date: _selectedDate,
-          energy: '',
-          items: [],
-        ),
-      ),
+      (menu) =>
+          AppConfig.apiDateFormat.format(menu.date) == selectedDate && menu.mealType == selectedMealType,
     );
 
     return Padding(
@@ -653,236 +434,16 @@ Teşekkürler!''';
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            padding: const EdgeInsets.all(Constants.space3),
-            decoration: BoxDecoration(
-              color: Constants.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Constants.kykGray200,
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Constants.kykGray200.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_back_ios,
-                    color: _hasPreviousMenu(provider, selectedMealType)
-                        ? Constants.kykPrimary
-                        : Constants.kykGray400,
-                    size: 20,
-                  ),
-                  onPressed: _hasPreviousMenu(provider, selectedMealType)
-                      ? () => _changeDate(false)
-                      : null,
-                  tooltip: 'Önceki Gün',
-                ),
-                Column(
-                  children: [
-                    Text(
-                      DateFormat('dd MMM yyyy').format(_selectedDate),
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textLg,
-                        fontWeight: FontWeight.w600,
-                        color: Constants.kykPrimary,
-                      ),
-                    ),
-                    Text(
-                      DateFormat('EEEE').format(_selectedDate),
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textSm,
-                        fontWeight: FontWeight.w500,
-                        color: Constants.kykGray500,
-                      ),
-                    ),
-                  ],
-                ),
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    color: _hasNextMenu(provider, selectedMealType)
-                        ? Constants.kykPrimary
-                        : Constants.kykGray400,
-                    size: 20,
-                  ),
-                  onPressed: _hasNextMenu(provider, selectedMealType)
-                      ? () => _changeDate(true)
-                      : null,
-                  tooltip: 'Sonraki Gün',
-                ),
-              ],
-            ),
-          ),
           const SizedBox(height: Constants.space3),
           AnimatedOpacity(
             opacity: _opacity,
             duration: const Duration(milliseconds: 300),
-            child: menu.id == 0
-                ? _buildNoMenuCard(context, selectedMealType)
-                : MealCard(menu: menu),
+            child: MealCard(menu: menu),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildNoMenuCard(BuildContext context, String selectedMealType) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Constants.space4),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(Constants.space3),
-              decoration: BoxDecoration(
-                color: Constants.kykGray100,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.info_outline,
-                size: Constants.textXl,
-                color: Constants.kykPrimary,
-              ),
-            ),
-            const SizedBox(height: Constants.space3),
-            Text(
-              'Menü Bulunamadı',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textLg,
-                fontWeight: FontWeight.w600,
-                color: Constants.kykGray700,
-              ),
-            ),
-            const SizedBox(height: Constants.space2),
-            Text(
-              '${DateFormat('dd MMMM yyyy').format(_selectedDate)} tarihi için henüz veri girişi yapılmadı.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textBase,
-                color: Constants.kykGray500,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Constants.space2),
-            Text(
-              'Eğer elinizde menüyle ilgili bir bilgi varsa bulutsoftdev@gmail.com adresine ulaştırarak katkıda bulunabilirsiniz.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textSm,
-                color: Constants.kykGray500,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildUpcomingMeals(
-      MenuProvider provider,
-      String selectedMealType,
-      double screenWidth,
-      ) {
-    final upcomingMenus = provider.allMenus
-        .where((menu) =>
-    menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType)
-        .take(3)
-        .toList();
-
-    if (upcomingMenus.isEmpty) return const SizedBox.shrink();
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: Constants.space4,
-        vertical: Constants.space2,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Gelecek Günler',
-            style: GoogleFonts.inter(
-              fontSize: Constants.textLg,
-              fontWeight: FontWeight.w600,
-              color: Constants.kykPrimary,
-            ),
-          ),
-          const SizedBox(height: Constants.space3),
-          ...upcomingMenus.map((menu) => Padding(
-            padding: const EdgeInsets.only(bottom: Constants.space2),
-            child: UpcomingMealCard(menu: menu),
-          )),
-        ],
-      ),
-    );
-  }
-
-
-
-  Widget _buildMealTypeButton({
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected ? Constants.kykPrimary.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: isSelected ? Constants.kykPrimary : Constants.kykGray200,
-                borderRadius: BorderRadius.circular(6),
-                boxShadow: isSelected ? [
-                  BoxShadow(
-                    color: Constants.kykPrimary.withOpacity(0.3),
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
-                  ),
-                ] : null,
-              ),
-              child: Icon(
-                icon,
-                color: isSelected ? Constants.white : Constants.kykGray600,
-                size: 18,
-              ),
-            ),
-            const SizedBox(height: 1),
-            Text(
-              label,
-              style: GoogleFonts.inter(
-                fontSize: 9,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Constants.kykPrimary : Constants.kykGray600,
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

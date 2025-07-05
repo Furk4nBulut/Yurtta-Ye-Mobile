@@ -16,6 +16,7 @@ class MenuProvider with ChangeNotifier {
   int? _selectedCityId;
   String? _selectedMealType;
   String? _selectedDate;
+  int _selectedMealIndex = 0;
   bool _isLoading = false;
   String? _error;
   int _page = AppConfig.initialPage;
@@ -28,6 +29,7 @@ class MenuProvider with ChangeNotifier {
   int? get selectedCityId => _selectedCityId;
   String? get selectedMealType => _selectedMealType;
   String? get selectedDate => _selectedDate;
+  int get selectedMealIndex => _selectedMealIndex;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasMore => _hasMore;
@@ -204,12 +206,29 @@ class MenuProvider with ChangeNotifier {
     fetchMenus(reset: true);
   }
 
+  void setSelectedMealIndex(int index) {
+    _selectedMealIndex = index;
+    print('Setting meal index: $index');
+  }
+
   void clearFilters() {
     _selectedCityId = null;
     _selectedMealType = null;
     _selectedDate = null;
     print('Clearing filters');
     fetchMenus(reset: true);
+  }
+
+  List<Menu> getUpcomingMeals(DateTime selectedDate) {
+    final today = DateTime.now();
+    final todayOnly = DateTime(today.year, today.month, today.day);
+    
+    return _allMenus
+        .where((menu) =>
+            menu.date.isAfter(todayOnly) && 
+            menu.mealType == AppConfig.mealTypes[_selectedMealIndex ?? 0])
+        .take(3)
+        .toList();
   }
 }
 
