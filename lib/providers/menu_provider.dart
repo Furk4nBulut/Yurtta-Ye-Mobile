@@ -67,6 +67,12 @@ class MenuProvider with ChangeNotifier {
   }
 
   Future<void> fetchMenus({bool reset = false, bool initialLoad = false}) async {
+    // Prevent multiple simultaneous calls
+    if (_isLoading) {
+      print('Fetch already in progress, skipping...');
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
     if (reset || initialLoad) {
       _page = AppConfig.initialPage;
@@ -83,8 +89,6 @@ class MenuProvider with ChangeNotifier {
         _allMenus = List.from(_menus); // Copy to allMenus for initial display
         print('Menus loaded from cache: ${_menus.length} items');
         notifyListeners();
-        // Fetch fresh data in the background
-        _fetchMenusBackground();
         return;
       } catch (e) {
         print('Error parsing cached menus: $e');
@@ -98,89 +102,60 @@ class MenuProvider with ChangeNotifier {
       _error = null;
       notifyListeners();
 
-      // Fetch filtered menus (smaller page size for initial load)
-      final newMenus = await _apiService.getMenus(
-        cityId: _selectedCityId,
-        mealType: initialLoad ? AppConfig.mealTypes[0] : _selectedMealType, // Default to first meal type
-        date: initialLoad ? AppConfig.apiDateFormat.format(DateTime.now()) : _selectedDate,
-        page: _page,
-        pageSize: initialLoad ? 5 : _pageSize, // Smaller page size for initial load
-      ).timeout(const Duration(seconds: 10), onTimeout: () => throw TimeoutException('Filtered menus API request timed out'));
-
-      print('Menus fetched (page $_page): ${newMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
-
-      if (newMenus.isEmpty || newMenus.length < _pageSize) {
-        _hasMore = false;
+      // Fetch all menus for HomeScreen (unfiltered)
+      final allMenus = await _apiService.getMenus().timeout(const Duration(seconds: 10));
+      print('All menus fetched: ${allMenus.length} items');
+      
+      // Remove duplicates based on menu ID
+      final uniqueMenus = <Menu>[];
+      final seenIds = <int>{};
+      
+      for (final menu in allMenus) {
+        if (!seenIds.contains(menu.id)) {
+          seenIds.add(menu.id);
+          uniqueMenus.add(menu);
+        }
+      }
+      
+      print('Unique menus after deduplication: ${uniqueMenus.length} items');
+      
+      if (reset || initialLoad) {
+        _allMenus = uniqueMenus;
+      } else {
+        // Merge with existing menus, avoiding duplicates
+        final existingIds = _allMenus.map((m) => m.id).toSet();
+        final newMenus = uniqueMenus.where((menu) => !existingIds.contains(menu.id)).toList();
+        _allMenus = [..._allMenus, ...newMenus];
       }
 
-      _menus = [..._menus, ...newMenus];
-      if (initialLoad || reset) {
-        _allMenus = List.from(_menus); // Initialize allMenus with filtered menus
+      // Filter menus based on current selection
+      final filteredMenus = _allMenus.where((menu) {
+        bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
+        bool matchesMealType = _selectedMealType == null || menu.mealType == _selectedMealType;
+        bool matchesDate = _selectedDate == null || AppConfig.apiDateFormat.format(menu.date) == _selectedDate;
+        return matchesCity && matchesMealType && matchesDate;
+      }).toList();
+
+      if (reset || initialLoad) {
+        _menus = filteredMenus;
+      } else {
+        // Merge filtered menus, avoiding duplicates
+        final existingFilteredIds = _menus.map((m) => m.id).toSet();
+        final newFilteredMenus = filteredMenus.where((menu) => !existingFilteredIds.contains(menu.id)).toList();
+        _menus = [..._menus, ...newFilteredMenus];
       }
-      _page++;
 
       // Cache menus
-      await prefs.setString('menus', jsonEncode(_menus.map((m) => m.toJson()).toList()));
-      print('Menus cached: ${_menus.length} items');
+      await prefs.setString('menus', jsonEncode(_allMenus.map((m) => m.toJson()).toList()));
+      print('Menus cached: ${_allMenus.length} items');
 
-      // Fetch unfiltered menus in the background
-      if (initialLoad || reset) {
-        _fetchMenusBackground();
-      }
     } catch (e) {
-      print('Server-side pagination failed: $e');
-      try {
-        final allMenus = await _apiService.getMenus().timeout(const Duration(seconds: 10));
-        print('All menus fetched: ${allMenus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
-        if (reset) {
-          _allMenus = allMenus;
-        } else {
-          _allMenus = [..._allMenus, ...allMenus];
-        }
-        final filteredMenus = allMenus.where((menu) {
-          bool matchesCity = _selectedCityId == null || menu.cityId == _selectedCityId;
-          bool matchesMealType = _selectedMealType == null || menu.mealType == _selectedMealType;
-          bool matchesDate = _selectedDate == null || AppConfig.apiDateFormat.format(menu.date) == _selectedDate;
-          return matchesCity && matchesMealType && matchesDate;
-        }).toList();
-
-        final start = (_page - 1) * _pageSize;
-        final end = start + _pageSize;
-        final newMenus = filteredMenus.length > start ? filteredMenus.sublist(start, end > filteredMenus.length ? filteredMenus.length : end) : [];
-
-        if (newMenus.isEmpty || end >= filteredMenus.length) {
-          _hasMore = false;
-        }
-
-        _menus = [..._menus, ...newMenus];
-        _page++;
-        print('Filtered menus (page $_page): ${_menus.map((m) => {'id': m.id, 'mealType': m.mealType, 'date': m.date.toIso8601String()}).toList()}');
-
-        // Cache menus
-        await prefs.setString('menus', jsonEncode(_menus.map((m) => m.toJson()).toList()));
-      } catch (e) {
-        _error = e.toString();
-        _hasMore = false;
-        print('Error fetching menus: $e');
-      }
+      _error = e.toString();
+      _hasMore = false;
+      print('Error fetching menus: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
-    }
-  }
-
-  // Fetch unfiltered menus in the background
-  Future<void> _fetchMenusBackground() async {
-    try {
-      final allNewMenus = await _apiService.getMenus(
-        page: _page,
-        pageSize: _pageSize * 2,
-      ).timeout(const Duration(seconds: 10));
-      _allMenus = [..._allMenus, ...allNewMenus];
-      print('Unfiltered menus fetched in background (page $_page, total: ${_allMenus.length})');
-      notifyListeners();
-    } catch (e) {
-      print('Error fetching unfiltered menus in background: $e');
     }
   }
 

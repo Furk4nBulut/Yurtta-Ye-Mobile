@@ -19,6 +19,7 @@ import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -309,6 +310,7 @@ Teşekkürler!''';
 
   Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -338,13 +340,16 @@ Teşekkürler!''';
                     ),
                     child: SingleChildScrollView(
                       physics: const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildDateSelector(provider, selectedMealType),
-                          _buildMainContent(provider, selectedMealType, hasSelectedDateData),
-                          const SizedBox(height: Constants.space6),
-                        ],
+                      child: Container(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildDateSelector(provider, selectedMealType),
+                            _buildMainContent(provider, selectedMealType, hasSelectedDateData),
+                            const SizedBox(height: Constants.space6),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -371,24 +376,29 @@ Teşekkürler!''';
 
   Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
     if (!hasSelectedDateData) {
-      return EmptyStateWidget(
-        selectedDate: _selectedDate,
-        onEmailPressed: _launchEmail,
-        onRefreshPressed: () {
-          final provider = Provider.of<MenuProvider>(context, listen: false);
-          provider.fetchMenus(reset: true);
-        },
+      return Container(
+        width: double.infinity,
+        child: EmptyStateWidget(
+          selectedDate: _selectedDate,
+          onEmailPressed: _launchEmail,
+          onRefreshPressed: () {
+            final provider = Provider.of<MenuProvider>(context, listen: false);
+            provider.fetchMenus(reset: true);
+          },
+        ),
       );
     }
 
-    return Column(
-      children: [
-        _buildTodayMealCard(provider, selectedMealType),
-        UpcomingMealsSection(
-          selectedDate: _selectedDate,
-          opacity: _opacity,
-        ),
-      ],
+    return Container(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildTodayMealCard(provider, selectedMealType),
+          const SizedBox(height: 16),
+          _buildWeeklyMealsSection(provider),
+        ],
+      ),
     );
   }
 
@@ -399,7 +409,8 @@ Teşekkürler!''';
           AppConfig.apiDateFormat.format(menu.date) == selectedDate && menu.mealType == selectedMealType,
     );
 
-    return Padding(
+    return Container(
+      width: double.infinity,
       padding: const EdgeInsets.symmetric(
         horizontal: Constants.space4,
         vertical: Constants.space2,
@@ -418,5 +429,119 @@ Teşekkürler!''';
     );
   }
 
+  Widget _buildWeeklyMealsSection(MenuProvider provider) {
+    // Seçili öğün türüne göre gelecek menüleri filtrele
+    final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
+    final upcomingMenus = provider.allMenus
+        .where((menu) =>
+            menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType)
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
 
+    // Remove duplicates based on date and meal type
+    final uniqueUpcomingMenus = <Menu>[];
+    final seenDates = <String>{};
+    
+    for (final menu in upcomingMenus) {
+      final dateKey = '${AppConfig.apiDateFormat.format(menu.date)}_${menu.mealType}';
+      if (!seenDates.contains(dateKey)) {
+        seenDates.add(dateKey);
+        uniqueUpcomingMenus.add(menu);
+      }
+    }
+
+    // Sadece 7 günlük menüyü al
+    final limitedUpcomingMenus = uniqueUpcomingMenus.take(7).toList();
+
+    // Loading durumu
+    if (provider.isLoading && provider.allMenus.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    // Boş durum
+    if (limitedUpcomingMenus.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: Row(
+          children: [
+            Icon(
+              Icons.info_outline,
+              size: Constants.textBase,
+              color: Theme.of(context).iconTheme.color,
+            ),
+            const SizedBox(width: Constants.space2),
+            Expanded(
+              child: Text(
+                'Gelecek $selectedMealType bulunamadı',
+                style: Theme.of(context).textTheme.bodyLarge,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    // Menü kartları
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  'Gelecek $selectedMealType',
+                  style: GoogleFonts.inter(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward,
+                size: Constants.textBase,
+                color: Constants.kykBlue600,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: Constants.space3),
+        Container(
+          height: 140,
+          width: double.infinity,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: limitedUpcomingMenus.length,
+            itemBuilder: (context, index) {
+              final menu = limitedUpcomingMenus[index];
+              return Container(
+                width: 220,
+                margin: const EdgeInsets.only(right: 12),
+                child: UpcomingMealCard(
+                  menu: menu,
+                  onTap: () => context.pushNamed(
+                    'menu_detail',
+                    pathParameters: {'id': menu.id.toString()},
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }

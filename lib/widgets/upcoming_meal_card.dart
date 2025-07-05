@@ -117,15 +117,15 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                   borderRadius: BorderRadius.circular(8),
                   splashColor: Constants.kykAccent.withOpacity(0.1),
                   child: Padding(
-                    padding: const EdgeInsets.all(Constants.space3),
+                    padding: const EdgeInsets.all(12),
                     child: Row(
                       children: [
                         // İkon bölümü
                         Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(6),
                           decoration: BoxDecoration(
                             color: Constants.kykGray100,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: Constants.kykPrimary,
                               width: 1,
@@ -134,45 +134,52 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                           child: Icon(
                             _getMealTypeIcon(widget.menu.mealType),
                             color: Constants.kykPrimary,
-                            size: 20,
+                            size: 16,
                           ),
                         ),
-                        const SizedBox(width: Constants.space3),
+                        const SizedBox(width: 10),
                         
                         // İçerik bölümü
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               // Öğün adı
                               Text(
                                 _getShortMealType(widget.menu.mealType),
                                 style: GoogleFonts.inter(
-                                  fontSize: Constants.textBase,
+                                  fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                   color: Constants.kykGray700,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: Constants.space1),
+                              const SizedBox(height: 4),
                               
                               // Tarih
                               Text(
-                                DateFormat('dd MMM yyyy, EEEE').format(widget.menu.date),
+                                DateFormat('dd MMM, EEEE').format(widget.menu.date),
                                 style: GoogleFonts.inter(
-                                  fontSize: Constants.textSm,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w500,
                                   color: Constants.kykGray500,
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                               if (widget.menu.items.isNotEmpty) ...[
-                                const SizedBox(height: Constants.space1),
+                                const SizedBox(height: 2),
                                 Text(
-                                  '${widget.menu.items.length} yemek çeşidi',
+                                  '${widget.menu.items.length} çeşit',
                                   style: GoogleFonts.inter(
-                                    fontSize: Constants.textXs,
+                                    fontSize: 10,
                                     fontWeight: FontWeight.w500,
                                     color: Constants.kykGray400,
                                   ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ],
                             ],
@@ -182,14 +189,14 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                         // Tarih farkı badge'i
                         Container(
                           padding: const EdgeInsets.symmetric(
-                            horizontal: Constants.space2,
-                            vertical: Constants.space1,
+                            horizontal: 6,
+                            vertical: 2,
                           ),
                           decoration: BoxDecoration(
                             color: daysDifference <= 1 
                                 ? Constants.kykAccent 
                                 : Constants.kykGray100,
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(6),
                             border: Border.all(
                               color: daysDifference <= 1 
                                   ? Constants.kykAccent 
@@ -204,7 +211,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                     ? 'Yarın'
                                     : '$daysDifference gün',
                             style: GoogleFonts.inter(
-                              fontSize: Constants.textXs,
+                              fontSize: 10,
                               fontWeight: FontWeight.w600,
                               color: daysDifference <= 1 
                                   ? Constants.white 
@@ -213,10 +220,12 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                           ),
                         ),
                         
+                        const SizedBox(width: 8),
+                        
                         // Ok ikonu
                         Icon(
                           Icons.arrow_forward_ios,
-                          size: 16,
+                          size: 12,
                           color: Constants.kykGray400,
                         ),
                       ],
