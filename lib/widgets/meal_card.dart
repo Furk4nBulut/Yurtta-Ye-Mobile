@@ -8,11 +8,11 @@ import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/category_section.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// A card widget displaying a meal menu with food-themed styling for a food app.
+/// KYK Yurt Yemekleri için özel tasarlanmış yemek kartı widget'ı
 class MealCard extends StatefulWidget {
-  final Menu menu; // The menu data to display
-  final bool isDetailed; // Whether to show detailed menu items
-  final VoidCallback? onTap; // Optional tap callback
+  final Menu menu;
+  final bool isDetailed;
+  final VoidCallback? onTap;
 
   const MealCard({
     super.key,
@@ -33,14 +33,12 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   @override
   void initState() {
     super.initState();
-    // Initialize animation controller for tap feedback
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 250),
+      duration: const Duration(milliseconds: 200),
     );
-    // Scale animation for a bouncy tap effect
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.9).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOutBack),
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.95).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
 
@@ -50,27 +48,50 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  /// Returns a food-themed Material Icon based on meal type.
+  /// KYK yurt yemekleri için özel ikonlar
   IconData _getMealTypeIcon(String mealType) {
     switch (mealType) {
       case 'Kahvaltı':
-        return Icons.coffee; // Coffee icon for breakfast
+        return Icons.breakfast_dining;
+      case 'Öğle Yemeği':
+        return Icons.lunch_dining;
       case 'Akşam Yemeği':
-        return Icons.dinner_dining; // Dinner icon for evening meals
+        return Icons.dinner_dining;
       default:
-        return Icons.restaurant; // General restaurant icon
+        return Icons.restaurant;
     }
   }
 
-  /// Shortens meal type for concise display in header.
+  /// Kısa öğün adı
   String _getShortMealType(String mealType) {
     switch (mealType) {
       case 'Kahvaltı':
-        return 'Sabah';
+        return 'Kahvaltı';
+      case 'Öğle Yemeği':
+        return 'Öğle';
       case 'Akşam Yemeği':
         return 'Akşam';
       default:
         return mealType;
+    }
+  }
+
+  /// Yemek kategorisine göre renk
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'çorba':
+        return Constants.foodWarm;
+      case 'ana yemek':
+      case 'et yemeği':
+        return Constants.foodSpicy;
+      case 'salata':
+      case 'yeşillik':
+        return Constants.foodFresh;
+      case 'tatlı':
+      case 'dessert':
+        return Constants.foodSweet;
+      default:
+        return Constants.kykAccent;
     }
   }
 
@@ -79,19 +100,17 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final screenWidth = MediaQuery.of(context).size.width;
     final isSmallScreen = screenWidth < 400;
-    final isVerySmallScreen = screenWidth < 350;
 
-    // Group menu items by category
     final categories = widget.menu.items.fold<Map<String, List<MenuItem>>>(
       {},
-          (map, item) {
+      (map, item) {
         map[item.category] = (map[item.category] ?? [])..add(item);
         return map;
       },
     );
 
     return Semantics(
-      label: 'Meal card for ${widget.menu.mealType} on ${DateFormat('dd MMM yyyy').format(widget.menu.date)}',
+      label: '${widget.menu.mealType} menüsü - ${DateFormat('dd MMM yyyy').format(widget.menu.date)}',
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
@@ -100,48 +119,48 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
           animation: _scaleAnimation,
           builder: (context, child) => Transform.scale(
             scale: _scaleAnimation.value,
-            child: Card(
-              elevation: _isHovered ? 10 : 6,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-                side: BorderSide(
-                  color: isDarkMode ? Constants.gray700 : Constants.gray200,
-                  width: 0.5,
-                ),
+            child: Container(
+              margin: const EdgeInsets.symmetric(
+                horizontal: Constants.space2,
+                vertical: Constants.space1,
               ),
-              child: ClipRRect(
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: isDarkMode ? Constants.gray800 : Constants.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Constants.kykBlue600.withOpacity(_isHovered ? 0.3 : 0.2),
-                        blurRadius: 12,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
+                boxShadow: [
+                  BoxShadow(
+                    color: Constants.kykPrimary.withOpacity(_isHovered ? 0.15 : 0.08),
+                    blurRadius: _isHovered ? 16 : 12,
+                    offset: Offset(0, _isHovered ? 6 : 4),
                   ),
-                  child: InkWell(
-                    onTap: widget.onTap ??
-                            () => context.pushNamed(
-                          'menu_detail',
-                          pathParameters: {'id': widget.menu.id.toString()},
-                        ),
-                    onTapDown: (_) => _controller.forward(),
-                    onTapUp: (_) => _controller.reverse(),
-                    onTapCancel: () => _controller.reverse(),
-                    splashColor: Constants.kykYellow400.withOpacity(0.4),
-                    borderRadius: BorderRadius.circular(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        // Header section with centered meal type and date
-                        _buildHeader(context, isSmallScreen, isVerySmallScreen, isDarkMode),
-                        // Body section with centered menu items and calorie info
-                        _buildBody(context, categories, isSmallScreen, isVerySmallScreen, isDarkMode),
-                      ],
-                    ),
+                ],
+              ),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: _isHovered 
+                        ? Constants.kykPrimary.withOpacity(0.3)
+                        : Constants.kykGray200,
+                    width: _isHovered ? 1.5 : 1,
+                  ),
+                ),
+                child: InkWell(
+                  onTap: widget.onTap ??
+                      () => context.pushNamed(
+                        'menu_detail',
+                        pathParameters: {'id': widget.menu.id.toString()},
+                      ),
+                  onTapDown: (_) => _controller.forward(),
+                  onTapUp: (_) => _controller.reverse(),
+                  onTapCancel: () => _controller.reverse(),
+                  borderRadius: BorderRadius.circular(16),
+                  splashColor: Constants.kykAccent.withOpacity(0.1),
+                  child: Column(
+                    children: [
+                      _buildHeader(context, isSmallScreen, isDarkMode),
+                      _buildBody(context, categories, isSmallScreen, isDarkMode),
+                    ],
                   ),
                 ),
               ),
@@ -152,23 +171,16 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     );
   }
 
-  /// Builds the header with a centered uppercase meal type and date.
-  Widget _buildHeader(
-      BuildContext context,
-      bool isSmallScreen,
-      bool isVerySmallScreen,
-      bool isDarkMode,
-      ) {
+  /// KYK başlık bölümü
+  Widget _buildHeader(BuildContext context, bool isSmallScreen, bool isDarkMode) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(
-        isVerySmallScreen ? Constants.space1 : isSmallScreen ? Constants.space2 : Constants.space3,
-      ),
+      padding: EdgeInsets.all(isSmallScreen ? Constants.space3 : Constants.space4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.kykBlue600,
-            Constants.kykYellow400.withOpacity(0.85),
+            Constants.kykPrimary,
+            Constants.kykSecondary,
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -176,170 +188,210 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
         borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Centered uppercase meal type with icon
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                _getMealTypeIcon(widget.menu.mealType),
-                color: Constants.white,
-                size: isVerySmallScreen
-                    ? Constants.textSm - 2
-                    : isSmallScreen
-                    ? Constants.textSm
-                    : Constants.textBase,
-              ),
-              const SizedBox(width: Constants.space1),
-              Text(
-                _getShortMealType(widget.menu.mealType).toUpperCase(),
-                style: GoogleFonts.poppins(
-                  fontSize: isVerySmallScreen
-                      ? Constants.textSm - 1
-                      : isSmallScreen
-                      ? Constants.textSm
-                      : Constants.textBase,
-                  fontWeight: FontWeight.w700,
-                  color: Constants.white,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Constants.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: Icon(
+                  _getMealTypeIcon(widget.menu.mealType),
+                  color: Constants.white,
+                  size: isSmallScreen ? 20 : 24,
+                ),
               ),
+              const SizedBox(width: Constants.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _getShortMealType(widget.menu.mealType),
+                      style: GoogleFonts.inter(
+                        fontSize: isSmallScreen ? Constants.textLg : Constants.textXl,
+                        fontWeight: FontWeight.w700,
+                        color: Constants.white,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    Text(
+                      DateFormat('dd MMMM yyyy, EEEE').format(widget.menu.date),
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textSm,
+                        fontWeight: FontWeight.w500,
+                        color: Constants.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.menu.energy.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: Constants.space2,
+                    vertical: Constants.space1,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Constants.kykAccent,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${widget.menu.energy} kcal',
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textXs,
+                      fontWeight: FontWeight.w600,
+                      color: Constants.white,
+                    ),
+                  ),
+                ),
             ],
-          ),
-          const SizedBox(height: Constants.space1),
-          // Date
-          Text(
-            DateFormat('dd MMM yyyy').format(widget.menu.date),
-            style: AppTheme.mealSubtitleStyle(context).copyWith(
-              fontSize: isVerySmallScreen
-                  ? Constants.textXs - 1
-                  : isSmallScreen
-                  ? Constants.textXs
-                  : Constants.textSm,
-              color: Constants.white,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
     );
   }
 
-  /// Builds the body with centered menu items and calorie badge.
+  /// Yemek içeriği bölümü
   Widget _buildBody(
-      BuildContext context,
-      Map<String, List<MenuItem>> categories,
-      bool isSmallScreen,
-      bool isVerySmallScreen,
-      bool isDarkMode,
-      ) {
+    BuildContext context,
+    Map<String, List<MenuItem>> categories,
+    bool isSmallScreen,
+    bool isDarkMode,
+  ) {
     return Padding(
-      padding: EdgeInsets.all(
-        isVerySmallScreen ? Constants.space2 : isSmallScreen ? Constants.space3 : Constants.space4,
-      ),
+      padding: EdgeInsets.all(isSmallScreen ? Constants.space3 : Constants.space4),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Kategori başlığı
+          Text(
+            'Bugünün Menüsü',
+            style: GoogleFonts.inter(
+              fontSize: Constants.textLg,
+              fontWeight: FontWeight.w600,
+              color: Constants.kykPrimary,
+            ),
+          ),
           const SizedBox(height: Constants.space3),
-          // Empty state
-          if (widget.menu.items.isEmpty)
-            Row(
+          
+          // Kategoriler
+          ...categories.entries.map((entry) {
+            final categoryName = entry.key;
+            final items = entry.value;
+            
+            return Padding(
+              padding: const EdgeInsets.only(bottom: Constants.space3),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Kategori başlığı
+                  Row(
+                    children: [
+                      Container(
+                        width: 4,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: _getCategoryColor(categoryName),
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: Constants.space2),
+                      Text(
+                        categoryName,
+                        style: GoogleFonts.inter(
+                          fontSize: Constants.textBase,
+                          fontWeight: FontWeight.w600,
+                          color: Constants.kykGray700,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Constants.space2),
+                  
+                  // Yemek listesi
+                  ...items.map((item) => Padding(
+                    padding: const EdgeInsets.only(bottom: Constants.space2),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.restaurant,
+                          size: 16,
+                          color: _getCategoryColor(categoryName),
+                        ),
+                        const SizedBox(width: Constants.space2),
+                        Expanded(
+                          child: Text(
+                            item.name,
+                            style: GoogleFonts.inter(
+                              fontSize: Constants.textSm,
+                              fontWeight: FontWeight.w500,
+                              color: Constants.kykGray600,
+                            ),
+                          ),
+                        ),
+                        if (item.gram.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Constants.space2,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Constants.kykGray100,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              '${item.gram}g',
+                              style: GoogleFonts.inter(
+                                fontSize: Constants.textXs,
+                                fontWeight: FontWeight.w500,
+                                color: Constants.kykGray500,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  )),
+                ],
+              ),
+            );
+          }),
+          
+          const SizedBox(height: Constants.space3),
+          
+          // Detay butonu
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: Constants.space2),
+            decoration: BoxDecoration(
+              color: Constants.kykGray50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: Constants.kykGray200,
+                width: 1,
+              ),
+            ),
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
                   Icons.info_outline,
-                  size: isVerySmallScreen
-                      ? Constants.textXs - 1
-                      : isSmallScreen
-                      ? Constants.textXs
-                      : Constants.textBase,
-                  color: isDarkMode ? Constants.gray300 : Constants.gray700,
+                  size: 16,
+                  color: Constants.kykPrimary,
                 ),
                 const SizedBox(width: Constants.space2),
                 Text(
-                  'Bu öğün için yemek bulunamadı',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontSize: isVerySmallScreen
-                        ? Constants.textSm - 1
-                        : isSmallScreen
-                        ? Constants.textSm
-                        : Constants.textBase,
-                    color: isDarkMode ? Constants.gray100 : Constants.gray700,
+                  'Detayları Görüntüle',
+                  style: GoogleFonts.inter(
+                    fontSize: Constants.textSm,
+                    fontWeight: FontWeight.w600,
+                    color: Constants.kykPrimary,
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
                 ),
               ],
-            )
-          // Menu items
-          else
-            Center(
-              child: Column(
-                children: categories.entries.map((entry) {
-                  return CategorySection(
-                    category: entry.key,
-                    items: entry.value,
-                    isExpanded: widget.isDetailed,
-                  );
-                }).toList(),
-              ),
-            ),
-          const SizedBox(height: Constants.space3),
-          // Calorie badge with hover animation
-          Center(
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTap: () {
-                  // Optional: Add action for calorie badge tap (e.g., show details)
-                },
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  transform: Matrix4.identity()..scale(_isHovered ? 1.05 : 1.0),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Constants.space2,
-                    vertical: Constants.space1,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Constants.kykYellow400.withOpacity(_isHovered ? 0.3 : 0.2),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Constants.kykYellow400, width: 1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.local_fire_department,
-                        size: isVerySmallScreen
-                            ? Constants.textXs - 1
-                            : isSmallScreen
-                            ? Constants.textXs
-                            : Constants.textSm,
-                        color: Constants.kykYellow400,
-                      ),
-                      const SizedBox(width: Constants.space1),
-                      Text(
-                        widget.menu.energy.isEmpty ? 'Kalori bilgisi yok' : widget.menu.energy,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: isDarkMode ? Constants.gray100 : Constants.gray800,
-                          fontWeight: FontWeight.w600,
-                          fontSize: isVerySmallScreen
-                              ? Constants.textSm - 1
-                              : isSmallScreen
-                              ? Constants.textSm
-                              : Constants.textBase,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
           ),
         ],

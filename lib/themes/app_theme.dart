@@ -5,155 +5,191 @@ import 'package:yurttaye_mobile/utils/constants.dart';
 class AppTheme {
   static ThemeData get lightTheme => ThemeData(
     useMaterial3: true,
-    primaryColor: Constants.kykBlue600,
+    primaryColor: Constants.kykPrimary,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Constants.kykBlue600,
+      seedColor: Constants.kykPrimary,
       brightness: Brightness.light,
-      primary: Constants.kykBlue600,
-      secondary: Constants.kykYellow400,
-      tertiary: const Color(0xFF0D9488), // Teal accent
+      primary: Constants.kykPrimary,
+      secondary: Constants.kykSecondary,
+      tertiary: Constants.kykAccent,
       surface: Constants.white,
-      background: Constants.gray50,
-      error: Colors.red[600],
+      background: Constants.kykGray50,
+      error: Constants.kykError,
+      onPrimary: Constants.white,
+      onSecondary: Constants.white,
+      onSurface: Constants.kykGray800,
+      onBackground: Constants.kykGray800,
     ),
-    scaffoldBackgroundColor: Constants.gray50,
-    textTheme: GoogleFonts.poppinsTextTheme(
+    scaffoldBackgroundColor: Constants.kykGray50,
+    textTheme: GoogleFonts.interTextTheme(
       TextTheme(
         displayLarge: TextStyle(
           fontSize: Constants.text2xl,
           fontWeight: FontWeight.w700,
-          color: Constants.gray800,
+          color: Constants.kykGray800,
+          letterSpacing: -0.5,
         ),
         displayMedium: TextStyle(
           fontSize: Constants.textXl,
           fontWeight: FontWeight.w600,
-          color: Constants.gray800,
+          color: Constants.kykGray800,
+          letterSpacing: -0.25,
         ),
         displaySmall: TextStyle(
           fontSize: Constants.textLg,
           fontWeight: FontWeight.w600,
-          color: Constants.gray800,
+          color: Constants.kykGray800,
+        ),
+        headlineLarge: TextStyle(
+          fontSize: Constants.textLg,
+          fontWeight: FontWeight.w600,
+          color: Constants.kykPrimary,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: Constants.textBase,
+          fontWeight: FontWeight.w600,
+          color: Constants.kykPrimary,
         ),
         bodyLarge: TextStyle(
           fontSize: Constants.textBase,
-          color: Constants.gray800, // High contrast for light mode
+          color: Constants.kykGray800,
+          height: 1.5,
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textSm,
-          color: Constants.gray600,
+          color: Constants.kykGray600,
+          height: 1.4,
         ),
         bodySmall: TextStyle(
           fontSize: Constants.textXs,
-          color: Constants.gray600,
+          color: Constants.kykGray500,
+          height: 1.3,
+        ),
+        labelLarge: TextStyle(
+          fontSize: Constants.textSm,
+          fontWeight: FontWeight.w500,
+          color: Constants.kykPrimary,
         ),
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 4, // Increased for depth
+      elevation: 2,
       color: Constants.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero, // Square corners
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Constants.kykGray200,
+          width: 1,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(
         vertical: Constants.space2,
         horizontal: Constants.space4,
       ),
-      shadowColor: Constants.gray600.withOpacity(0.2), // Stronger shadow
+      shadowColor: Constants.kykGray400.withOpacity(0.1),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0D9488), // Teal for buttons
+        backgroundColor: Constants.kykPrimary,
         foregroundColor: Constants.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Square corners
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
           vertical: Constants.space3,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.inter(
           fontSize: Constants.textBase,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
-        elevation: 5, // Increased for depth
-        shadowColor: Constants.gray600.withOpacity(0.25),
+        elevation: 2,
+        shadowColor: Constants.kykPrimary.withOpacity(0.25),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Constants.kykBlue600,
-        side: const BorderSide(color: Constants.gray200, width: 1.5),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Square corners
+        foregroundColor: Constants.kykPrimary,
+        side: BorderSide(color: Constants.kykPrimary, width: 1.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
           vertical: Constants.space3,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.inter(
           fontSize: Constants.textBase,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: Constants.gray100,
-      selectedColor: Constants.kykYellow400,
-      checkmarkColor: Constants.gray800,
-      labelStyle: GoogleFonts.poppins(
+      backgroundColor: Constants.kykGray100,
+      selectedColor: Constants.kykAccent,
+      checkmarkColor: Constants.white,
+      labelStyle: GoogleFonts.inter(
         fontSize: Constants.textSm,
-        color: Constants.gray800,
+        color: Constants.kykGray800,
         fontWeight: FontWeight.w500,
       ),
       padding: const EdgeInsets.symmetric(
         horizontal: Constants.space3,
         vertical: Constants.space2,
       ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero, // Square corners
-        side: BorderSide(color: Constants.gray200),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Constants.kykGray200),
       ),
-      elevation: 3, // Increased for depth
-      pressElevation: 6,
+      elevation: 1,
+      pressElevation: 2,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Constants.kykBlue600,
+      backgroundColor: Constants.kykPrimary,
       foregroundColor: Constants.white,
       elevation: 0,
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: GoogleFonts.inter(
         fontSize: Constants.textXl,
         fontWeight: FontWeight.w600,
         color: Constants.white,
+        letterSpacing: -0.25,
       ),
       iconTheme: const IconThemeData(
         color: Constants.white,
         size: Constants.textXl,
       ),
       centerTitle: true,
+      surfaceTintColor: Colors.transparent,
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
       backgroundColor: Constants.white,
-      selectedItemColor: Constants.kykYellow400,
-      unselectedItemColor: Constants.gray600,
-      selectedLabelStyle: GoogleFonts.poppins(
-        fontSize: Constants.textSm,
-        fontWeight: FontWeight.w500,
+      selectedItemColor: Constants.kykPrimary,
+      unselectedItemColor: Constants.kykGray400,
+      selectedLabelStyle: GoogleFonts.inter(
+        fontSize: Constants.textXs,
+        fontWeight: FontWeight.w600,
       ),
-      unselectedLabelStyle: GoogleFonts.poppins(
-        fontSize: Constants.textSm,
-        fontWeight: FontWeight.w400,
+      unselectedLabelStyle: GoogleFonts.inter(
+        fontSize: Constants.textXs,
+        fontWeight: FontWeight.w500,
       ),
       showUnselectedLabels: true,
       elevation: 8,
+      type: BottomNavigationBarType.fixed,
     ),
     iconTheme: IconThemeData(
-      color: Constants.gray600,
+      color: Constants.kykGray600,
       size: Constants.textBase,
+    ),
+    dividerTheme: DividerThemeData(
+      color: Constants.kykGray200,
+      thickness: 1,
+      space: 1,
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
@@ -161,103 +197,131 @@ class AppTheme {
 
   static ThemeData get darkTheme => ThemeData(
     useMaterial3: true,
-    primaryColor: Constants.kykBlue600,
+    primaryColor: Constants.kykSecondary,
     colorScheme: ColorScheme.fromSeed(
-      seedColor: Constants.kykBlue600,
+      seedColor: Constants.kykSecondary,
       brightness: Brightness.dark,
-      primary: Constants.kykBlue600,
-      secondary: Constants.kykYellow400,
-      tertiary: const Color(0xFF0D9488), // Teal accent
-      surface: Constants.gray600,
-      background: Constants.gray800,
-      error: Colors.red[400],
+      primary: Constants.kykSecondary,
+      secondary: Constants.kykAccent,
+      tertiary: Constants.kykSuccess,
+      surface: Constants.kykGray800,
+      background: Constants.kykGray900,
+      error: Constants.kykError,
+      onPrimary: Constants.white,
+      onSecondary: Constants.kykGray900,
+      onSurface: Constants.white,
+      onBackground: Constants.white,
     ),
-    scaffoldBackgroundColor: Constants.gray800,
-    textTheme: GoogleFonts.poppinsTextTheme(
+    scaffoldBackgroundColor: Constants.kykGray900,
+    textTheme: GoogleFonts.interTextTheme(
       TextTheme(
         displayLarge: TextStyle(
           fontSize: Constants.text2xl,
           fontWeight: FontWeight.w700,
           color: Constants.white,
+          letterSpacing: -0.5,
         ),
         displayMedium: TextStyle(
           fontSize: Constants.textXl,
           fontWeight: FontWeight.w600,
           color: Constants.white,
+          letterSpacing: -0.25,
         ),
         displaySmall: TextStyle(
           fontSize: Constants.textLg,
           fontWeight: FontWeight.w600,
           color: Constants.white,
         ),
+        headlineLarge: TextStyle(
+          fontSize: Constants.textLg,
+          fontWeight: FontWeight.w600,
+          color: Constants.kykSecondary,
+        ),
+        headlineMedium: TextStyle(
+          fontSize: Constants.textBase,
+          fontWeight: FontWeight.w600,
+          color: Constants.kykSecondary,
+        ),
         bodyLarge: TextStyle(
           fontSize: Constants.textBase,
-          color: Constants.white, // High contrast for dark mode
+          color: Constants.white,
+          height: 1.5,
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textSm,
-          color: Constants.gray100,
+          color: Constants.kykGray300,
+          height: 1.4,
         ),
         bodySmall: TextStyle(
           fontSize: Constants.textXs,
-          color: Constants.gray100,
+          color: Constants.kykGray400,
+          height: 1.3,
+        ),
+        labelLarge: TextStyle(
+          fontSize: Constants.textSm,
+          fontWeight: FontWeight.w500,
+          color: Constants.kykSecondary,
         ),
       ),
     ),
     cardTheme: CardThemeData(
-      elevation: 4, // Increased for depth
-      color: Constants.gray600,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero, // Square corners
+      elevation: 4,
+      color: Constants.kykGray800,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(
+          color: Constants.kykGray700,
+          width: 1,
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.symmetric(
         vertical: Constants.space2,
         horizontal: Constants.space4,
       ),
-      shadowColor: Constants.gray800.withOpacity(0.35), // Stronger shadow
+      shadowColor: Constants.black.withOpacity(0.3),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFF0D9488), // Teal for buttons
+        backgroundColor: Constants.kykSecondary,
         foregroundColor: Constants.white,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Square corners
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
           vertical: Constants.space3,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.inter(
           fontSize: Constants.textBase,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
-        elevation: 5, // Increased for depth
-        shadowColor: Constants.gray800.withOpacity(0.35),
+        elevation: 4,
+        shadowColor: Constants.kykSecondary.withOpacity(0.4),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Constants.kykYellow400,
-        side: const BorderSide(color: Constants.gray200, width: 1.5),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero, // Square corners
+        foregroundColor: Constants.kykSecondary,
+        side: BorderSide(color: Constants.kykSecondary, width: 1.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
         ),
         padding: const EdgeInsets.symmetric(
           horizontal: Constants.space4,
           vertical: Constants.space3,
         ),
-        textStyle: GoogleFonts.poppins(
+        textStyle: GoogleFonts.inter(
           fontSize: Constants.textBase,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w600,
         ),
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: Constants.gray600,
-      selectedColor: Constants.kykYellow400,
+      backgroundColor: Constants.kykGray700,
+      selectedColor: Constants.kykAccent,
       checkmarkColor: Constants.white,
-      labelStyle: GoogleFonts.poppins(
+      labelStyle: GoogleFonts.inter(
         fontSize: Constants.textSm,
         color: Constants.white,
         fontWeight: FontWeight.w500,
@@ -266,50 +330,58 @@ class AppTheme {
         horizontal: Constants.space3,
         vertical: Constants.space2,
       ),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero, // Square corners
-        side: BorderSide(color: Constants.gray200),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Constants.kykGray600),
       ),
-      elevation: 3, // Increased for depth
-      pressElevation: 6,
+      elevation: 2,
+      pressElevation: 4,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Constants.kykBlue600,
+      backgroundColor: Constants.kykGray800,
       foregroundColor: Constants.white,
       elevation: 0,
-      titleTextStyle: GoogleFonts.poppins(
+      titleTextStyle: GoogleFonts.inter(
         fontSize: Constants.textXl,
         fontWeight: FontWeight.w600,
         color: Constants.white,
+        letterSpacing: -0.25,
       ),
       iconTheme: const IconThemeData(
         color: Constants.white,
         size: Constants.textXl,
       ),
       centerTitle: true,
+      surfaceTintColor: Colors.transparent,
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Constants.gray600,
-      selectedItemColor: Constants.kykYellow400,
-      unselectedItemColor: Constants.gray100,
-      selectedLabelStyle: GoogleFonts.poppins(
-        fontSize: Constants.textSm,
-        fontWeight: FontWeight.w500,
+      backgroundColor: Constants.kykGray800,
+      selectedItemColor: Constants.kykSecondary,
+      unselectedItemColor: Constants.kykGray400,
+      selectedLabelStyle: GoogleFonts.inter(
+        fontSize: Constants.textXs,
+        fontWeight: FontWeight.w600,
       ),
-      unselectedLabelStyle: GoogleFonts.poppins(
-        fontSize: Constants.textSm,
-        fontWeight: FontWeight.w400,
+      unselectedLabelStyle: GoogleFonts.inter(
+        fontSize: Constants.textXs,
+        fontWeight: FontWeight.w500,
       ),
       showUnselectedLabels: true,
       elevation: 8,
+      type: BottomNavigationBarType.fixed,
     ),
     iconTheme: IconThemeData(
-      color: Constants.gray100,
+      color: Constants.kykGray300,
       size: Constants.textBase,
+    ),
+    dividerTheme: DividerThemeData(
+      color: Constants.kykGray700,
+      thickness: 1,
+      space: 1,
     ),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: {
-        TargetPlatform.android: ZoomPageTransitionsBuilder(),
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
         TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
       },
     ),
