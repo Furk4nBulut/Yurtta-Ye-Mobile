@@ -374,6 +374,10 @@ Teşekkürler!''';
       return EmptyStateWidget(
         selectedDate: _selectedDate,
         onEmailPressed: _launchEmail,
+        onRefreshPressed: () {
+          final provider = Provider.of<MenuProvider>(context, listen: false);
+          provider.fetchMenus(reset: true);
+        },
       );
     }
 
