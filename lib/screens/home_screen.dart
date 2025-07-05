@@ -85,34 +85,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ? _selectedDate.add(const Duration(days: 1))
         : _selectedDate.subtract(const Duration(days: 1));
     
-    // Geçmiş tarihe geçiş yapılacaksa, o tarihte menü var mı kontrol et
-    if (!isNext) {
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final newDay = DateTime(newDate.year, newDate.month, newDate.day);
-      
-      if (newDay.isBefore(today)) {
-        // Geçmiş tarihte menü var mı kontrol et
-        final hasMenuInPast = provider.menus.any((menu) =>
-            AppConfig.apiDateFormat.format(menu.date) == AppConfig.apiDateFormat.format(newDate) &&
-            menu.mealType == selectedMealType);
-        
-        if (!hasMenuInPast) {
-          // Geçmiş tarihte menü yoksa geçiş yapma
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                'Bu tarihte menü bulunmuyor',
-                style: GoogleFonts.inter(fontWeight: FontWeight.w500),
-              ),
-              backgroundColor: Constants.kykAccent,
-            ),
-          );
-          return;
-        }
-      }
-    }
-    
+    // Geçmiş tarih kısıtlaması kaldırıldı - artık istediği tarihe gidebilir
     setState(() {
       _opacity = 0.5;
       _selectedDate = newDate;
@@ -131,14 +104,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   bool _hasPreviousMenu(MenuProvider provider, String selectedMealType) {
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    
-    // Geçmiş tarihlerde sadece menü varsa true döndür
+    // Geçmiş tarih kısıtlaması kaldırıldı - artık tüm geçmiş tarihlerde menü varsa true döndür
     return provider.menus.any((menu) =>
         menu.date.isBefore(_selectedDate) && 
         menu.mealType == selectedMealType &&
-        DateTime(menu.date.year, menu.date.month, menu.date.day).isBefore(today) &&
         menu.id != 0); // Boş menü değilse
   }
 
@@ -256,11 +225,7 @@ Teşekkürler!''';
     final themeProvider = Provider.of<ThemeProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final selectedDay = DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
 
-    final isPast = selectedDay.isBefore(today);
 
     return Scaffold(
       extendBody: true,
@@ -357,9 +322,7 @@ Teşekkürler!''';
             ],
           ),
         ),
-        child: isPast
-            ? _buildPastDateContent(provider, selectedMealType, screenWidth)
-            : provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
+        child: provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
                 ? const ShimmerLoading()
                 : provider.error != null
                     ? AppErrorWidget(
@@ -384,6 +347,7 @@ Teşekkürler!''';
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     _buildTodayMealCard(provider, selectedMealType, screenWidth),
+                                    _buildUpcomingMeals(provider, selectedMealType, screenWidth),
                                     const SizedBox(height: Constants.space6),
                                   ],
                                 ),
@@ -863,41 +827,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildPastDateContent(MenuProvider provider, String selectedMealType, double screenWidth) {
-    // Seçili tarihte menü var mı kontrol et
-    final today = AppConfig.apiDateFormat.format(_selectedDate);
-    final hasMenuForSelectedDate = provider.menus.any((menu) =>
-        AppConfig.apiDateFormat.format(menu.date) == today && 
-        menu.mealType == selectedMealType);
 
-    if (hasMenuForSelectedDate) {
-      // Menü varsa normal şekilde göster
-      return RefreshIndicator(
-        onRefresh: () async {
-          await provider.fetchMenus(reset: true);
-        },
-        child: Padding(
-          padding: EdgeInsets.only(
-            bottom: 60.0 + MediaQuery.of(context).padding.bottom,
-          ),
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildTodayMealCard(provider, selectedMealType, screenWidth),
-                _buildUpcomingMeals(provider, selectedMealType, screenWidth),
-                const SizedBox(height: Constants.space6),
-              ],
-            ),
-          ),
-        ),
-      );
-    } else {
-      // Menü yoksa sadece bulutsoftdev mesajını göster
-      return _buildEmptyState(context, provider);
-    }
-  }
 
   Widget _buildMealTypeButton({
     required IconData icon,

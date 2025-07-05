@@ -66,11 +66,6 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final selectedDay = _selectedDate != null ? DateTime(_selectedDate!.year, _selectedDate!.month, _selectedDate!.day) : today;
-    final isPast = _selectedDate != null && selectedDay.isBefore(today);
-
     return Scaffold(
       appBar: AppBar(
         title: Row(
@@ -143,9 +138,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
         position: _slideAnimation,
         child: _isInitialLoad
             ? const ShimmerLoading()
-            : isPast
-                ? _buildPastDateWarning()
-                : Column(
+            : Column(
                     children: [
                       // Filtre bölümü
                       Expanded(
@@ -675,40 +668,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildPastDateWarning() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(Constants.space6),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.warning_amber_rounded, color: Constants.kykAccent, size: 64),
-            const SizedBox(height: Constants.space4),
-            Text(
-              _selectedDate != null
-                  ? '${DateFormat('dd MMMM yyyy').format(_selectedDate!)} geçmiş bir tarih. Geçmiş günlere ait menüler görüntülenemez.'
-                  : 'Geçmiş bir tarih seçildi. Geçmiş günlere ait menüler görüntülenemez.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textBase,
-                color: Constants.kykGray700,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: Constants.space2),
-            Text(
-              'Lütfen bugünün veya gelecekteki bir tarihi seçin.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textSm,
-                color: Constants.kykGray500,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+
 
   Future<void> _launchEmail() async {
     const String email = 'bulutsoftdev@gmail.com';

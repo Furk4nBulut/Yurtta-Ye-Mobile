@@ -39,15 +39,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       ),
     );
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
-    final menuDay = DateTime(menu.date.year, menu.date.month, menu.date.day);
-    final isPast = menuDay.isBefore(today);
-
-    if (menu.id == 0 || isPast) {
+    if (menu.id == 0) {
       return Scaffold(
         appBar: _buildAppBar(themeProvider),
-        body: _buildPastDateWarning(menu.date),
+        body: _buildEmptyState(),
       );
     }
 
@@ -163,32 +158,128 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildPastDateWarning(DateTime date) {
+  Widget _buildEmptyState() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Constants.space6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.warning_amber_rounded, color: Constants.kykAccent, size: 64),
+            Container(
+              padding: const EdgeInsets.all(Constants.space6),
+              decoration: BoxDecoration(
+                color: Constants.kykGray100,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Icon(
+                Icons.restaurant_menu,
+                size: Constants.text2xl * 2,
+                color: Constants.kykPrimary,
+              ),
+            ),
             const SizedBox(height: Constants.space4),
             Text(
-              '${DateFormat('dd MMMM yyyy').format(date)} geçmiş bir tarih. Geçmiş günlere ait menüler görüntülenemez.',
+              'Menü Bulunamadı',
               style: GoogleFonts.inter(
-                fontSize: Constants.textBase,
-                color: Constants.kykGray700,
+                fontSize: Constants.textXl,
                 fontWeight: FontWeight.w600,
+                color: Constants.kykGray700,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: Constants.space2),
             Text(
-              'Lütfen bugünün veya gelecekteki bir tarihi seçin.',
+              'Seçilen öğün türü için menü henüz yayınlanmamış.',
+              style: GoogleFonts.inter(
+                fontSize: Constants.textBase,
+                color: Constants.kykGray500,
+                height: 1.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: Constants.space2),
+            Text(
+              'Eğer elinizde menüyle ilgili bir bilgi varsa bulutsoftdev@gmail.com adresine ulaştırarak katkıda bulunabilirsiniz.',
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 color: Constants.kykGray500,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
+            ),
+            
+            // Veri katkısı mesajı
+            Container(
+              margin: const EdgeInsets.only(top: Constants.space4),
+              padding: const EdgeInsets.all(Constants.space4),
+              decoration: BoxDecoration(
+                color: Constants.kykAccent.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Constants.kykAccent.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Constants.kykAccent,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          Icons.volunteer_activism,
+                          color: Constants.white,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: Constants.space3),
+                      Expanded(
+                        child: Text(
+                          'Veri Katkısı',
+                          style: GoogleFonts.inter(
+                            fontSize: Constants.textLg,
+                            fontWeight: FontWeight.w600,
+                            color: Constants.kykGray700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: Constants.space3),
+                  Text(
+                    'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textBase,
+                      color: Constants.kykGray600,
+                      height: 1.5,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: Constants.space3),
+                  ElevatedButton.icon(
+                    onPressed: () => _launchEmail(),
+                    icon: const Icon(Icons.email),
+                    label: Text(
+                      'Bize Ulaşın',
+                      style: GoogleFonts.inter(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Constants.kykAccent,
+                      foregroundColor: Constants.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: Constants.space4,
+                        vertical: Constants.space2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
