@@ -68,19 +68,19 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         child: Column(
           children: [
             _buildHeroHeader(filteredMenu.id != 0 ? filteredMenu : menu),
-            const SizedBox(height: Constants.space4),
+            const SizedBox(height: Constants.space3),
             _buildMealTypeSelector(),
-            const SizedBox(height: Constants.space4),
+            const SizedBox(height: Constants.space3),
             filteredMenu.id != 0
                 ? _buildMenuContent(filteredMenu)
                 : _buildNoMenuForMealType(),
-            const SizedBox(height: Constants.space4),
+            const SizedBox(height: Constants.space3),
             _buildNutritionSection(filteredMenu.id != 0 ? filteredMenu : menu),
-            const SizedBox(height: Constants.space4),
+            const SizedBox(height: Constants.space3),
             _buildMealHoursInfo(),
-            const SizedBox(height: Constants.space4),
+            const SizedBox(height: Constants.space3),
             _buildDisclaimerInfo(),
-            const SizedBox(height: Constants.space6),
+            const SizedBox(height: Constants.space4),
           ],
         ),
       ),
@@ -91,7 +91,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     return AppBar(
       elevation: 0,
       backgroundColor: Constants.kykPrimary,
+      centerTitle: true,
       title: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             padding: const EdgeInsets.all(8),
@@ -145,7 +147,23 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               size: 18,
             ),
           ),
-          onPressed: () => themeProvider.toggleTheme(),
+          onPressed: () {
+            themeProvider.toggleTheme();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  themeProvider.isDarkMode ? 'Karanlık tema aktif' : 'Aydınlık tema aktif',
+                  style: GoogleFonts.inter(fontWeight: FontWeight.w600),
+                ),
+                backgroundColor: Constants.kykPrimary,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                duration: const Duration(seconds: 1),
+              ),
+            );
+          },
         ),
         IconButton(
           icon: Container(
@@ -318,7 +336,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   Widget _buildHeroHeader(Menu menu) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(Constants.space6),
+      padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
@@ -330,9 +348,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykPrimary.withOpacity(0.2),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: Constants.kykPrimary.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -341,46 +359,46 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           // Tarih ve öğün bilgisi
           Row(
             children: [
-                              Container(
-                  padding: const EdgeInsets.all(10),
+                                              Container(
+                  padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
                     color: Constants.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
                     Icons.calendar_today,
                     color: Constants.white,
-                    size: 20,
+                    size: 18,
                   ),
                 ),
-              const SizedBox(width: Constants.space4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      DateFormat('dd MMMM yyyy, EEEE').format(menu.date),
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textLg,
-                        fontWeight: FontWeight.w700,
-                        color: Constants.white,
+                const SizedBox(width: Constants.space3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        DateFormat('dd MMMM yyyy, EEEE').format(menu.date),
+                        style: GoogleFonts.inter(
+                          fontSize: Constants.textBase,
+                          fontWeight: FontWeight.w600,
+                          color: Constants.white,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: Constants.space1),
-                    Text(
-                      menu.mealType,
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textBase,
-                        fontWeight: FontWeight.w600,
-                        color: Constants.white.withOpacity(0.9),
+                      const SizedBox(height: Constants.space1),
+                      Text(
+                        menu.mealType,
+                        style: GoogleFonts.inter(
+                          fontSize: Constants.textSm,
+                          fontWeight: FontWeight.w500,
+                          color: Constants.white.withOpacity(0.9),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
             ],
           ),
-          const SizedBox(height: Constants.space4),
+          const SizedBox(height: Constants.space3),
           
           // İstatistikler
           Wrap(
@@ -451,7 +469,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildMealTypeSelector() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
+      margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
         color: Constants.white,
@@ -506,36 +524,36 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: Constants.space6),
+      padding: const EdgeInsets.symmetric(horizontal: Constants.space4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Constants.kykPrimary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.restaurant_menu,
                   color: Constants.kykPrimary,
-                  size: 20,
+                  size: 16,
                 ),
               ),
-              const SizedBox(width: Constants.space3),
+              const SizedBox(width: Constants.space2),
               Text(
                 'Bugünün Menüsü',
                 style: GoogleFonts.inter(
-                  fontSize: Constants.textXl,
-                  fontWeight: FontWeight.w700,
+                  fontSize: Constants.textLg,
+                  fontWeight: FontWeight.w600,
                   color: Constants.kykGray800,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: Constants.space3),
+          const SizedBox(height: Constants.space2),
           ...categories.entries.map((entry) => _buildCategoryCard(entry.key, entry.value)),
         ],
       ),
@@ -544,15 +562,15 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildCategoryCard(String category, List<MenuItem> items) {
     return Container(
-      margin: const EdgeInsets.only(bottom: Constants.space3),
+      margin: const EdgeInsets.only(bottom: Constants.space2),
       decoration: BoxDecoration(
         color: Constants.white,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+            color: Constants.kykGray200.withOpacity(0.08),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
@@ -560,31 +578,31 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         children: [
           // Kategori başlığı
           Container(
-            padding: const EdgeInsets.all(Constants.space3),
+            padding: const EdgeInsets.all(Constants.space2),
             decoration: BoxDecoration(
               color: _getCategoryColor(category).withOpacity(0.1),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             ),
             child: Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: _getCategoryColor(category),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Icon(
                     _getCategoryIcon(category),
                     color: Constants.white,
-                    size: 18,
+                    size: 14,
                   ),
                 ),
-                const SizedBox(width: Constants.space4),
+                const SizedBox(width: Constants.space3),
                 Expanded(
                   child: Text(
                     category,
                     style: GoogleFonts.inter(
-                      fontSize: Constants.textBase,
+                      fontSize: Constants.textSm,
                       fontWeight: FontWeight.w600,
                       color: Constants.kykGray800,
                     ),
@@ -592,12 +610,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: Constants.space2,
-                    vertical: 4,
+                    horizontal: Constants.space1,
+                    vertical: 3,
                   ),
                   decoration: BoxDecoration(
                     color: _getCategoryColor(category),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     '${items.length}',
@@ -614,7 +632,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           
           // Yemek listesi
           Padding(
-            padding: const EdgeInsets.all(Constants.space4),
+            padding: const EdgeInsets.all(Constants.space3),
             child: Column(
               children: items.map((item) => _buildMenuItem(item, category)).toList(),
             ),
@@ -630,53 +648,53 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
         color: Constants.kykGray50,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(6),
         border: Border.all(
-          color: _getCategoryColor(category).withOpacity(0.15),
+          color: _getCategoryColor(category).withOpacity(0.1),
           width: 1,
         ),
       ),
       child: Row(
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: 4,
+            height: 4,
             decoration: BoxDecoration(
               color: _getCategoryColor(category),
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(2),
             ),
           ),
-          const SizedBox(width: Constants.space3),
+          const SizedBox(width: Constants.space2),
           Expanded(
             child: Text(
               item.name,
               style: GoogleFonts.inter(
-                fontSize: Constants.textBase,
-                fontWeight: FontWeight.w600,
+                fontSize: Constants.textSm,
+                fontWeight: FontWeight.w500,
                 color: Constants.kykGray800,
-                height: 1.4,
+                height: 1.3,
               ),
             ),
           ),
-                      if (item.gram.isNotEmpty)
+                                  if (item.gram.isNotEmpty)
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.space2,
-                  vertical: 4,
+                  horizontal: Constants.space1,
+                  vertical: 3,
                 ),
                 decoration: BoxDecoration(
                   color: _getCategoryColor(category).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(4),
                 ),
-              child: Text(
-                '${item.gram}g',
-                style: GoogleFonts.inter(
-                  fontSize: Constants.textSm,
-                  fontWeight: FontWeight.w700,
-                  color: _getCategoryColor(category),
+                child: Text(
+                  '${item.gram}g',
+                  style: GoogleFonts.inter(
+                    fontSize: Constants.textXs,
+                    fontWeight: FontWeight.w600,
+                    color: _getCategoryColor(category),
+                  ),
                 ),
               ),
-            ),
         ],
       ),
     );
@@ -821,14 +839,18 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     if (menu.energy.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
+      margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
         color: Constants.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Constants.kykAccent.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.1),
+            color: Constants.kykGray200.withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -840,7 +862,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Constants.kykAccent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -848,10 +870,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 child: Icon(
                   Icons.local_fire_department,
                   color: Constants.kykAccent,
-                  size: 18,
+                  size: 16,
                 ),
               ),
-              const SizedBox(width: Constants.space4),
+              const SizedBox(width: Constants.space3),
               Text(
                 'Besin Değerleri',
                 style: GoogleFonts.inter(
@@ -867,17 +889,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(Constants.space3),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Constants.kykAccent.withOpacity(0.1),
-                  Constants.kykAccent.withOpacity(0.05),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(10),
+              color: Constants.kykAccent.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Constants.kykAccent.withOpacity(0.15),
+                color: Constants.kykAccent.withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -887,13 +902,13 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 Icon(
                   Icons.local_fire_department,
                   color: Constants.kykAccent,
-                  size: 28,
+                  size: 24,
                 ),
                 const SizedBox(width: Constants.space3),
                 Text(
                   menu.energy,
                   style: GoogleFonts.inter(
-                    fontSize: Constants.text2xl,
+                    fontSize: Constants.textXl,
                     fontWeight: FontWeight.w800,
                     color: Constants.kykAccent,
                   ),
@@ -908,14 +923,18 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildMealHoursInfo() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
+      margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
         color: Constants.white,
         borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Constants.kykPrimary.withOpacity(0.2),
+          width: 1,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.1),
+            color: Constants.kykGray200.withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -927,7 +946,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
                   color: Constants.kykPrimary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
@@ -935,15 +954,15 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 child: Icon(
                   Icons.access_time,
                   color: Constants.kykPrimary,
-                  size: 18,
+                  size: 16,
                 ),
               ),
               const SizedBox(width: Constants.space3),
               Text(
                 'Yemek Saatleri',
                 style: GoogleFonts.inter(
-                  fontSize: Constants.textBase,
-                  fontWeight: FontWeight.w600,
+                  fontSize: Constants.textLg,
+                  fontWeight: FontWeight.w700,
                   color: Constants.kykGray800,
                 ),
               ),
@@ -978,7 +997,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildMealTimeCard(String title, String time, IconData icon, Color color) {
     return Container(
-      padding: const EdgeInsets.all(Constants.space3),
+      padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
         color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(8),
@@ -990,15 +1009,15 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(6),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
-              color: color,
+              color: color.withOpacity(0.2),
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(
               icon,
-              color: Constants.white,
-              size: 16,
+              color: color,
+              size: 14,
             ),
           ),
           const SizedBox(height: Constants.space2),
@@ -1006,8 +1025,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             title,
             style: GoogleFonts.inter(
               fontSize: Constants.textSm,
-              fontWeight: FontWeight.w600,
-              color: Constants.kykGray700,
+              fontWeight: FontWeight.w700,
+              color: Constants.kykGray800,
             ),
             textAlign: TextAlign.center,
           ),
@@ -1015,8 +1034,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Text(
             time,
             style: GoogleFonts.inter(
-              fontSize: Constants.textXs,
-              fontWeight: FontWeight.w500,
+              fontSize: Constants.textSm,
+              fontWeight: FontWeight.w600,
               color: color,
             ),
             textAlign: TextAlign.center,
@@ -1028,28 +1047,35 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildDisclaimerInfo() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
+      margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
-        color: Constants.kykWarning.withOpacity(0.1),
+        color: Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Constants.kykWarning.withOpacity(0.2),
           width: 1,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Constants.kykGray200.withOpacity(0.15),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: Constants.kykWarning,
+              color: Constants.kykWarning.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.info_outline,
-              color: Constants.white,
-              size: 18,
+              color: Constants.kykWarning,
+              size: 16,
             ),
           ),
           const SizedBox(width: Constants.space3),
@@ -1058,8 +1084,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               'Menüler KYK veya çeşitli sebeplerden dolayı yazılanla uyuşmayabilir. Lütfen yurt yönetimi ile teyit ediniz.',
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
-                fontWeight: FontWeight.w500,
-                color: Constants.kykGray700,
+                fontWeight: FontWeight.w600,
+                color: Constants.kykGray800,
                 height: 1.4,
               ),
             ),
