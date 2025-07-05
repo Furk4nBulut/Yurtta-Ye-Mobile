@@ -68,6 +68,7 @@ class Constants {
   static const double textLg = 18.0;
   static const double textXl = 20.0;
   static const double text2xl = 24.0;
+  static const double text3xl = 30.0;
 
   static const Color gray800 = Color(0xFF0F1F3B);      // Çok koyu mavi
   static const Color gray900 = Color(0xFF0A1525);      // Siyaha yakın koyu mavi
