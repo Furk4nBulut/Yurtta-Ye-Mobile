@@ -119,7 +119,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: _isHovered 
+                  colors: _isHovered
                       ? [
                           Constants.kykPrimary.withOpacity(0.05),
                           Constants.kykAccent.withOpacity(0.02),
@@ -130,14 +130,14 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                         ],
                 ),
                 border: Border.all(
-                  color: _isHovered 
+                  color: _isHovered
                       ? Constants.kykPrimary.withOpacity(0.3)
                       : Constants.kykGray200,
                   width: _isHovered ? 1.5 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: _isHovered 
+                    color: _isHovered
                         ? Constants.kykPrimary.withOpacity(0.15)
                         : Constants.kykGray300.withOpacity(0.1),
                     blurRadius: _isHovered ? 12 : 8,
@@ -165,7 +165,6 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                         // Üst kısım - Başlık ve tarih
                         Row(
                           children: [
-                            // İkon bölümü
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
@@ -193,8 +192,6 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                               ),
                             ),
                             const SizedBox(width: 8),
-                            
-                            // Başlık ve tarih
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,8 +222,6 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 ],
                               ),
                             ),
-                            
-                            // Tarih farkı badge'i
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 6,
@@ -236,12 +231,12 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: daysDifference == 0 
+                                  colors: daysDifference == 0
                                       ? [
                                           Constants.kykAccent,
                                           Constants.kykAccent.withOpacity(0.8),
                                         ]
-                                      : daysDifference > 0 
+                                      : daysDifference > 0
                                           ? [
                                               Constants.kykBlue400,
                                               Constants.kykBlue400.withOpacity(0.8),
@@ -253,30 +248,32 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 ),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
-                                  color: daysDifference == 0 
+                                  color: daysDifference == 0
                                       ? Constants.kykAccent.withOpacity(0.3)
-                                      : daysDifference > 0 
+                                      : daysDifference > 0
                                           ? Constants.kykBlue400.withOpacity(0.3)
                                           : Constants.kykGray300,
                                   width: 1,
                                 ),
-                                boxShadow: (daysDifference == 0 || daysDifference > 0) ? [
-                                  BoxShadow(
-                                    color: daysDifference == 0 
-                                        ? Constants.kykAccent.withOpacity(0.2)
-                                        : Constants.kykBlue400.withOpacity(0.2),
-                                    blurRadius: 2,
-                                    offset: const Offset(0, 1),
-                                  ),
-                                ] : null,
+                                boxShadow: (daysDifference == 0 || daysDifference > 0)
+                                    ? [
+                                        BoxShadow(
+                                          color: daysDifference == 0
+                                              ? Constants.kykAccent.withOpacity(0.2)
+                                              : Constants.kykBlue400.withOpacity(0.2),
+                                          blurRadius: 2,
+                                          offset: const Offset(0, 1),
+                                        ),
+                                      ]
+                                    : null,
                               ),
                               child: Text(
                                 _getDaysDifferenceText(),
                                 style: GoogleFonts.inter(
                                   fontSize: 8,
                                   fontWeight: FontWeight.w600,
-                                  color: daysDifference >= 0 
-                                      ? Constants.white 
+                                  color: daysDifference >= 0
+                                      ? Constants.white
                                       : Constants.kykGray600,
                                 ),
                                 maxLines: 1,
@@ -285,10 +282,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                             ),
                           ],
                         ),
-                        
                         const SizedBox(height: 8),
-                        
-                        // Orta kısım - Yemek bilgileri
                         if (widget.menu.items.isNotEmpty) ...[
                           Row(
                             children: [
@@ -309,7 +303,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 overflow: TextOverflow.ellipsis,
                               ),
                               const Spacer(),
-                              if (widget.menu.energy.isNotEmpty) ...[
+                              if (widget.menu.energy.isNotEmpty)
                                 Flexible(
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
@@ -346,115 +340,116 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                     ),
                                   ),
                                 ),
-                              ],
                             ],
                           ),
-                          
                           const SizedBox(height: 6),
-                          
-                          // Yemek listesi (ilk 5 yemek)
-                          if (widget.menu.items.isNotEmpty) ...[
-                            Container(
-                              padding: const EdgeInsets.all(6),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Constants.kykGray50,
-                                    Constants.white,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Constants.kykGray200,
-                                  width: 1,
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.menu_book,
-                                        size: 11,
-                                        color: Constants.kykPrimary,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        'Menü:',
-                                        style: GoogleFonts.inter(
-                                          fontSize: 9,
-                                          fontWeight: FontWeight.w600,
-                                          color: Constants.kykGray700,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  ...widget.menu.items.take(5).map((item) => Padding(
-                                    padding: const EdgeInsets.only(bottom: 2),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 3,
-                                          height: 3,
-                                          decoration: BoxDecoration(
-                                            color: Constants.kykPrimary,
-                                            borderRadius: BorderRadius.circular(1.5),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Expanded(
-                                          child: Text(
-                                            item.name,
-                                            style: GoogleFonts.inter(
-                                              fontSize: 8,
-                                              fontWeight: FontWeight.w500,
-                                              color: Constants.kykGray700,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )).toList(),
-                                  if (widget.menu.items.length > 5) ...[
-                                    const SizedBox(height: 2),
-                                    Row(
-                                      children: [
-                                        Container(
-                                          width: 3,
-                                          height: 3,
-                                          decoration: BoxDecoration(
-                                            color: Constants.kykGray400,
-                                            borderRadius: BorderRadius.circular(1.5),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        Text(
-                                          '+${widget.menu.items.length - 5} daha',
-                                          style: GoogleFonts.inter(
-                                            fontSize: 7,
-                                            fontWeight: FontWeight.w500,
-                                            color: Constants.kykGray500,
-                                            fontStyle: FontStyle.italic,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Constants.kykGray50,
+                                  Constants.white,
                                 ],
                               ),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Constants.kykGray200,
+                                width: 1,
+                              ),
                             ),
-                          ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.menu_book,
+                                      size: 11,
+                                      color: Constants.kykPrimary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Menü:',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w600,
+                                        color: Constants.kykGray700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                SizedBox(
+                                  height: 54,
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        ...widget.menu.items.take(5).map((item) => Padding(
+                                              padding: const EdgeInsets.only(bottom: 2),
+                                              child: Row(
+                                                children: [
+                                                  Container(
+                                                    width: 3,
+                                                    height: 3,
+                                                    decoration: BoxDecoration(
+                                                      color: Constants.kykPrimary,
+                                                      borderRadius: BorderRadius.circular(1.5),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 6),
+                                                  Expanded(
+                                                    child: Text(
+                                                      item.name,
+                                                      style: GoogleFonts.inter(
+                                                        fontSize: 8,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: Constants.kykGray700,
+                                                      ),
+                                                      maxLines: 1,
+                                                      overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )),
+                                        if (widget.menu.items.length > 5) ...[
+                                          const SizedBox(height: 2),
+                                          Row(
+                                            children: [
+                                              Container(
+                                                width: 3,
+                                                height: 3,
+                                                decoration: BoxDecoration(
+                                                  color: Constants.kykGray400,
+                                                  borderRadius: BorderRadius.circular(1.5),
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Text(
+                                                '+${widget.menu.items.length - 5} daha',
+                                                style: GoogleFonts.inter(
+                                                  fontSize: 7,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: Constants.kykGray500,
+                                                  fontStyle: FontStyle.italic,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
-                        
-                        const SizedBox(height: 6),
-                        
-                        // Alt kısım - Detay butonu
+                        const SizedBox(height: 2),
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
                           decoration: BoxDecoration(

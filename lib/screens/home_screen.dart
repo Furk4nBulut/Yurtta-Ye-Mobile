@@ -521,11 +521,11 @@ Teşekkürler!''';
           ),
         ),
         const SizedBox(height: Constants.space3),
-        Container(
-          height: 280,
-          width: double.infinity,
+        SizedBox(
+          height: 200,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
+            physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: limitedUpcomingMenus.length,
             itemBuilder: (context, index) {
