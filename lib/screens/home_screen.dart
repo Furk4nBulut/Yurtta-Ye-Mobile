@@ -20,6 +20,7 @@ import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
+import 'package:yurttaye_mobile/widgets/meal_schedule_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -396,6 +397,8 @@ Teşekkürler!''';
         children: [
           _buildTodayMealCard(provider, selectedMealType),
           const SizedBox(height: 16),
+          const MealScheduleCard(),
+          const SizedBox(height: 16),
           _buildWeeklyMealsSection(provider),
         ],
       ),
@@ -499,7 +502,7 @@ Teşekkürler!''';
             children: [
               Expanded(
                 child: Text(
-                  'Gelecek $selectedMealType',
+                  'Gelecek $selectedMealType Menüleri',
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -519,7 +522,7 @@ Teşekkürler!''';
         ),
         const SizedBox(height: Constants.space3),
         Container(
-          height: 140,
+          height: 280,
           width: double.infinity,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
@@ -528,7 +531,7 @@ Teşekkürler!''';
             itemBuilder: (context, index) {
               final menu = limitedUpcomingMenus[index];
               return Container(
-                width: 220,
+                width: 300,
                 margin: const EdgeInsets.only(right: 12),
                 child: UpcomingMealCard(
                   menu: menu,
