@@ -66,10 +66,11 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
-      backgroundColor: Constants.kykGray50,
+      backgroundColor: isDark ? Constants.kykGray900 : Constants.kykGray50,
       appBar: AppBar(
-        backgroundColor: Constants.kykPrimary,
+        backgroundColor: isDark ? Constants.kykGray800 : Constants.kykPrimary,
         elevation: 0,
         centerTitle: true,
         title: Text(
@@ -134,13 +135,13 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
         child: _isInitialLoad
             ? const ShimmerLoading()
             : Container(
-                color: Constants.kykGray50,
+                color: isDark ? Constants.kykGray900 : Constants.kykGray50,
                 child: Column(
                   children: [
                     // Filtre bölümü - Keskin köşeler
                     Container(
                       height: MediaQuery.of(context).size.height * 0.18,
-                      color: Constants.kykGray50,
+                      color: isDark ? Constants.kykGray900 : Constants.kykGray50,
                       padding: EdgeInsets.zero,
                       child: Column(
                         children: [
@@ -187,18 +188,19 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   }
 
   Widget _buildSharpFilterSection(String title, IconData icon, Widget content) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: EdgeInsets.only(left: 4, right: 4, top: 4, bottom: title == 'Tarih' ? 0 : 4),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.zero,
         border: Border.all(
-          color: Constants.kykGray200,
+          color: isDark ? Constants.kykGray700 : Constants.kykGray200,
           width: 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.1),
+            color: (isDark ? Constants.kykGray700 : Constants.kykGray200).withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -213,12 +215,12 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               Container(
                 padding: const EdgeInsets.all(2),
                 decoration: BoxDecoration(
-                  color: Constants.kykPrimary.withOpacity(0.1),
+                  color: (isDark ? Constants.kykSecondary : Constants.kykPrimary).withOpacity(0.1),
                   borderRadius: BorderRadius.zero,
                 ),
                 child: Icon(
                   icon,
-                  color: Constants.kykPrimary,
+                  color: isDark ? Constants.kykSecondary : Constants.kykPrimary,
                   size: 10,
                 ),
               ),
@@ -228,7 +230,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                 style: GoogleFonts.inter(
                   fontSize: Constants.textSm,
                   fontWeight: FontWeight.w600,
-                  color: Constants.kykGray700,
+                  color: isDark ? Constants.white : Constants.kykGray700,
                 ),
               ),
             ],
@@ -482,9 +484,10 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   }
 
   Widget _buildSharpResultsSection(MenuProvider provider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
-      decoration: const BoxDecoration(
-        color: Constants.white,
+      decoration: BoxDecoration(
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.zero,
       ),
       child: Column(
@@ -492,8 +495,8 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
           // Başlık - Keskin köşeler
           Container(
             padding: const EdgeInsets.only(left: 12, right: 12, top: 6, bottom: 6),
-            decoration: const BoxDecoration(
-              color: Constants.white,
+            decoration: BoxDecoration(
+              color: isDark ? Constants.kykGray800 : Constants.white,
               borderRadius: BorderRadius.zero,
             ),
             child: Row(
@@ -501,12 +504,12 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Constants.kykPrimary.withOpacity(0.1),
+                    color: (isDark ? Constants.kykSecondary : Constants.kykPrimary).withOpacity(0.1),
                     borderRadius: BorderRadius.zero,
                   ),
                   child: Icon(
                     Icons.search,
-                    color: Constants.kykPrimary,
+                    color: isDark ? Constants.kykSecondary : Constants.kykPrimary,
                     size: 16,
                   ),
                 ),
@@ -517,7 +520,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     style: GoogleFonts.inter(
                       fontSize: Constants.textBase,
                       fontWeight: FontWeight.w600,
-                      color: Constants.kykGray700,
+                      color: isDark ? Constants.white : Constants.kykGray700,
                     ),
                   ),
                 ),
@@ -527,7 +530,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: Constants.kykPrimary,
+                    color: isDark ? Constants.kykSecondary : Constants.kykPrimary,
                     borderRadius: BorderRadius.zero,
                   ),
                   child: Text(
@@ -592,6 +595,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   }
 
   Widget _buildEmptyResults() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Constants.space4),
@@ -601,13 +605,13 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             Container(
               padding: const EdgeInsets.all(Constants.space4),
               decoration: BoxDecoration(
-                color: Constants.kykGray100,
+                color: isDark ? Constants.kykGray700 : Constants.kykGray100,
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Icon(
                 Icons.search_off,
                 size: Constants.textXl,
-                color: Constants.kykPrimary,
+                color: isDark ? Constants.kykSecondary : Constants.kykPrimary,
               ),
             ),
             const SizedBox(height: Constants.space3),
@@ -616,7 +620,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               style: GoogleFonts.inter(
                 fontSize: Constants.textLg,
                 fontWeight: FontWeight.w600,
-                color: Constants.kykGray700,
+                color: isDark ? Constants.white : Constants.kykGray700,
               ),
             ),
             const SizedBox(height: Constants.space2),
@@ -626,7 +630,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                   : 'Seçilen kriterlere uygun sonuç bulunamadı.',
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
-                color: Constants.kykGray500,
+                color: isDark ? Constants.kykGray300 : Constants.kykGray500,
                 height: 1.4,
               ),
               textAlign: TextAlign.center,

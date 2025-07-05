@@ -7,6 +7,7 @@ import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
@@ -22,6 +23,20 @@ class MenuDetailScreen extends StatefulWidget {
 
 class _MenuDetailScreenState extends State<MenuDetailScreen> {
   String _selectedMealType = AppConfig.mealTypes[0];
+
+  /// Yemek türü sabitini al
+  String _getMealTypeConstant(String mealType) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return Constants.breakfastType;
+      case 'Öğle Yemeği':
+        return Constants.lunchType;
+      case 'Akşam Yemeği':
+        return Constants.dinnerType;
+      default:
+        return Constants.lunchType;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +56,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
     if (menu.id == 0) {
       return Scaffold(
-        appBar: _buildAppBar(themeProvider),
+        appBar: _buildAppBar(themeProvider, _getMealTypeConstant(menu.mealType)),
         body: _buildEmptyState(),
       );
     }
@@ -61,25 +76,28 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       ),
     );
 
+    final mealTypeConstant = _getMealTypeConstant(filteredMenu.id != 0 ? filteredMenu.mealType : menu.mealType);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
-      backgroundColor: Constants.kykGray50,
-      appBar: _buildAppBar(themeProvider),
+      backgroundColor: isDark ? Constants.kykGray900 : Constants.kykGray50,
+      appBar: _buildAppBar(themeProvider, mealTypeConstant),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            _buildHeroHeader(filteredMenu.id != 0 ? filteredMenu : menu),
+            _buildHeroHeader(filteredMenu.id != 0 ? filteredMenu : menu, mealTypeConstant),
             const SizedBox(height: Constants.space3),
-            _buildMealTypeSelector(),
+            _buildMealTypeSelector(mealTypeConstant),
             const SizedBox(height: Constants.space3),
             filteredMenu.id != 0
-                ? _buildMenuContent(filteredMenu)
-                : _buildNoMenuForMealType(),
+                ? _buildMenuContent(filteredMenu, mealTypeConstant)
+                : _buildNoMenuForMealType(mealTypeConstant),
             const SizedBox(height: Constants.space3),
-            _buildNutritionSection(filteredMenu.id != 0 ? filteredMenu : menu),
+            _buildNutritionSection(filteredMenu.id != 0 ? filteredMenu : menu, mealTypeConstant),
             const SizedBox(height: Constants.space3),
-            _buildMealHoursInfo(),
+            _buildMealHoursInfo(mealTypeConstant),
             const SizedBox(height: Constants.space3),
-            _buildDisclaimerInfo(),
+            _buildDisclaimerInfo(mealTypeConstant),
             const SizedBox(height: Constants.space4),
           ],
         ),
@@ -87,10 +105,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider) {
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return AppBar(
       elevation: 0,
-      backgroundColor: Constants.kykPrimary,
+      backgroundColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
       centerTitle: true,
       title: Row(
         mainAxisSize: MainAxisSize.min,
@@ -117,7 +137,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             ),
           ),
         ],
-      ),
+      ), 
       leading: IconButton(
         icon: Container(
           padding: const EdgeInsets.all(8),
@@ -155,7 +175,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   themeProvider.isDarkMode ? 'Karanlık tema aktif' : 'Aydınlık tema aktif',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
-                backgroundColor: Constants.kykPrimary,
+                backgroundColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -185,146 +205,53 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildEmptyState() {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Constants.kykPrimary.withOpacity(0.05),
-            Constants.kykGray50,
-          ],
+          colors: isDark
+              ? [
+                  Constants.kykGray800,
+                  Constants.kykGray900,
+                ]
+              : [
+                  Constants.kykPrimary.withOpacity(0.05),
+                  Constants.kykGray50,
+                ],
         ),
       ),
       child: Center(
         child: Padding(
-          padding: const EdgeInsets.all(Constants.space8),
+          padding: const EdgeInsets.all(Constants.space6),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Container(
-                padding: const EdgeInsets.all(Constants.space8),
-                decoration: BoxDecoration(
-                  color: Constants.white,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Constants.kykGray200.withOpacity(0.3),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.restaurant_menu,
-                  size: Constants.text3xl * 2,
-                  color: Constants.kykPrimary,
-                ),
+              Icon(
+                Icons.restaurant_menu,
+                size: 80,
+                color: isDark ? Constants.kykGray400 : Constants.kykGray300,
               ),
-              const SizedBox(height: Constants.space6),
+              const SizedBox(height: Constants.space4),
               Text(
                 'Menü Bulunamadı',
                 style: GoogleFonts.inter(
                   fontSize: Constants.text2xl,
                   fontWeight: FontWeight.w700,
-                  color: Constants.kykGray800,
+                  color: isDark ? Constants.white : Constants.kykGray800,
                 ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: Constants.space3),
               Text(
-                'Seçilen öğün türü için menü henüz yayınlanmamış.',
+                'Aradığınız menü bulunamadı veya henüz yüklenmedi.',
                 style: GoogleFonts.inter(
-                  fontSize: Constants.textLg,
-                  color: Constants.kykGray600,
-                  height: 1.6,
+                  fontSize: Constants.textBase,
+                  color: isDark ? Constants.kykGray300 : Constants.kykGray600,
                 ),
                 textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: Constants.space6),
-              
-              // Veri katkısı kartı
-              Container(
-                padding: const EdgeInsets.all(Constants.space6),
-                decoration: BoxDecoration(
-                  color: Constants.white,
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Constants.kykGray200.withOpacity(0.2),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Constants.kykAccent,
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.volunteer_activism,
-                            color: Constants.white,
-                            size: 24,
-                          ),
-                        ),
-                        const SizedBox(width: Constants.space4),
-                        Expanded(
-                          child: Text(
-                            'Veri Katkısı',
-                            style: GoogleFonts.inter(
-                              fontSize: Constants.textXl,
-                              fontWeight: FontWeight.w700,
-                              color: Constants.kykGray800,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: Constants.space4),
-                    Text(
-                      'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textBase,
-                        color: Constants.kykGray600,
-                        height: 1.6,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: Constants.space5),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () => _launchEmail(),
-                        icon: const Icon(Icons.email, size: 20),
-                        label: Text(
-                          'Bize Ulaşın',
-                          style: GoogleFonts.inter(
-                            fontSize: Constants.textBase,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Constants.kykAccent,
-                          foregroundColor: Constants.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Constants.space6,
-                            vertical: Constants.space4,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          elevation: 2,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ],
           ),
@@ -333,22 +260,22 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildHeroHeader(Menu menu) {
+  Widget _buildHeroHeader(Menu menu, String mealTypeConstant) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Constants.kykPrimary,
-            Constants.kykSecondary,
+            AppTheme.getMealTypePrimaryColor(mealTypeConstant),
+            AppTheme.getMealTypeSecondaryColor(mealTypeConstant),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykPrimary.withOpacity(0.15),
+            color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -359,43 +286,43 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           // Tarih ve öğün bilgisi
           Row(
             children: [
-                                              Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Constants.white.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(
-                    Icons.calendar_today,
-                    color: Constants.white,
-                    size: 18,
-                  ),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Constants.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                const SizedBox(width: Constants.space3),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        DateFormat('dd MMMM yyyy, EEEE').format(menu.date),
-                        style: GoogleFonts.inter(
-                          fontSize: Constants.textBase,
-                          fontWeight: FontWeight.w600,
-                          color: Constants.white,
-                        ),
-                      ),
-                      const SizedBox(height: Constants.space1),
-                      Text(
-                        menu.mealType,
-                        style: GoogleFonts.inter(
-                          fontSize: Constants.textSm,
-                          fontWeight: FontWeight.w500,
-                          color: Constants.white.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
+                child: const Icon(
+                  Icons.calendar_today,
+                  color: Constants.white,
+                  size: 18,
                 ),
+              ),
+              const SizedBox(width: Constants.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      DateFormat('dd MMMM yyyy, EEEE').format(menu.date),
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w600,
+                        color: Constants.white,
+                      ),
+                    ),
+                    const SizedBox(height: Constants.space1),
+                    Text(
+                      menu.mealType,
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textSm,
+                        fontWeight: FontWeight.w500,
+                        color: Constants.white.withOpacity(0.9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           const SizedBox(height: Constants.space3),
@@ -467,7 +394,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildMealTypeSelector() {
+  Widget _buildMealTypeSelector(String mealTypeConstant) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space2),
@@ -488,15 +415,15 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           return Expanded(
             child: GestureDetector(
               onTap: () => setState(() => _selectedMealType = mealType),
-                              child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: Constants.space3,
-                    horizontal: Constants.space2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? Constants.kykPrimary : Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: Constants.space3,
+                  horizontal: Constants.space2,
+                ),
+                decoration: BoxDecoration(
+                  color: isSelected ? AppTheme.getMealTypePrimaryColor(mealTypeConstant) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Text(
                   mealType,
                   style: GoogleFonts.inter(
@@ -514,7 +441,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildMenuContent(Menu menu) {
+  Widget _buildMenuContent(Menu menu, String mealTypeConstant) {
     final categories = menu.items.fold<Map<String, List<MenuItem>>>(
       {},
       (map, item) {
@@ -533,12 +460,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Constants.kykPrimary.withOpacity(0.1),
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.restaurant_menu,
-                  color: Constants.kykPrimary,
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   size: 16,
                 ),
               ),
@@ -554,13 +481,13 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             ],
           ),
           const SizedBox(height: Constants.space2),
-          ...categories.entries.map((entry) => _buildCategoryCard(entry.key, entry.value)),
+          ...categories.entries.map((entry) => _buildCategoryCard(entry.key, entry.value, mealTypeConstant)),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryCard(String category, List<MenuItem> items) {
+  Widget _buildCategoryCard(String category, List<MenuItem> items, String mealTypeConstant) {
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space2),
       decoration: BoxDecoration(
@@ -634,7 +561,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Padding(
             padding: const EdgeInsets.all(Constants.space3),
             child: Column(
-              children: items.map((item) => _buildMenuItem(item, category)).toList(),
+              children: items.map((item) => _buildMenuItem(item, category, mealTypeConstant)).toList(),
             ),
           ),
         ],
@@ -642,7 +569,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildMenuItem(MenuItem item, String category) {
+  Widget _buildMenuItem(MenuItem item, String category, String mealTypeConstant) {
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space1),
       padding: const EdgeInsets.all(Constants.space2),
@@ -676,31 +603,31 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
             ),
           ),
-                                  if (item.gram.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.space1,
-                  vertical: 3,
-                ),
-                decoration: BoxDecoration(
-                  color: _getCategoryColor(category).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  '${item.gram}g',
-                  style: GoogleFonts.inter(
-                    fontSize: Constants.textXs,
-                    fontWeight: FontWeight.w600,
-                    color: _getCategoryColor(category),
-                  ),
+          if (item.gram.isNotEmpty)
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: Constants.space1,
+                vertical: 3,
+              ),
+              decoration: BoxDecoration(
+                color: _getCategoryColor(category).withOpacity(0.1),
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Text(
+                '${item.gram}g',
+                style: GoogleFonts.inter(
+                  fontSize: Constants.textXs,
+                  fontWeight: FontWeight.w600,
+                  color: _getCategoryColor(category),
                 ),
               ),
+            ),
         ],
       ),
     );
   }
 
-  Widget _buildNoMenuForMealType() {
+  Widget _buildNoMenuForMealType(String mealTypeConstant) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
       padding: const EdgeInsets.all(Constants.space6),
@@ -726,7 +653,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             child: Icon(
               Icons.restaurant_menu,
               size: Constants.text2xl * 2,
-              color: Constants.kykPrimary,
+              color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
             ),
           ),
           const SizedBox(height: Constants.space4),
@@ -754,10 +681,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Container(
             padding: const EdgeInsets.all(Constants.space5),
             decoration: BoxDecoration(
-              color: Constants.kykAccent.withOpacity(0.1),
+              color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Constants.kykAccent.withOpacity(0.3),
+                color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.3),
                 width: 1,
               ),
             ),
@@ -768,7 +695,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Constants.kykAccent,
+                        color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: const Icon(
@@ -814,7 +741,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                       ),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Constants.kykAccent,
+                      backgroundColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                       foregroundColor: Constants.white,
                       padding: const EdgeInsets.symmetric(
                         horizontal: Constants.space5,
@@ -835,7 +762,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildNutritionSection(Menu menu) {
+  Widget _buildNutritionSection(Menu menu, String mealTypeConstant) {
     if (menu.energy.isEmpty) return const SizedBox.shrink();
 
     return Container(
@@ -845,7 +772,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         color: Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Constants.kykAccent.withOpacity(0.2),
+          color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
           width: 1,
         ),
         boxShadow: [
@@ -864,12 +791,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Constants.kykAccent.withOpacity(0.1),
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.local_fire_department,
-                  color: Constants.kykAccent,
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   size: 16,
                 ),
               ),
@@ -889,10 +816,10 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             width: double.infinity,
             padding: const EdgeInsets.all(Constants.space3),
             decoration: BoxDecoration(
-              color: Constants.kykAccent.withOpacity(0.1),
+              color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Constants.kykAccent.withOpacity(0.2),
+                color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
                 width: 1,
               ),
             ),
@@ -901,7 +828,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               children: [
                 Icon(
                   Icons.local_fire_department,
-                  color: Constants.kykAccent,
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   size: 24,
                 ),
                 const SizedBox(width: Constants.space3),
@@ -910,7 +837,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   style: GoogleFonts.inter(
                     fontSize: Constants.textXl,
                     fontWeight: FontWeight.w800,
-                    color: Constants.kykAccent,
+                    color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   ),
                 ),
               ],
@@ -921,7 +848,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildMealHoursInfo() {
+  Widget _buildMealHoursInfo(String mealTypeConstant) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
@@ -929,7 +856,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         color: Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Constants.kykPrimary.withOpacity(0.2),
+          color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
           width: 1,
         ),
         boxShadow: [
@@ -948,12 +875,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: Constants.kykPrimary.withOpacity(0.1),
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   Icons.access_time,
-                  color: Constants.kykPrimary,
+                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   size: 16,
                 ),
               ),
@@ -976,7 +903,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   'Sabah Yemeği',
                   '06:30 - 13:00',
                   Icons.wb_sunny,
-                  Constants.kykAccent,
+                  AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                 ),
               ),
               const SizedBox(width: Constants.space3),
@@ -985,7 +912,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   'Akşam Yemeği',
                   '16:00 - 23:00',
                   Icons.nightlight,
-                  Constants.kykSecondary,
+                  AppTheme.getMealTypeSecondaryColor(mealTypeConstant),
                 ),
               ),
             ],
@@ -1045,12 +972,14 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildDisclaimerInfo() {
+  Widget _buildDisclaimerInfo(String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Constants.kykWarning.withOpacity(0.2),
@@ -1058,7 +987,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.15),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -1085,7 +1014,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 fontWeight: FontWeight.w600,
-                color: Constants.kykGray800,
+                color: isDark ? Constants.white : Constants.kykGray800,
                 height: 1.4,
               ),
             ),
@@ -1115,7 +1044,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       case 'kahvaltılık':
         return Constants.kykSecondary;
       default:
-        return Constants.kykPrimary;
+        return AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType));
     }
   }
 
@@ -1151,7 +1080,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           'Menü paylaşma özelliği yakında eklenecek!',
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Constants.kykPrimary,
+        backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1194,7 +1123,7 @@ Teşekkürler!''';
                 'Email adresi kopyalandı: $email',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),
-              backgroundColor: Constants.kykPrimary,
+              backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -1216,7 +1145,7 @@ Teşekkürler!''';
               'Email açılamadı: $e',
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
-            backgroundColor: Constants.kykPrimary,
+            backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

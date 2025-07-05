@@ -429,4 +429,211 @@ class AppTheme {
       ),
     ],
   );
+
+  // Yemek türüne özel gradient'ler
+  static BoxDecoration getMealTypeGradient(String mealType, {bool isDark = false}) {
+    switch (mealType.toLowerCase()) {
+      case Constants.breakfastType:
+        return BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Constants.breakfastGradientStart,
+              Constants.breakfastGradientEnd,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        );
+      case Constants.lunchType:
+        return BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Constants.lunchGradientStart,
+              Constants.lunchGradientEnd,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        );
+      case Constants.dinnerType:
+        return BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Constants.dinnerGradientStart,
+              Constants.dinnerGradientEnd,
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        );
+      default:
+        return BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Constants.kykBlue600,
+              const Color(0xFF0D9488),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(12),
+        );
+    }
+  }
+
+  // Yemek türüne özel sadece Gradient döndüren fonksiyon
+  static LinearGradient getMealTypeLinearGradient(String mealType) {
+    switch (mealType.toLowerCase()) {
+      case Constants.breakfastType:
+        return LinearGradient(
+          colors: [
+            Constants.breakfastGradientStart,
+            Constants.breakfastGradientEnd,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case Constants.lunchType:
+        return LinearGradient(
+          colors: [
+            Constants.lunchGradientStart,
+            Constants.lunchGradientEnd,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      case Constants.dinnerType:
+        return LinearGradient(
+          colors: [
+            Constants.dinnerGradientStart,
+            Constants.dinnerGradientEnd,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+      default:
+        return LinearGradient(
+          colors: [
+            Constants.kykBlue600,
+            const Color(0xFF0D9488),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        );
+    }
+  }
+
+  // Yemek türüne özel renkler
+  static Color getMealTypePrimaryColor(String mealType) {
+    switch (mealType.toLowerCase()) {
+      case Constants.breakfastType:
+        return Constants.breakfastPrimary;
+      case Constants.lunchType:
+        return Constants.lunchPrimary;
+      case Constants.dinnerType:
+        return Constants.dinnerPrimary;
+      default:
+        return Constants.kykPrimary;
+    }
+  }
+
+  static Color getMealTypeSecondaryColor(String mealType) {
+    switch (mealType.toLowerCase()) {
+      case Constants.breakfastType:
+        return Constants.breakfastSecondary;
+      case Constants.lunchType:
+        return Constants.lunchSecondary;
+      case Constants.dinnerType:
+        return Constants.dinnerSecondary;
+      default:
+        return Constants.kykSecondary;
+    }
+  }
+
+  static Color getMealTypeAccentColor(String mealType) {
+    switch (mealType.toLowerCase()) {
+      case Constants.breakfastType:
+        return Constants.breakfastAccent;
+      case Constants.lunchType:
+        return Constants.lunchAccent;
+      case Constants.dinnerType:
+        return Constants.dinnerAccent;
+      default:
+        return Constants.kykAccent;
+    }
+  }
+
+  // Yemek türüne özel metin stilleri
+  static TextStyle getMealTypeTitleStyle(String mealType, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GoogleFonts.poppins(
+      fontSize: Constants.text2xl,
+      fontWeight: FontWeight.w700,
+      color: Constants.white,
+      shadows: [
+        Shadow(
+          offset: const Offset(0, 2),
+          blurRadius: 4,
+          color: Colors.black.withOpacity(0.3),
+        ),
+      ],
+    );
+  }
+
+  static TextStyle getMealTypeSubtitleStyle(String mealType, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GoogleFonts.poppins(
+      fontSize: Constants.textBase,
+      fontWeight: FontWeight.w400,
+      color: Constants.white.withOpacity(0.9),
+      shadows: [
+        Shadow(
+          offset: const Offset(0, 1),
+          blurRadius: 2,
+          color: Colors.black.withOpacity(0.2),
+        ),
+      ],
+    );
+  }
+
+  // Yemek türüne özel kart dekorasyonu
+  static BoxDecoration getMealTypeCardDecoration(String mealType, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseDecoration = getMealTypeGradient(mealType, isDark: isDark);
+    
+    return baseDecoration.copyWith(
+      boxShadow: [
+        BoxShadow(
+          color: getMealTypePrimaryColor(mealType).withOpacity(isDark ? 0.4 : 0.3),
+          blurRadius: 12,
+          offset: const Offset(0, 6),
+        ),
+      ],
+    );
+  }
+
+  // Yemek türüne özel chip dekorasyonu
+  static BoxDecoration getMealTypeChipDecoration(String mealType, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return BoxDecoration(
+      color: getMealTypePrimaryColor(mealType).withOpacity(isDark ? 0.2 : 0.1),
+      border: Border.all(
+        color: getMealTypePrimaryColor(mealType).withOpacity(0.3),
+        width: 1,
+      ),
+      borderRadius: BorderRadius.circular(20),
+    );
+  }
+
+  // Yemek türüne özel chip metin stili
+  static TextStyle getMealTypeChipTextStyle(String mealType, BuildContext context) {
+    return GoogleFonts.inter(
+      fontSize: Constants.textSm,
+      fontWeight: FontWeight.w600,
+      color: getMealTypePrimaryColor(mealType),
+    );
+  }
 }

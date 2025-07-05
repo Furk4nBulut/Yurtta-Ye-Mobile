@@ -72,6 +72,20 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
     }
   }
 
+  /// Yemek türü sabitini al
+  String _getMealTypeConstant(String mealType) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return Constants.breakfastType;
+      case 'Öğle Yemeği':
+        return Constants.lunchType;
+      case 'Akşam Yemeği':
+        return Constants.dinnerType;
+      default:
+        return Constants.lunchType;
+    }
+  }
+
   /// Tarih farkını hesapla ve metin olarak döndür
   String _getDaysDifferenceText() {
     final today = DateTime.now();
@@ -102,6 +116,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final daysDifference = _getDaysDifference();
+    final mealTypeConstant = _getMealTypeConstant(widget.menu.mealType);
 
     return Semantics(
       label: 'Gelecek ${widget.menu.mealType} menüsü - ${DateFormat('dd MMM yyyy').format(widget.menu.date)}',
@@ -121,25 +136,30 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                   end: Alignment.bottomRight,
                   colors: _isHovered
                       ? [
-                          Constants.kykPrimary.withOpacity(0.05),
-                          Constants.kykAccent.withOpacity(0.02),
+                          AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.05),
+                          AppTheme.getMealTypeSecondaryColor(mealTypeConstant).withOpacity(0.02),
                         ]
-                      : [
-                          Constants.white,
-                          Constants.kykGray50,
-                        ],
+                      : isDarkMode
+                          ? [
+                              Constants.kykGray800,
+                              Constants.kykGray700,
+                            ]
+                          : [
+                              Constants.white,
+                              Constants.kykGray50,
+                            ],
                 ),
                 border: Border.all(
                   color: _isHovered
-                      ? Constants.kykPrimary.withOpacity(0.3)
-                      : Constants.kykGray200,
+                      ? AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.3)
+                      : isDarkMode ? Constants.kykGray600 : Constants.kykGray200,
                   width: _isHovered ? 1.5 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _isHovered
-                        ? Constants.kykPrimary.withOpacity(0.15)
-                        : Constants.kykGray300.withOpacity(0.1),
+                        ? AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.15)
+                        : (isDarkMode ? Constants.black : Constants.kykGray300).withOpacity(0.1),
                     blurRadius: _isHovered ? 12 : 8,
                     offset: Offset(0, _isHovered ? 4 : 2),
                     spreadRadius: _isHovered ? 1 : 0,
@@ -154,8 +174,8 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                   onTapUp: (_) => _controller.reverse(),
                   onTapCancel: () => _controller.reverse(),
                   borderRadius: BorderRadius.circular(12),
-                  splashColor: Constants.kykPrimary.withOpacity(0.1),
-                  highlightColor: Constants.kykPrimary.withOpacity(0.05),
+                  splashColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
+                  highlightColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.05),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(
@@ -168,18 +188,11 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                             Container(
                               padding: const EdgeInsets.all(6),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    Constants.kykPrimary,
-                                    Constants.kykPrimary.withOpacity(0.8),
-                                  ],
-                                ),
+                                gradient: AppTheme.getMealTypeLinearGradient(mealTypeConstant),
                                 borderRadius: BorderRadius.circular(8),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Constants.kykPrimary.withOpacity(0.3),
+                                    color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.3),
                                     blurRadius: 4,
                                     offset: const Offset(0, 1),
                                   ),
@@ -202,7 +215,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                     style: GoogleFonts.inter(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
-                                      color: Constants.kykGray800,
+                                      color: isDarkMode ? Constants.white : Constants.kykGray800,
                                       letterSpacing: -0.2,
                                     ),
                                     maxLines: 1,
@@ -214,7 +227,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                     style: GoogleFonts.inter(
                                       fontSize: 10,
                                       fontWeight: FontWeight.w500,
-                                      color: Constants.kykGray600,
+                                      color: isDarkMode ? Constants.kykGray300 : Constants.kykGray600,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -233,34 +246,39 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                   end: Alignment.bottomRight,
                                   colors: daysDifference == 0
                                       ? [
-                                          Constants.kykAccent,
-                                          Constants.kykAccent.withOpacity(0.8),
+                                          AppTheme.getMealTypeAccentColor(mealTypeConstant),
+                                          AppTheme.getMealTypeAccentColor(mealTypeConstant).withOpacity(0.8),
                                         ]
                                       : daysDifference > 0
                                           ? [
-                                              Constants.kykBlue400,
-                                              Constants.kykBlue400.withOpacity(0.8),
+                                              AppTheme.getMealTypeSecondaryColor(mealTypeConstant),
+                                              AppTheme.getMealTypeSecondaryColor(mealTypeConstant).withOpacity(0.8),
                                             ]
-                                          : [
-                                              Constants.kykGray100,
-                                              Constants.kykGray50,
-                                            ],
+                                          : isDarkMode
+                                              ? [
+                                                  Constants.kykGray600,
+                                                  Constants.kykGray500,
+                                                ]
+                                              : [
+                                                  Constants.kykGray100,
+                                                  Constants.kykGray50,
+                                                ],
                                 ),
                                 borderRadius: BorderRadius.circular(6),
                                 border: Border.all(
                                   color: daysDifference == 0
-                                      ? Constants.kykAccent.withOpacity(0.3)
+                                      ? AppTheme.getMealTypeAccentColor(mealTypeConstant).withOpacity(0.3)
                                       : daysDifference > 0
-                                          ? Constants.kykBlue400.withOpacity(0.3)
-                                          : Constants.kykGray300,
+                                          ? AppTheme.getMealTypeSecondaryColor(mealTypeConstant).withOpacity(0.3)
+                                          : isDarkMode ? Constants.kykGray500 : Constants.kykGray300,
                                   width: 1,
                                 ),
                                 boxShadow: (daysDifference == 0 || daysDifference > 0)
                                     ? [
                                         BoxShadow(
                                           color: daysDifference == 0
-                                              ? Constants.kykAccent.withOpacity(0.2)
-                                              : Constants.kykBlue400.withOpacity(0.2),
+                                              ? AppTheme.getMealTypeAccentColor(mealTypeConstant).withOpacity(0.2)
+                                              : AppTheme.getMealTypeSecondaryColor(mealTypeConstant).withOpacity(0.2),
                                           blurRadius: 2,
                                           offset: const Offset(0, 1),
                                         ),
@@ -274,7 +292,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                   fontWeight: FontWeight.w600,
                                   color: daysDifference >= 0
                                       ? Constants.white
-                                      : Constants.kykGray600,
+                                      : isDarkMode ? Constants.kykGray300 : Constants.kykGray600,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -289,7 +307,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                               Icon(
                                 Icons.restaurant_menu,
                                 size: 11,
-                                color: Constants.kykPrimary,
+                                color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                               ),
                               const SizedBox(width: 4),
                               Text(
@@ -297,7 +315,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 style: GoogleFonts.inter(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w600,
-                                  color: Constants.kykGray700,
+                                  color: isDarkMode ? Constants.kykGray300 : Constants.kykGray700,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -308,7 +326,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
                                     decoration: BoxDecoration(
-                                      color: Constants.kykRed400.withOpacity(0.1),
+                                      color: Constants.kykRed400.withOpacity(isDarkMode ? 0.2 : 0.1),
                                       borderRadius: BorderRadius.circular(4),
                                       border: Border.all(
                                         color: Constants.kykRed400.withOpacity(0.3),
@@ -349,14 +367,19 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  Constants.kykGray50,
-                                  Constants.white,
-                                ],
+                                colors: isDarkMode
+                                    ? [
+                                        Constants.kykGray700,
+                                        Constants.kykGray600,
+                                      ]
+                                    : [
+                                        Constants.kykGray50,
+                                        Constants.white,
+                                      ],
                               ),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: Constants.kykGray200,
+                                color: isDarkMode ? Constants.kykGray600 : Constants.kykGray200,
                                 width: 1,
                               ),
                             ),
@@ -368,7 +391,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                     Icon(
                                       Icons.menu_book,
                                       size: 11,
-                                      color: Constants.kykPrimary,
+                                      color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
@@ -376,7 +399,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                       style: GoogleFonts.inter(
                                         fontSize: 9,
                                         fontWeight: FontWeight.w600,
-                                        color: Constants.kykGray700,
+                                        color: isDarkMode ? Constants.white : Constants.kykGray700,
                                       ),
                                     ),
                                   ],
@@ -396,7 +419,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                                     width: 3,
                                                     height: 3,
                                                     decoration: BoxDecoration(
-                                                      color: Constants.kykPrimary,
+                                                      color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                                                       borderRadius: BorderRadius.circular(1.5),
                                                     ),
                                                   ),
@@ -407,7 +430,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                                       style: GoogleFonts.inter(
                                                         fontSize: 8,
                                                         fontWeight: FontWeight.w500,
-                                                        color: Constants.kykGray700,
+                                                        color: isDarkMode ? Constants.kykGray300 : Constants.kykGray700,
                                                       ),
                                                       maxLines: 1,
                                                       overflow: TextOverflow.ellipsis,
@@ -424,7 +447,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                                 width: 3,
                                                 height: 3,
                                                 decoration: BoxDecoration(
-                                                  color: Constants.kykGray400,
+                                                  color: isDarkMode ? Constants.kykGray500 : Constants.kykGray400,
                                                   borderRadius: BorderRadius.circular(1.5),
                                                 ),
                                               ),
@@ -434,7 +457,7 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                                 style: GoogleFonts.inter(
                                                   fontSize: 7,
                                                   fontWeight: FontWeight.w500,
-                                                  color: Constants.kykGray500,
+                                                  color: isDarkMode ? Constants.kykGray400 : Constants.kykGray500,
                                                   fontStyle: FontStyle.italic,
                                                 ),
                                               ),
@@ -457,13 +480,13 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                               begin: Alignment.centerLeft,
                               end: Alignment.centerRight,
                               colors: [
-                                Constants.kykPrimary.withOpacity(0.1),
-                                Constants.kykPrimary.withOpacity(0.05),
+                                AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
+                                AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.05),
                               ],
                             ),
                             borderRadius: BorderRadius.circular(6),
                             border: Border.all(
-                              color: Constants.kykPrimary.withOpacity(0.2),
+                              color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
                               width: 1,
                             ),
                           ),
@@ -475,13 +498,13 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                                 style: GoogleFonts.inter(
                                   fontSize: 9,
                                   fontWeight: FontWeight.w600,
-                                  color: Constants.kykPrimary,
+                                  color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                                 ),
                               ),
                               Icon(
                                 Icons.arrow_forward_ios,
                                 size: 9,
-                                color: Constants.kykPrimary,
+                                color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                               ),
                             ],
                           ),

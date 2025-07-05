@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
@@ -23,13 +24,14 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
       decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? Constants.kykGray800 : Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         border: Border(
           top: BorderSide(
-            color: Constants.kykGray300,
+            color: isDark ? Constants.kykGray700 : Constants.kykGray300,
             width: 1,
           ),
         ),
@@ -44,9 +46,11 @@ class CustomBottomNavigationBar extends StatelessWidget {
               // Kahvaltı butonu
               Expanded(
                 child: _buildMealTypeButton(
+                  context: context,
                   icon: Icons.breakfast_dining_rounded,
                   label: 'Kahvaltı',
                   isSelected: selectedMealIndex == 0,
+                  mealType: Constants.breakfastType,
                   onTap: () => onMealTypeChanged(0),
                 ),
               ),
@@ -78,10 +82,10 @@ class CustomBottomNavigationBar extends StatelessWidget {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                color: Constants.kykPrimary,
+                                gradient: AppTheme.getMealTypeLinearGradient(Constants.breakfastType),
                                 borderRadius: BorderRadius.circular(20),
                                 border: Border.all(
-                                  color: Constants.kykPrimary,
+                                  color: AppTheme.getMealTypePrimaryColor(Constants.breakfastType),
                                   width: 1,
                                 ),
                               ),
@@ -99,12 +103,14 @@ class CustomBottomNavigationBar extends StatelessWidget {
                 ),
               ),
               
-              // Akşam butonu
+              // Akşam yemeği butonu
               Expanded(
                 child: _buildMealTypeButton(
+                  context: context,
                   icon: Icons.dinner_dining_rounded,
                   label: 'Akşam',
                   isSelected: selectedMealIndex == 1,
+                  mealType: Constants.dinnerType,
                   onTap: () => onMealTypeChanged(1),
                 ),
               ),
@@ -116,11 +122,16 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }
 
   Widget _buildMealTypeButton({
+    required BuildContext context,
     required IconData icon,
     required String label,
     required bool isSelected,
+    required String mealType,
     required VoidCallback onTap,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = AppTheme.getMealTypePrimaryColor(mealType);
+    
     return GestureDetector(
       onTap: () {
         HapticFeedback.lightImpact();
@@ -130,10 +141,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? Constants.kykGray100 : Colors.transparent,
+          color: isSelected 
+              ? (isDark ? primaryColor.withOpacity(0.2) : Constants.kykGray100) 
+              : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: isSelected ? Constants.kykPrimary : Colors.transparent,
+            color: isSelected ? primaryColor : Colors.transparent,
             width: 1,
           ),
         ),
@@ -145,16 +158,22 @@ class CustomBottomNavigationBar extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: isSelected ? Constants.kykPrimary : Constants.kykGray100,
+                color: isSelected 
+                    ? primaryColor 
+                    : (isDark ? Constants.kykGray700 : Constants.kykGray100),
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: isSelected ? Constants.kykPrimary : Constants.kykGray300,
+                  color: isSelected 
+                      ? primaryColor 
+                      : (isDark ? Constants.kykGray600 : Constants.kykGray300),
                   width: 1,
                 ),
               ),
               child: Icon(
                 icon,
-                color: isSelected ? Constants.white : Constants.kykGray600,
+                color: isSelected 
+                    ? Constants.white 
+                    : (isDark ? Constants.kykGray300 : Constants.kykGray600),
                 size: 18,
               ),
             ),
@@ -164,7 +183,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: 9,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected ? Constants.kykPrimary : Constants.kykGray600,
+                color: isSelected 
+                    ? primaryColor 
+                    : (isDark ? Constants.kykGray300 : Constants.kykGray600),
               ),
               textAlign: TextAlign.center,
               maxLines: 1,

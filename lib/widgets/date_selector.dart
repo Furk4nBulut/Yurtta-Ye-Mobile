@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
 class DateSelector extends StatefulWidget {
   final DateTime selectedDate;
   final ValueChanged<DateTime> onDateChanged;
+  final String? mealType;
 
   const DateSelector({
     Key? key,
     required this.selectedDate,
     required this.onDateChanged,
+    this.mealType,
   }) : super(key: key);
 
   @override
@@ -91,6 +94,10 @@ class _DateSelectorState extends State<DateSelector> {
     final days = _daysInMonth(_currentMonth);
     final centerDateLabel = DateFormat('d MMMM yyyy', 'tr').format(selectedDate);
     final dayName = DateFormat('EEEE', 'tr').format(selectedDate);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = widget.mealType != null 
+        ? AppTheme.getMealTypePrimaryColor(widget.mealType!)
+        : Constants.kykPrimary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -99,7 +106,7 @@ class _DateSelectorState extends State<DateSelector> {
           padding: const EdgeInsets.only(top: 16, left: 8, right: 8, bottom: 8),
           child: Row(
             children: [
-              _miniIconButton(Icons.chevron_left, _goToPreviousDay),
+              _miniIconButton(Icons.chevron_left, _goToPreviousDay, primaryColor),
               Expanded(
                 child: Center(
                   child: Column(
@@ -110,7 +117,7 @@ class _DateSelectorState extends State<DateSelector> {
                         style: GoogleFonts.inter(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
-                          color: Constants.kykGray500,
+                          color: isDark ? Constants.kykGray400 : Constants.kykGray500,
                           letterSpacing: -0.1,
                         ),
                       ),
@@ -120,7 +127,7 @@ class _DateSelectorState extends State<DateSelector> {
                         style: GoogleFonts.inter(
                           fontSize: 19,
                           fontWeight: FontWeight.w800,
-                          color: Constants.kykPrimary,
+                          color: primaryColor,
                           letterSpacing: -0.2,
                         ),
                       ),
@@ -128,7 +135,7 @@ class _DateSelectorState extends State<DateSelector> {
                   ),
                 ),
               ),
-              _miniIconButton(Icons.chevron_right, _goToNextDay),
+              _miniIconButton(Icons.chevron_right, _goToNextDay, primaryColor),
             ],
           ),
         ),
@@ -155,14 +162,14 @@ class _DateSelectorState extends State<DateSelector> {
                         height: 40,
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? Constants.kykPrimary : Colors.white,
+                          color: isSelected ? primaryColor : (isDark ? Constants.kykGray800 : Colors.white),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? Constants.kykPrimary : Constants.kykGray200,
+                            color: isSelected ? primaryColor : (isDark ? Constants.kykGray700 : Constants.kykGray200),
                             width: 1.2,
                           ),
                           boxShadow: isSelected
-                              ? [BoxShadow(color: Constants.kykPrimary.withOpacity(0.10), blurRadius: 6, offset: Offset(0, 2))]
+                              ? [BoxShadow(color: primaryColor.withOpacity(0.10), blurRadius: 6, offset: Offset(0, 2))]
                               : [],
                         ),
                         child: Column(
@@ -173,7 +180,7 @@ class _DateSelectorState extends State<DateSelector> {
                               style: GoogleFonts.inter(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: isSelected ? Colors.white : Constants.kykGray500,
+                                color: isSelected ? Colors.white : (isDark ? Constants.kykGray400 : Constants.kykGray500),
                               ),
                             ),
                             const SizedBox(height: 1),
@@ -182,7 +189,7 @@ class _DateSelectorState extends State<DateSelector> {
                               style: GoogleFonts.inter(
                                 fontSize: 13.5,
                                 fontWeight: FontWeight.bold,
-                                color: isSelected ? Colors.white : Constants.kykGray800,
+                                color: isSelected ? Colors.white : (isDark ? Constants.white : Constants.kykGray800),
                               ),
                             ),
                           ],
@@ -205,8 +212,8 @@ class _DateSelectorState extends State<DateSelector> {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          Colors.white,
-                          Colors.white.withOpacity(0.0),
+                          isDark ? Constants.kykGray900 : Colors.white,
+                          (isDark ? Constants.kykGray900 : Colors.white).withOpacity(0.0),
                         ],
                       ),
                     ),
@@ -226,8 +233,8 @@ class _DateSelectorState extends State<DateSelector> {
                         begin: Alignment.centerRight,
                         end: Alignment.centerLeft,
                         colors: [
-                          Colors.white,
-                          Colors.white.withOpacity(0.0),
+                          isDark ? Constants.kykGray900 : Colors.white,
+                          (isDark ? Constants.kykGray900 : Colors.white).withOpacity(0.0),
                         ],
                       ),
                     ),
@@ -242,9 +249,11 @@ class _DateSelectorState extends State<DateSelector> {
     );
   }
 
-  Widget _miniIconButton(IconData icon, VoidCallback onTap) {
+  Widget _miniIconButton(IconData icon, VoidCallback onTap, Color primaryColor) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Material(
-      color: Colors.white,
+      color: isDark ? Constants.kykGray800 : Colors.white,
       borderRadius: BorderRadius.circular(7),
       child: InkWell(
         borderRadius: BorderRadius.circular(7),
@@ -255,7 +264,7 @@ class _DateSelectorState extends State<DateSelector> {
           alignment: Alignment.center,
           child: Icon(
             icon,
-            color: Constants.kykPrimary,
+            color: primaryColor,
             size: 18,
           ),
         ),

@@ -33,6 +33,33 @@ class Constants {
   static const Color foodSweet = Color(0xFFF472B6);       // Tatlı pembe
   static const Color foodSpicy = Color(0xFFDC2626);       // Baharatlı kırmızı
 
+  // Sabah Yemeği Özel Renkleri
+  static const Color breakfastPrimary = Color(0xFFFF8A65);    // Sabah turuncu
+  static const Color breakfastSecondary = Color(0xFFFFCC02);  // Sabah sarısı
+  static const Color breakfastAccent = Color(0xFFFF6F61);     // Sabah mercan
+  static const Color breakfastWarm = Color(0xFFFFB74D);       // Sabah sıcak turuncu
+  static const Color breakfastLight = Color(0xFFFFE0B2);      // Sabah açık sarı
+  static const Color breakfastGradientStart = Color(0xFFFF8A65); // Sabah gradient başlangıç
+  static const Color breakfastGradientEnd = Color(0xFFFFCC02);   // Sabah gradient bitiş
+
+  // Akşam Yemeği Özel Renkleri
+  static const Color dinnerPrimary = Color(0xFF1E3A8A);       // Eski mavi - Ana renk
+  static const Color dinnerSecondary = Color(0xFF3B82F6);     // Eski mavi - İkincil renk
+  static const Color dinnerAccent = Color(0xFFF59E0B);        // Turuncu - Vurgu rengi
+  static const Color dinnerWarm = Color(0xFF2C4C9E);          // Eski mavi - Sıcak ton
+  static const Color dinnerLight = Color(0xFFEFF3FF);         // Eski açık mavi
+  static const Color dinnerGradientStart = Color(0xFF1E3A8A); // Eski mavi gradient başlangıç
+  static const Color dinnerGradientEnd = Color(0xFF3B82F6);   // Eski mavi gradient bitiş
+
+  // Öğle Yemeği Özel Renkleri
+  static const Color lunchPrimary = Color(0xFF4CAF50);        // Öğle yeşil
+  static const Color lunchSecondary = Color(0xFF66BB6A);      // Öğle açık yeşil
+  static const Color lunchAccent = Color(0xFF2E7D32);         // Öğle koyu yeşil
+  static const Color lunchWarm = Color(0xFF81C784);           // Öğle sıcak yeşil
+  static const Color lunchLight = Color(0xFFE8F5E8);          // Öğle açık yeşil
+  static const Color lunchGradientStart = Color(0xFF4CAF50);  // Öğle gradient başlangıç
+  static const Color lunchGradientEnd = Color(0xFF66BB6A);    // Öğle gradient bitiş
+
   // Eski renkler (geriye uyumluluk için)
   static const Color kykBlue900 = Color(0xFF162A4D);   // Koyu lacivert, derinlik için
   static const Color kykBlue600 = Color(0xFF2C4C9E);   // Canlı orta mavi
@@ -72,4 +99,9 @@ class Constants {
 
   static const Color gray800 = Color(0xFF0F1F3B);      // Çok koyu mavi
   static const Color gray900 = Color(0xFF0A1525);      // Siyaha yakın koyu mavi
+
+  // Yemek türü sabitleri
+  static const String breakfastType = 'breakfast';
+  static const String lunchType = 'lunch';
+  static const String dinnerType = 'dinner';
 }

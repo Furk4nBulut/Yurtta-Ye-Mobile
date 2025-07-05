@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
@@ -100,6 +101,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return provider.menus.any((menu) =>
         AppConfig.apiDateFormat.format(menu.date) == AppConfig.apiDateFormat.format(_selectedDate) &&
         menu.mealType == selectedMealType);
+  }
+
+  /// Yemek türü sabitini al
+  String _getMealTypeConstant(String mealType) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return Constants.breakfastType;
+      case 'Öğle Yemeği':
+        return Constants.lunchType;
+      case 'Akşam Yemeği':
+        return Constants.dinnerType;
+      default:
+        return Constants.lunchType;
+    }
   }
 
   Future<void> _launchWebsite() async {
@@ -210,11 +225,12 @@ Teşekkürler!''';
     final themeProvider = Provider.of<ThemeProvider>(context);
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
     final hasSelectedDateData = _hasSelectedDateData(provider, selectedMealType);
+    final mealTypeConstant = _getMealTypeConstant(selectedMealType);
 
     return Scaffold(
       extendBody: true,
-      appBar: _buildAppBar(themeProvider),
-      body: _buildBody(provider, selectedMealType, hasSelectedDateData),
+      appBar: _buildAppBar(themeProvider, mealTypeConstant),
+      body: _buildBody(provider, selectedMealType, hasSelectedDateData, mealTypeConstant),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedMealIndex: _selectedMealIndex,
         onMealTypeChanged: _onMealTypeChanged,
@@ -224,7 +240,9 @@ Teşekkürler!''';
     );
   }
 
-  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider) {
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return AppBar(
       title: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -309,17 +327,24 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
+  Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Constants.kykPrimary.withOpacity(0.1),
-            Constants.white,
-          ],
+          colors: isDark
+              ? [
+                  AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.05),
+                  Constants.kykGray900,
+                ]
+              : [
+                  AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
+                  Constants.white,
+                ],
         ),
       ),
       child: provider.isLoading && provider.menus.isEmpty && provider.allMenus.isEmpty
@@ -347,7 +372,7 @@ Teşekkürler!''';
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildDateSelector(provider, selectedMealType),
-                            _buildMainContent(provider, selectedMealType, hasSelectedDateData),
+                            _buildMainContent(provider, selectedMealType, hasSelectedDateData, mealTypeConstant),
                             const SizedBox(height: Constants.space6),
                           ],
                         ),
@@ -361,6 +386,7 @@ Teşekkürler!''';
   Widget _buildDateSelector(MenuProvider provider, String selectedMealType) {
     return DateSelector(
       selectedDate: _selectedDate,
+      mealType: _getMealTypeConstant(selectedMealType),
       onDateChanged: (date) {
         setState(() {
           _selectedDate = date;
@@ -375,7 +401,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData) {
+  Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant) {
     if (!hasSelectedDateData) {
       return Container(
         width: double.infinity,
@@ -399,7 +425,7 @@ Teşekkürler!''';
           const SizedBox(height: 16),
           const MealScheduleCard(),
           const SizedBox(height: 16),
-          _buildWeeklyMealsSection(provider),
+          _buildWeeklyMealsSection(provider, mealTypeConstant),
         ],
       ),
     );
@@ -432,7 +458,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildWeeklyMealsSection(MenuProvider provider) {
+  Widget _buildWeeklyMealsSection(MenuProvider provider, String mealTypeConstant) {
     // Seçili öğün türüne göre gelecek menüleri filtrele
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
     final upcomingMenus = provider.allMenus
@@ -506,7 +532,9 @@ Teşekkürler!''';
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: Theme.of(context).brightness == Brightness.dark 
+                        ? Constants.white 
+                        : Colors.black87,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -515,7 +543,7 @@ Teşekkürler!''';
               Icon(
                 Icons.arrow_forward,
                 size: Constants.textBase,
-                color: Constants.kykBlue600,
+                color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
               ),
             ],
           ),

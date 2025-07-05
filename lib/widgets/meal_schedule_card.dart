@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
 class MealScheduleCard extends StatelessWidget {
@@ -7,20 +8,29 @@ class MealScheduleCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Constants.kykPrimary.withOpacity(0.1),
-            Constants.kykAccent.withOpacity(0.05),
-          ],
+          colors: isDark
+              ? [
+                  Constants.kykGray800,
+                  Constants.kykGray700,
+                ]
+              : [
+                  Constants.kykPrimary.withOpacity(0.1),
+                  Constants.kykAccent.withOpacity(0.05),
+                ],
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Constants.kykPrimary.withOpacity(0.2),
+          color: isDark 
+              ? Constants.kykGray600 
+              : Constants.kykPrimary.withOpacity(0.2),
           width: 1,
         ),
       ),
@@ -35,7 +45,7 @@ class MealScheduleCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: Constants.kykPrimary,
+                    gradient: AppTheme.getMealTypeLinearGradient(Constants.breakfastType),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(
@@ -51,7 +61,7 @@ class MealScheduleCard extends StatelessWidget {
                     style: GoogleFonts.inter(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: Constants.kykGray800,
+                      color: isDark ? Constants.white : Constants.kykGray800,
                     ),
                   ),
                 ),
@@ -66,11 +76,12 @@ class MealScheduleCard extends StatelessWidget {
                 // Kahvaltı
                 Expanded(
                   child: _buildMealTimeCard(
+                    context: context,
                     icon: Icons.breakfast_dining,
                     title: 'Kahvaltı',
                     startTime: '06:30',
                     endTime: '12:00',
-                    color: Constants.kykBlue400,
+                    mealType: Constants.breakfastType,
                   ),
                 ),
                 
@@ -79,11 +90,12 @@ class MealScheduleCard extends StatelessWidget {
                 // Akşam Yemeği
                 Expanded(
                   child: _buildMealTimeCard(
+                    context: context,
                     icon: Icons.dinner_dining,
                     title: 'Akşam Yemeği',
                     startTime: '16:00',
                     endTime: '23:00',
-                    color: Constants.kykRed400,
+                    mealType: Constants.dinnerType,
                   ),
                 ),
               ],
@@ -95,10 +107,10 @@ class MealScheduleCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Constants.kykGray50,
+                color: isDark ? Constants.kykGray700 : Constants.kykGray50,
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: Constants.kykGray200,
+                  color: isDark ? Constants.kykGray600 : Constants.kykGray200,
                   width: 1,
                 ),
               ),
@@ -107,7 +119,7 @@ class MealScheduleCard extends StatelessWidget {
                   Icon(
                     Icons.info_outline,
                     size: 16,
-                    color: Constants.kykGray600,
+                    color: isDark ? Constants.kykGray300 : Constants.kykGray600,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -116,7 +128,7 @@ class MealScheduleCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: Constants.kykGray600,
+                        color: isDark ? Constants.kykGray300 : Constants.kykGray600,
                       ),
                     ),
                   ),
@@ -130,24 +142,28 @@ class MealScheduleCard extends StatelessWidget {
   }
 
   Widget _buildMealTimeCard({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required String startTime,
     required String endTime,
-    required Color color,
+    required String mealType,
   }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryColor = AppTheme.getMealTypePrimaryColor(mealType);
+    
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: color.withOpacity(0.3),
+          color: primaryColor.withOpacity(0.3),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.1),
+            color: primaryColor.withOpacity(isDark ? 0.2 : 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -162,7 +178,7 @@ class MealScheduleCard extends StatelessWidget {
               Icon(
                 icon,
                 size: 18,
-                color: color,
+                color: primaryColor,
               ),
               const SizedBox(width: 6),
               Expanded(
@@ -174,7 +190,7 @@ class MealScheduleCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: Constants.kykGray700,
+                        color: isDark ? Constants.white : Constants.kykGray700,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -191,13 +207,13 @@ class MealScheduleCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildTimeInfo('Başlangıç', startTime, color),
+              _buildTimeInfo('Başlangıç', startTime, primaryColor, context),
               Container(
                 height: 20,
                 width: 1,
-                color: Constants.kykGray300,
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
               ),
-              _buildTimeInfo('Bitiş', endTime, color),
+              _buildTimeInfo('Bitiş', endTime, primaryColor, context),
             ],
           ),
         ],
@@ -205,7 +221,9 @@ class MealScheduleCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeInfo(String label, String time, Color color) {
+  Widget _buildTimeInfo(String label, String time, Color color, BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Column(
       children: [
         Text(
@@ -213,7 +231,7 @@ class MealScheduleCard extends StatelessWidget {
           style: GoogleFonts.inter(
             fontSize: 10,
             fontWeight: FontWeight.w500,
-            color: Constants.kykGray500,
+            color: isDark ? Constants.kykGray400 : Constants.kykGray500,
           ),
         ),
         const SizedBox(height: 2),

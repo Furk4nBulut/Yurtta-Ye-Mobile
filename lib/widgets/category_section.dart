@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:yurttaye_mobile/models/menu_item.dart';
+import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -8,12 +9,14 @@ class CategorySection extends StatefulWidget {
   final String category;
   final List<MenuItem> items;
   final bool isExpanded;
+  final String? mealType;
 
   const CategorySection({
     Key? key,
     required this.category,
     required this.items,
     this.isExpanded = false,
+    this.mealType,
   }) : super(key: key);
 
   @override
@@ -50,7 +53,9 @@ class _CategorySectionState extends State<CategorySection> {
       case 'kahvaltılık':
         return Constants.kykSecondary;
       default:
-        return Constants.kykPrimary;
+        return widget.mealType != null 
+            ? AppTheme.getMealTypePrimaryColor(widget.mealType!)
+            : Constants.kykPrimary;
     }
   }
 
@@ -81,18 +86,20 @@ class _CategorySectionState extends State<CategorySection> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space3),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Constants.kykGray200,
+          color: isDark ? Constants.kykGray700 : Constants.kykGray200,
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.1),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -111,7 +118,7 @@ class _CategorySectionState extends State<CategorySection> {
             child: Container(
               padding: const EdgeInsets.all(Constants.space3),
               decoration: BoxDecoration(
-                color: _getCategoryColor(widget.category).withOpacity(0.1),
+                color: _getCategoryColor(widget.category).withOpacity(isDark ? 0.2 : 0.1),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
               ),
               child: Row(
@@ -138,7 +145,7 @@ class _CategorySectionState extends State<CategorySection> {
                       style: GoogleFonts.inter(
                         fontSize: Constants.textBase,
                         fontWeight: FontWeight.w600,
-                        color: Constants.kykGray700,
+                        color: isDark ? Constants.white : Constants.kykGray700,
                       ),
                     ),
                   ),
@@ -171,7 +178,7 @@ class _CategorySectionState extends State<CategorySection> {
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: Constants.kykGray500,
+                      color: isDark ? Constants.kykGray400 : Constants.kykGray500,
                       size: 24,
                     ),
                   ),
@@ -200,6 +207,8 @@ class _CategorySectionState extends State<CategorySection> {
   }
 
   Widget _buildMenuItem(MenuItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Padding(
       padding: const EdgeInsets.only(bottom: Constants.space2),
       child: Row(
@@ -222,7 +231,7 @@ class _CategorySectionState extends State<CategorySection> {
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 fontWeight: FontWeight.w500,
-                color: Constants.kykGray600,
+                color: isDark ? Constants.kykGray300 : Constants.kykGray600,
               ),
             ),
           ),
@@ -235,7 +244,7 @@ class _CategorySectionState extends State<CategorySection> {
                 vertical: 4,
               ),
               decoration: BoxDecoration(
-                color: Constants.kykGray100,
+                color: isDark ? Constants.kykGray700 : Constants.kykGray100,
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -243,7 +252,7 @@ class _CategorySectionState extends State<CategorySection> {
                 style: GoogleFonts.inter(
                   fontSize: Constants.textXs,
                   fontWeight: FontWeight.w500,
-                  color: Constants.kykGray500,
+                  color: isDark ? Constants.kykGray400 : Constants.kykGray500,
                 ),
               ),
             ),
