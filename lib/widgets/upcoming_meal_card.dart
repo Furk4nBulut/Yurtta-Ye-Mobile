@@ -96,32 +96,25 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
             scale: _scaleAnimation.value,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Constants.kykPrimary.withOpacity(_isHovered ? 0.12 : 0.06),
-                    blurRadius: _isHovered ? 12 : 8,
-                    offset: Offset(0, _isHovered ? 4 : 2),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _isHovered 
+                      ? Constants.kykPrimary
+                      : Constants.kykGray300,
+                  width: _isHovered ? 2 : 1,
+                ),
               ),
               child: Card(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: _isHovered 
-                        ? Constants.kykPrimary.withOpacity(0.3)
-                        : Constants.kykGray200,
-                    width: _isHovered ? 1.5 : 1,
-                  ),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: InkWell(
                   onTap: widget.onTap,
                   onTapDown: (_) => _controller.forward(),
                   onTapUp: (_) => _controller.reverse(),
                   onTapCancel: () => _controller.reverse(),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(8),
                   splashColor: Constants.kykAccent.withOpacity(0.1),
                   child: Padding(
                     padding: const EdgeInsets.all(Constants.space3),
@@ -131,8 +124,12 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Constants.kykPrimary.withOpacity(0.1),
+                            color: Constants.kykGray100,
                             borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Constants.kykPrimary,
+                              width: 1,
+                            ),
                           ),
                           child: Icon(
                             _getMealTypeIcon(widget.menu.mealType),
@@ -191,8 +188,14 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
                           decoration: BoxDecoration(
                             color: daysDifference <= 1 
                                 ? Constants.kykAccent 
-                                : Constants.kykGray200,
-                            borderRadius: BorderRadius.circular(12),
+                                : Constants.kykGray100,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: daysDifference <= 1 
+                                  ? Constants.kykAccent 
+                                  : Constants.kykGray300,
+                              width: 1,
+                            ),
                           ),
                           child: Text(
                             daysDifference == 0 

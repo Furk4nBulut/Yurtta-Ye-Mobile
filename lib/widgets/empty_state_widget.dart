@@ -31,44 +31,47 @@ class EmptyStateWidget extends StatelessWidget {
             padding: const EdgeInsets.all(Constants.space6),
             decoration: BoxDecoration(
               color: Constants.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Constants.kykGray200,
+                color: Constants.kykGray300,
                 width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Constants.kykGray200.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
             child: Column(
               children: [
+                // Ana ikon
                 Container(
-                  padding: const EdgeInsets.all(Constants.space4),
+                  padding: const EdgeInsets.all(Constants.space5),
                   decoration: BoxDecoration(
                     color: Constants.kykGray100,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Constants.kykPrimary,
+                      width: 1,
+                    ),
                   ),
                   child: Icon(
                     isToday ? Icons.schedule : Icons.restaurant_menu,
-                    size: Constants.textXl * 2,
+                    size: Constants.text2xl * 2,
                     color: Constants.kykPrimary,
                   ),
                 ),
-                const SizedBox(height: Constants.space4),
+                const SizedBox(height: Constants.space5),
+                
+                // Ana başlık
                 Text(
                   isToday ? 'Bugün için menü henüz yayınlanmadı' : 'Menü bulunamadı',
                   style: GoogleFonts.inter(
-                    fontSize: Constants.textLg,
-                    fontWeight: FontWeight.w600,
+                    fontSize: Constants.textXl,
+                    fontWeight: FontWeight.w700,
                     color: Constants.kykGray700,
+                    height: 1.3,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: Constants.space2),
+                const SizedBox(height: Constants.space3),
+                
+                // Açıklama metni
                 Text(
                   isToday 
                     ? 'Bugünün menüsü henüz sisteme girilmemiş. Lütfen daha sonra tekrar kontrol edin.'
@@ -76,11 +79,13 @@ class EmptyStateWidget extends StatelessWidget {
                   style: GoogleFonts.inter(
                     fontSize: Constants.textBase,
                     color: Constants.kykGray500,
-                    height: 1.5,
+                    height: 1.6,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: Constants.space2),
+                
+                // Email bilgisi
                 Text(
                   'Eğer elinizde menüyle ilgili bir bilgi varsa bulutsoftdev@gmail.com adresine ulaştırarak katkıda bulunabilirsiniz.',
                   style: GoogleFonts.inter(
@@ -93,71 +98,88 @@ class EmptyStateWidget extends StatelessWidget {
                 
                 // Veri katkısı mesajı
                 Container(
-                  margin: const EdgeInsets.only(top: Constants.space4),
-                  padding: const EdgeInsets.all(Constants.space4),
+                  margin: const EdgeInsets.only(top: Constants.space5),
+                  padding: const EdgeInsets.all(Constants.space5),
                   decoration: BoxDecoration(
-                    color: Constants.kykAccent.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
+                    color: Constants.kykGray100,
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Constants.kykAccent.withOpacity(0.3),
+                      color: Constants.kykAccent,
                       width: 1,
                     ),
                   ),
                   child: Column(
                     children: [
+                      // Başlık satırı
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(8),
+                            padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
                               color: Constants.kykAccent,
                               borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Constants.kykAccent,
+                                width: 1,
+                              ),
                             ),
                             child: const Icon(
                               Icons.volunteer_activism,
                               color: Constants.white,
-                              size: 20,
+                              size: 24,
                             ),
                           ),
-                          const SizedBox(width: Constants.space3),
+                          const SizedBox(width: Constants.space4),
                           Expanded(
                             child: Text(
                               'Veri Katkısı',
                               style: GoogleFonts.inter(
-                                fontSize: Constants.textLg,
-                                fontWeight: FontWeight.w600,
+                                fontSize: Constants.textXl,
+                                fontWeight: FontWeight.w700,
                                 color: Constants.kykGray700,
                               ),
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: Constants.space3),
+                      const SizedBox(height: Constants.space4),
+                      
+                      // Açıklama
                       Text(
                         'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
                         style: GoogleFonts.inter(
                           fontSize: Constants.textBase,
                           color: Constants.kykGray600,
-                          height: 1.5,
+                          height: 1.6,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: Constants.space3),
-                      ElevatedButton.icon(
-                        onPressed: onEmailPressed,
-                        icon: const Icon(Icons.email),
-                        label: Text(
-                          'Bize Ulaşın',
-                          style: GoogleFonts.inter(
-                            fontWeight: FontWeight.w600,
+                      const SizedBox(height: Constants.space4),
+                      
+                      // Email butonu
+                      Container(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: onEmailPressed,
+                          icon: const Icon(Icons.email, size: 20),
+                          label: Text(
+                            'Bize Ulaşın',
+                            style: GoogleFonts.inter(
+                              fontSize: Constants.textBase,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Constants.kykAccent,
-                          foregroundColor: Constants.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: Constants.space4,
-                            vertical: Constants.space2,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Constants.kykAccent,
+                            foregroundColor: Constants.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: Constants.space5,
+                              vertical: Constants.space3,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
                           ),
                         ),
                       ),

@@ -121,29 +121,22 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
             scale: _scaleAnimation.value,
             child: Container(
               margin: const EdgeInsets.symmetric(
-                horizontal: Constants.space2,
-                vertical: Constants.space1,
+                horizontal: Constants.space4,
+                vertical: Constants.space3,
               ),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Constants.kykPrimary.withOpacity(_isHovered ? 0.15 : 0.08),
-                    blurRadius: _isHovered ? 16 : 12,
-                    offset: Offset(0, _isHovered ? 6 : 4),
-                  ),
-                ],
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: _isHovered 
+                      ? Constants.kykPrimary
+                      : Constants.kykGray300,
+                  width: _isHovered ? 2 : 1,
+                ),
               ),
               child: Card(
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: _isHovered 
-                        ? Constants.kykPrimary.withOpacity(0.3)
-                        : Constants.kykGray200,
-                    width: _isHovered ? 1.5 : 1,
-                  ),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: InkWell(
                   onTap: widget.onTap ??
@@ -154,7 +147,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                   onTapDown: (_) => _controller.forward(),
                   onTapUp: (_) => _controller.reverse(),
                   onTapCancel: () => _controller.reverse(),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(8),
                   splashColor: Constants.kykAccent.withOpacity(0.1),
                   child: Column(
                     children: [
@@ -175,17 +168,10 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   Widget _buildHeader(BuildContext context, bool isSmallScreen, bool isDarkMode) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(isSmallScreen ? Constants.space3 : Constants.space4),
+      padding: EdgeInsets.all(isSmallScreen ? Constants.space5 : Constants.space6),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Constants.kykPrimary,
-            Constants.kykSecondary,
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        color: Constants.kykPrimary,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
       ),
       child: Column(
         children: [
@@ -193,18 +179,22 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Constants.white.withOpacity(0.2),
+                  color: Constants.white,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Constants.kykPrimary,
+                    width: 1,
+                  ),
                 ),
                 child: Icon(
                   _getMealTypeIcon(widget.menu.mealType),
-                  color: Constants.white,
-                  size: isSmallScreen ? 20 : 24,
+                  color: Constants.kykPrimary,
+                  size: isSmallScreen ? 28 : 32,
                 ),
               ),
-              const SizedBox(width: Constants.space3),
+              const SizedBox(width: Constants.space5),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -212,18 +202,19 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     Text(
                       _getShortMealType(widget.menu.mealType),
                       style: GoogleFonts.inter(
-                        fontSize: isSmallScreen ? Constants.textLg : Constants.textXl,
-                        fontWeight: FontWeight.w700,
+                        fontSize: isSmallScreen ? Constants.text2xl : Constants.text2xl + 4,
+                        fontWeight: FontWeight.w800,
                         color: Constants.white,
                         letterSpacing: -0.5,
                       ),
                     ),
+                    const SizedBox(height: 4),
                     Text(
                       DateFormat('dd MMMM yyyy, EEEE').format(widget.menu.date),
                       style: GoogleFonts.inter(
-                        fontSize: Constants.textSm,
-                        fontWeight: FontWeight.w500,
-                        color: Constants.white.withOpacity(0.9),
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w600,
+                        color: Constants.white.withOpacity(0.95),
                       ),
                     ),
                   ],
@@ -232,19 +223,23 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
               if (widget.menu.energy.isNotEmpty)
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: Constants.space2,
-                    vertical: Constants.space1,
+                    horizontal: Constants.space4,
+                    vertical: Constants.space3,
                   ),
                   decoration: BoxDecoration(
-                    color: Constants.kykAccent,
-                    borderRadius: BorderRadius.circular(12),
+                    color: Constants.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Constants.kykAccent,
+                      width: 1,
+                    ),
                   ),
                   child: Text(
                     '${widget.menu.energy} kcal',
                     style: GoogleFonts.inter(
-                      fontSize: Constants.textXs,
-                      fontWeight: FontWeight.w600,
-                      color: Constants.white,
+                      fontSize: Constants.textBase,
+                      fontWeight: FontWeight.w700,
+                      color: Constants.kykAccent,
                     ),
                   ),
                 ),
@@ -263,131 +258,235 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     bool isDarkMode,
   ) {
     return Padding(
-      padding: EdgeInsets.all(isSmallScreen ? Constants.space3 : Constants.space4),
+      padding: EdgeInsets.all(isSmallScreen ? Constants.space5 : Constants.space6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Kategori başlığı
-          Text(
-            'Bugünün Menüsü',
-            style: GoogleFonts.inter(
-              fontSize: Constants.textLg,
-              fontWeight: FontWeight.w600,
-              color: Constants.kykPrimary,
-            ),
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: Constants.kykGray100,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Constants.kykPrimary,
+                    width: 1,
+                  ),
+                ),
+                child: Icon(
+                  Icons.restaurant_menu,
+                  size: 24,
+                  color: Constants.kykPrimary,
+                ),
+              ),
+              const SizedBox(width: Constants.space4),
+              Text(
+                'Menü İçeriği',
+                style: GoogleFonts.inter(
+                  fontSize: Constants.textXl,
+                  fontWeight: FontWeight.w700,
+                  color: Constants.kykPrimary,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: Constants.space3),
+          const SizedBox(height: Constants.space5),
           
           // Kategoriler
           ...categories.entries.map((entry) {
             final categoryName = entry.key;
             final items = entry.value;
             
-            return Padding(
-              padding: const EdgeInsets.only(bottom: Constants.space3),
+            return Container(
+              margin: const EdgeInsets.only(bottom: Constants.space5),
+              decoration: BoxDecoration(
+                color: Constants.white,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Constants.kykGray300,
+                  width: 1,
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Kategori başlığı
-                  Row(
-                    children: [
-                      Container(
-                        width: 4,
-                        height: 20,
-                        decoration: BoxDecoration(
-                          color: _getCategoryColor(categoryName),
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+                  Container(
+                    padding: const EdgeInsets.all(Constants.space4),
+                    decoration: BoxDecoration(
+                      color: Constants.kykGray100,
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                      border: Border.all(
+                        color: _getCategoryColor(categoryName),
+                        width: 1,
                       ),
-                      const SizedBox(width: Constants.space2),
-                      Text(
-                        categoryName,
-                        style: GoogleFonts.inter(
-                          fontSize: Constants.textBase,
-                          fontWeight: FontWeight.w600,
-                          color: Constants.kykGray700,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: Constants.space2),
-                  
-                  // Yemek listesi
-                  ...items.map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: Constants.space2),
+                    ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.restaurant,
-                          size: 16,
-                          color: _getCategoryColor(categoryName),
+                        Container(
+                          width: 6,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: _getCategoryColor(categoryName),
+                            borderRadius: BorderRadius.circular(3),
+                          ),
                         ),
-                        const SizedBox(width: Constants.space2),
+                        const SizedBox(width: Constants.space4),
                         Expanded(
                           child: Text(
-                            item.name,
+                            categoryName,
                             style: GoogleFonts.inter(
-                              fontSize: Constants.textSm,
-                              fontWeight: FontWeight.w500,
-                              color: Constants.kykGray600,
+                              fontSize: Constants.textLg,
+                              fontWeight: FontWeight.w700,
+                              color: Constants.kykGray700,
                             ),
                           ),
                         ),
-                        if (item.gram.isNotEmpty)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Constants.space2,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Constants.kykGray100,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              '${item.gram}g',
-                              style: GoogleFonts.inter(
-                                fontSize: Constants.textXs,
-                                fontWeight: FontWeight.w500,
-                                color: Constants.kykGray500,
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Constants.space3,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Constants.white,
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: _getCategoryColor(categoryName),
+                              width: 1,
                             ),
                           ),
+                          child: Text(
+                            '${items.length} çeşit',
+                            style: GoogleFonts.inter(
+                              fontSize: Constants.textSm,
+                              fontWeight: FontWeight.w600,
+                              color: _getCategoryColor(categoryName),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                  )),
+                  ),
+                  
+                  // Yemek listesi
+                  Padding(
+                    padding: const EdgeInsets.all(Constants.space4),
+                    child: Column(
+                      children: items.map((item) => Container(
+                        margin: const EdgeInsets.only(bottom: Constants.space3),
+                        padding: const EdgeInsets.all(Constants.space3),
+                        decoration: BoxDecoration(
+                          color: Constants.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: Constants.kykGray200,
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Constants.kykGray100,
+                                borderRadius: BorderRadius.circular(6),
+                                border: Border.all(
+                                  color: _getCategoryColor(categoryName),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Icon(
+                                Icons.restaurant,
+                                size: 18,
+                                color: _getCategoryColor(categoryName),
+                              ),
+                            ),
+                            const SizedBox(width: Constants.space4),
+                            Expanded(
+                              child: Text(
+                                item.name,
+                                style: GoogleFonts.inter(
+                                  fontSize: Constants.textBase,
+                                  fontWeight: FontWeight.w600,
+                                  color: Constants.kykGray700,
+                                  height: 1.4,
+                                ),
+                              ),
+                            ),
+                            if (item.gram.isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: Constants.space3,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Constants.white,
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Constants.kykPrimary,
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  '${item.gram}g',
+                                  style: GoogleFonts.inter(
+                                    fontSize: Constants.textSm,
+                                    fontWeight: FontWeight.w700,
+                                    color: Constants.kykPrimary,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      )).toList(),
+                    ),
+                  ),
                 ],
               ),
             );
           }),
           
-          const SizedBox(height: Constants.space3),
+          const SizedBox(height: Constants.space5),
           
           // Detay butonu
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: Constants.space2),
+            padding: const EdgeInsets.symmetric(vertical: Constants.space4),
             decoration: BoxDecoration(
-              color: Constants.kykGray50,
+              color: Constants.white,
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: Constants.kykGray200,
+                color: Constants.kykPrimary,
                 width: 1,
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 16,
-                  color: Constants.kykPrimary,
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Constants.kykGray100,
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(
+                      color: Constants.kykPrimary,
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.info_outline,
+                    size: 20,
+                    color: Constants.kykPrimary,
+                  ),
                 ),
-                const SizedBox(width: Constants.space2),
+                const SizedBox(width: Constants.space3),
                 Text(
                   'Detayları Görüntüle',
                   style: GoogleFonts.inter(
-                    fontSize: Constants.textSm,
-                    fontWeight: FontWeight.w600,
+                    fontSize: Constants.textBase,
+                    fontWeight: FontWeight.w700,
                     color: Constants.kykPrimary,
                   ),
                 ),

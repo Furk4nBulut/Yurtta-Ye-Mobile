@@ -27,13 +27,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: themeProvider.isDarkMode ? Constants.kykGray800 : Constants.white,
-        boxShadow: [
-          BoxShadow(
-            color: Constants.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+        border: Border(
+          top: BorderSide(
+            color: Constants.kykGray300,
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: SafeArea(
         child: Container(
@@ -79,19 +78,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
                               width: 40,
                               height: 40,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [Constants.kykPrimary, Constants.kykPrimary.withOpacity(0.8)],
-                                ),
+                                color: Constants.kykPrimary,
                                 borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Constants.kykPrimary.withOpacity(0.3),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
+                                border: Border.all(
+                                  color: Constants.kykPrimary,
+                                  width: 1,
+                                ),
                               ),
                               child: Icon(
                                 Icons.filter_list_rounded,
@@ -138,8 +130,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(vertical: 4),
         decoration: BoxDecoration(
-          color: isSelected ? Constants.kykPrimary.withOpacity(0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
+          color: isSelected ? Constants.kykGray100 : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Constants.kykPrimary : Colors.transparent,
+            width: 1,
+          ),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -149,15 +145,12 @@ class CustomBottomNavigationBar extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.all(5),
               decoration: BoxDecoration(
-                color: isSelected ? Constants.kykPrimary : Constants.kykGray200,
+                color: isSelected ? Constants.kykPrimary : Constants.kykGray100,
                 borderRadius: BorderRadius.circular(6),
-                boxShadow: isSelected ? [
-                  BoxShadow(
-                    color: Constants.kykPrimary.withOpacity(0.3),
-                    blurRadius: 3,
-                    offset: const Offset(0, 1),
-                  ),
-                ] : null,
+                border: Border.all(
+                  color: isSelected ? Constants.kykPrimary : Constants.kykGray300,
+                  width: 1,
+                ),
               ),
               child: Icon(
                 icon,

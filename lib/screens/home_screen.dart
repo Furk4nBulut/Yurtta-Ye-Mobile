@@ -81,32 +81,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
-  void _changeDate(bool isNext) {
-    final provider = Provider.of<MenuProvider>(context, listen: false);
-    final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
-    final newDate = isNext
-        ? _selectedDate.add(const Duration(days: 1))
-        : _selectedDate.subtract(const Duration(days: 1));
-    
-    setState(() {
-      _opacity = 0.5;
-      _selectedDate = newDate;
-    });
-    
-    print('Date changed to: ${AppConfig.apiDateFormat.format(_selectedDate)}');
-    
-    Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() => _opacity = 1.0);
-    });
-    
-    if (!provider.menus.any((menu) =>
-        AppConfig.apiDateFormat.format(menu.date) ==
-        AppConfig.apiDateFormat.format(_selectedDate))) {
-      provider.fetchMenus(reset: false);
-      print('Fetching menus for new date: ${AppConfig.apiDateFormat.format(_selectedDate)}');
-    }
-  }
-
   void _onMealTypeChanged(int index) {
     HapticFeedback.lightImpact();
     final provider = Provider.of<MenuProvider>(context, listen: false);
@@ -118,18 +92,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     Future.delayed(const Duration(milliseconds: 300), () {
       setState(() => _opacity = 1.0);
     });
-  }
-
-  bool _hasPreviousMenu(MenuProvider provider, String selectedMealType) {
-    return provider.menus.any((menu) =>
-        menu.date.isBefore(_selectedDate) && 
-        menu.mealType == selectedMealType &&
-        menu.id != 0);
-  }
-
-  bool _hasNextMenu(MenuProvider provider, String selectedMealType) {
-    return provider.menus.any((menu) =>
-        menu.date.isAfter(_selectedDate) && menu.mealType == selectedMealType);
   }
 
   bool _hasSelectedDateData(MenuProvider provider, String selectedMealType) {
@@ -393,10 +355,17 @@ Teşekkürler!''';
   Widget _buildDateSelector(MenuProvider provider, String selectedMealType) {
     return DateSelector(
       selectedDate: _selectedDate,
-      onDateChanged: _changeDate,
-      hasPreviousMenu: _hasPreviousMenu(provider, selectedMealType),
-      hasNextMenu: _hasNextMenu(provider, selectedMealType),
-      opacity: _opacity,
+      onDateChanged: (date) {
+        setState(() {
+          _selectedDate = date;
+        });
+        final provider = Provider.of<MenuProvider>(context, listen: false);
+        if (!provider.menus.any((menu) =>
+            AppConfig.apiDateFormat.format(menu.date) ==
+            AppConfig.apiDateFormat.format(date))) {
+          provider.fetchMenus(reset: false);
+        }
+      },
     );
   }
 
