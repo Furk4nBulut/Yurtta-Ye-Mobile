@@ -6,6 +6,7 @@ import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/settings_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/widgets/ad_wrapper.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
@@ -27,7 +28,11 @@ final GoRouter router = GoRouter(
             final id = int.tryParse(state.pathParameters['id'] ?? '') ?? 0;
             return CustomTransitionPage(
               key: state.pageKey,
-              child: MenuDetailScreen(menuId: id),
+              child: AdWrapper(
+                routeName: 'menu_detail',
+                showAdOnEnter: true,
+                child: MenuDetailScreen(menuId: id),
+              ),
               transitionsBuilder: (context, animation, secondaryAnimation, child) {
                 return SlideTransition(
                   position: Tween<Offset>(
@@ -45,12 +50,20 @@ final GoRouter router = GoRouter(
         GoRoute(
           path: 'filter',
           name: 'filter',
-          builder: (context, state) => const FilterScreen(),
+          builder: (context, state) => AdWrapper(
+            routeName: 'filter',
+            showAdOnEnter: true,
+            child: const FilterScreen(),
+          ),
         ),
         GoRoute(
           path: 'settings',
           name: 'settings',
-          builder: (context, state) => const SettingsScreen(),
+          builder: (context, state) => AdWrapper(
+            routeName: 'settings',
+            showAdOnEnter: true,
+            child: const SettingsScreen(),
+          ),
         ),
       ],
     ),

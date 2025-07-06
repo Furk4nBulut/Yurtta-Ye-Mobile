@@ -51,13 +51,19 @@ class AdService {
   }
 
   static Future<void> showInterstitialAd() async {
+    print('=== AD SERVICE DEBUG ===');
+    print('Interstitial ad is null: ${_interstitialAd == null}');
+    print('Ad unit ID: $interstitialAdUnitId');
+    
     if (_interstitialAd != null) {
+      print('Showing existing interstitial ad...');
       await _interstitialAd!.show();
     } else {
-      print('Geçiş reklamı henüz yüklenmedi');
+      print('Geçiş reklamı henüz yüklenmedi, yükleniyor...');
       // Reklam yüklenmemişse yeni bir tane yükle
       await loadInterstitialAd();
     }
+    print('=======================');
   }
 
   static void dispose() {

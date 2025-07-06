@@ -25,6 +25,7 @@ import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:yurttaye_mobile/widgets/meal_schedule_card.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
 import 'package:yurttaye_mobile/services/ad_service.dart';
+import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -46,7 +47,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _initializeAnimations();
     _selectMealTypeByTime();
     _initializeData();
-    _loadInterstitialAd();
   }
 
   void _initializeAnimations() {
@@ -73,13 +73,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  void _loadInterstitialAd() {
-    AdService.loadInterstitialAd();
-  }
 
-  void _showInterstitialAd() {
-    AdService.showInterstitialAd();
-  }
 
   void _selectMealTypeByTime() {
     final now = DateTime.now();
@@ -130,9 +124,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _launchWebsite() async {
-    // Geçiş reklamı göster
-    _showInterstitialAd();
-    
     const String urlString = 'https://yurttaye.onrender.com/';
     final Uri url = Uri.parse(urlString);
     try {
@@ -431,6 +422,9 @@ ${Localization.getCurrentText('email_thanks', languageCode)}''';
                             _buildDateSelector(provider, selectedMealType),
                             _buildMainContent(provider, selectedMealType, hasSelectedDateData, mealTypeConstant, languageProvider),
                             const SizedBox(height: Constants.space6),
+                            // Banner Reklam - Her zaman görünür
+                            const Center(child: BannerAdWidget()),
+                            const SizedBox(height: Constants.space4),
                           ],
                         ),
                       ),

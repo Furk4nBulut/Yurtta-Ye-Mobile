@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -8,9 +9,11 @@ import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/services/notification_service.dart';
 import 'package:yurttaye_mobile/services/notification_test.dart';
+import 'package:yurttaye_mobile/services/ad_manager.dart';
 import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -126,6 +129,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       NotificationTest.showTestDialog(context);
                     },
                   ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.monetization_on_rounded,
+                    title: Localization.getText('watch_ad', languageCode),
+                    subtitle: Localization.getText('watch_ad_desc', languageCode),
+                    onTap: () async {
+                      HapticFeedback.lightImpact();
+                      await AdManager.showAdIfAllowed();
+                    },
+                  ),
                 ],
               ),
             ),
@@ -229,6 +244,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             
             const SizedBox(height: Constants.space4),
+            _buildSectionTitle(context, Localization.getText('support', languageCode)),
+            const SizedBox(height: Constants.space3),
+            
+            // Destek Kartı
+            _buildSettingsCard(
+              context: context,
+              isDark: isDark,
+              child: Column(
+                children: [
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.favorite_rounded,
+                    title: Localization.getText('support_developer', languageCode),
+                    subtitle: Localization.getText('support_developer_desc', languageCode),
+                    onTap: () async {
+                      HapticFeedback.lightImpact();
+                      await AdManager.showAdIfAllowed();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.star_rounded,
+                    title: Localization.getText('rate_app_title', languageCode),
+                    subtitle: Localization.getText('rate_app_desc', languageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _launchGooglePlay();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.share_rounded,
+                    title: Localization.getText('share_app', languageCode),
+                    subtitle: Localization.getText('share_app_desc', languageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _shareApp();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.coffee_rounded,
+                    title: Localization.getText('donate', languageCode),
+                    subtitle: Localization.getText('donate_desc', languageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showDonationDialog(context, languageProvider);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: Constants.space4),
             _buildSectionTitle(context, Localization.getText('developer', languageCode)),
             const SizedBox(height: Constants.space3),
             
@@ -278,6 +354,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             
             const SizedBox(height: Constants.space6),
+            
+            // Banner Reklam
+            const Center(child: BannerAdWidget()),
+            
+            const SizedBox(height: Constants.space4),
             
             // Alt bilgi
             Center(
@@ -761,6 +842,166 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> _shareApp() async {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    final String shareText = '${Localization.getText('share_text', languageCode)} ${AppConfig.googlePlayUrl}';
+    
+    try {
+      await Clipboard.setData(ClipboardData(text: shareText));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Localization.getText('share_copied', languageCode)),
+            backgroundColor: Constants.kykPrimary,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${Localization.getText('share_copy_error', languageCode)} $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showDonationDialog(BuildContext context, LanguageProvider languageProvider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          Localization.getText('donation_title', languageCode),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              Localization.getText('donation_desc', languageCode),
+              style: GoogleFonts.inter(
+                fontSize: Constants.textSm,
+                color: isDark ? Constants.kykGray300 : Constants.kykGray700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildDonationOption(
+              context,
+              isDark,
+              Localization.getText('coffee_donation', languageCode),
+              Localization.getText('coffee_amount', languageCode),
+              () => _launchDonation(5),
+            ),
+            const SizedBox(height: 8),
+            _buildDonationOption(
+              context,
+              isDark,
+              Localization.getText('pizza_donation', languageCode),
+              Localization.getText('pizza_amount', languageCode),
+              () => _launchDonation(25),
+            ),
+            const SizedBox(height: 8),
+            _buildDonationOption(
+              context,
+              isDark,
+              Localization.getText('special_donation', languageCode),
+              Localization.getText('special_amount', languageCode),
+              () => _launchDonation(50),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              Localization.getText('cancel', languageCode),
+              style: GoogleFonts.inter(
+                color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDonationOption(BuildContext context, bool isDark, String title, String subtitle, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: isDark ? Constants.kykGray700 : Constants.kykGray100,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isDark ? Constants.kykGray600 : Constants.kykGray300,
+            width: 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textSm,
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                    ),
+                  ),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textXs,
+                      color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _launchDonation(int amount) {
+    // Burada gerçek bağış sistemi entegrasyonu yapılabilir
+    // Şimdilik sadece bilgi mesajı gösterelim
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    Navigator.of(context).pop();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(Localization.getText('donation_coming_soon', languageCode)),
+        backgroundColor: Constants.kykPrimary,
       ),
     );
   }

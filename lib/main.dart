@@ -11,6 +11,7 @@ import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
 import 'package:yurttaye_mobile/services/notification_service.dart';
 import 'package:yurttaye_mobile/services/ad_service.dart';
+import 'package:yurttaye_mobile/services/ad_manager.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -26,6 +27,9 @@ Future<void> main() async {
   
   // Google Mobile Ads'i başlat
   await AdService.initialize();
+  
+  // Günlük reklam sayacını kontrol et ve gerekirse sıfırla
+  await AdManager.resetDailyCount();
   
   // Bildirim servisini başlat
   final notificationService = NotificationService();

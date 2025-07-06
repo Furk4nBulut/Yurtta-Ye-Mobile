@@ -378,14 +378,16 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       color: isSelected ? Constants.white : Constants.kykGray600,
                     ),
                     const SizedBox(width: 2),
-                    Text(
-                      mealType == 'Kahvaltı' 
-                          ? Localization.getCurrentText('breakfast_short', languageProvider.currentLanguageCode)
-                          : Localization.getCurrentText('dinner_short', languageProvider.currentLanguageCode),
-                      style: GoogleFonts.inter(
-                        fontSize: Constants.textSm,
-                        fontWeight: FontWeight.w500,
-                        color: isSelected ? Constants.white : Constants.kykGray700,
+                    Expanded(
+                      child: Text(
+                        mealType == 'Kahvaltı' 
+                            ? Localization.getCurrentText('breakfast_short', languageProvider.currentLanguageCode)
+                            : Localization.getCurrentText('dinner_short', languageProvider.currentLanguageCode),
+                        style: GoogleFonts.inter(
+                          fontSize: Constants.textSm,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Constants.white : Constants.kykGray700,
+                        ),
                       ),
                     ),
                   ],
@@ -402,6 +404,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     return Row(
       children: [
         Expanded(
+          flex: 2,
           child: OutlinedButton.icon(
             onPressed: () async {
               final picked = await showDatePicker(
@@ -434,6 +437,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                 fontWeight: FontWeight.w500,
                 fontSize: Constants.textSm,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
             style: OutlinedButton.styleFrom(
               foregroundColor: Constants.kykPrimary,
@@ -450,37 +454,42 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
         ),
         if (_selectedDate != null) ...[
           const SizedBox(width: 3),
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 4,
-              vertical: 2,
-            ),
-            decoration: BoxDecoration(
-              color: Constants.kykPrimary.withOpacity(0.1),
-              borderRadius: BorderRadius.zero,
-              border: Border.all(
-                color: Constants.kykPrimary.withOpacity(0.3),
-                width: 0.5,
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 2,
               ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Constants.kykPrimary,
-                  size: 8,
+              decoration: BoxDecoration(
+                color: Constants.kykPrimary.withOpacity(0.1),
+                borderRadius: BorderRadius.zero,
+                border: Border.all(
+                  color: Constants.kykPrimary.withOpacity(0.3),
+                  width: 0.5,
                 ),
-                const SizedBox(width: 2),
-                Text(
-                  DateFormat('EEE').format(_selectedDate!),
-                  style: GoogleFonts.inter(
-                    fontSize: Constants.textSm,
-                    fontWeight: FontWeight.w500,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.check_circle,
                     color: Constants.kykPrimary,
+                    size: 8,
                   ),
-                ),
-              ],
+                  const SizedBox(width: 2),
+                  Flexible(
+                    child: Text(
+                      DateFormat('EEE').format(_selectedDate!),
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textSm,
+                        fontWeight: FontWeight.w500,
+                        color: Constants.kykPrimary,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
 
 class MenuDetailScreen extends StatefulWidget {
   final int menuId;
@@ -102,6 +103,11 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             _buildMealHoursInfo(mealTypeConstant),
             const SizedBox(height: Constants.space3),
             _buildDisclaimerInfo(mealTypeConstant),
+            const SizedBox(height: Constants.space4),
+            
+            // Banner Reklam
+            const Center(child: BannerAdWidget()),
+            
             const SizedBox(height: Constants.space4),
           ],
         ),

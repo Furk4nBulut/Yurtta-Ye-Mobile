@@ -198,6 +198,35 @@ class Localization {
       'salad': 'Salata',
       'greens': 'Yeşillik',
       'dessert': 'Tatlı',
+      
+      // Support Section
+      'support': 'Destek',
+      'support_developer': 'Geliştiriciye Destek Ol',
+      'support_developer_desc': 'Reklam izleyerek bize destek olun',
+      'rate_app_title': 'Uygulamayı Değerlendirin',
+      'rate_app_desc': 'Google Play\'de 5 yıldız verin',
+      'share_app': 'Arkadaşlarınızla Paylaşın',
+      'share_app_desc': 'Uygulamayı sosyal medyada paylaşın',
+      'donate': 'Bir Kahve Ismarla',
+      'donate_desc': 'Geliştiriciye bağış yapın',
+      'watch_ad': 'Reklam İzleyin',
+      'watch_ad_desc': 'Geliştiriciye destek olun',
+      
+      // Donation Dialog
+      'donation_title': 'Geliştiriciye Destek Ol',
+      'donation_desc': 'YurttaYe uygulamasının geliştirilmesine destek olmak için:',
+      'coffee_donation': '☕ Bir Kahve',
+      'coffee_amount': '5 TL - Bir kahve ısmarla',
+      'pizza_donation': '🍕 Bir Pizza',
+      'pizza_amount': '25 TL - Bir pizza ısmarla',
+      'special_donation': '💝 Özel Destek',
+      'special_amount': '50 TL - Özel destek',
+      
+      // Share & Copy
+      'share_text': 'YurttaYe - KYK Yemek Menüsü uygulamasını deneyin!',
+      'share_copied': 'Paylaşım metni kopyalandı!',
+      'share_copy_error': 'Paylaşım metni kopyalanamadı:',
+      'donation_coming_soon': 'Bağış sistemi yakında eklenecek!',
       'rice': 'Pilav',
       'pasta': 'Makarna',
       'bread': 'Ekmek',
@@ -368,6 +397,35 @@ class Localization {
       'june': 'June',
       'july': 'July',
       'august': 'August',
+      
+      // Support Section
+      'support': 'Support',
+      'support_developer': 'Support Developer',
+      'support_developer_desc': 'Support us by watching ads',
+      'rate_app_title': 'Rate the App',
+      'rate_app_desc': 'Give 5 stars on Google Play',
+      'share_app': 'Share with Friends',
+      'share_app_desc': 'Share the app on social media',
+      'donate': 'Buy a Coffee',
+      'donate_desc': 'Donate to developer',
+      'watch_ad': 'Watch Ad',
+      'watch_ad_desc': 'Support the developer',
+      
+      // Donation Dialog
+      'donation_title': 'Support Developer',
+      'donation_desc': 'To support the development of YurttaYe app:',
+      'coffee_donation': '☕ A Coffee',
+      'coffee_amount': '5 TL - Buy a coffee',
+      'pizza_donation': '🍕 A Pizza',
+      'pizza_amount': '25 TL - Buy a pizza',
+      'special_donation': '💝 Special Support',
+      'special_amount': '50 TL - Special support',
+      
+      // Share & Copy
+      'share_text': 'Try YurttaYe - KYK Meal Menu app!',
+      'share_copied': 'Share text copied!',
+      'share_copy_error': 'Share text could not be copied:',
+      'donation_coming_soon': 'Donation system coming soon!',
       'september': 'September',
       'october': 'October',
       'november': 'November',

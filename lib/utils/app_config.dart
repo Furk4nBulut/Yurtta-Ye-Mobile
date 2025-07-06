@@ -45,4 +45,8 @@ class AppConfig {
   // Sayfalama ayarları
   static const int pageSize = 5; // Sayfa başına menü
   static const int initialPage = 1;
+  
+  // Ad Configuration
+  static const bool isDebug = true; // Debug modda test reklamları göster
+  static const String bannerAdUnitId = 'ca-app-pub-3940256099942544/6300978111'; // Production banner ad unit ID
 } 
