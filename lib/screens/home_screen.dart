@@ -242,90 +242,151 @@ Teşekkürler!''';
 
   PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final statusBarHeight = MediaQuery.of(context).padding.top;
     
-    return AppBar(
-      centerTitle: true,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
+    return PreferredSize(
+      preferredSize: Size.fromHeight(kToolbarHeight + statusBarHeight),
+      child: Container(
+        color: isDark ? Constants.kykPrimary : Constants.kykPrimary,
+        padding: EdgeInsets.only(top: statusBarHeight),
+        child: Container(
+          height: kToolbarHeight,
+          child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Sol taraftaki butonlar (Web sitesi ve Dil değiştir)
+            Row(
+              children: [
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Constants.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.language,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  tooltip: 'Website\'yi Ziyaret Et',
+                  onPressed: _launchWebsite,
+                  splashRadius: 24,
+                  constraints: const BoxConstraints(),
+                ),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Constants.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.translate,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  tooltip: 'Dili Değiştir',
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Dil Seç'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.flag),
+                              title: const Text('Türkçe'),
+                              onTap: () {
+                                // TODO: Uygulama dilini Türkçe yap
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.flag_outlined),
+                              title: const Text('English'),
+                              onTap: () {
+                                // TODO: Uygulama dilini İngilizce yap
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  splashRadius: 24,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
             ),
-            child: const Icon(
-              Icons.restaurant_menu,
-              color: Constants.white,
-              size: 20,
+            // Ortada başlık
+            Expanded(
+              child: Center(
+                child: Text(
+                  'YurttaYe',
+                  style: GoogleFonts.inter(
+                    fontSize: Constants.textXl,
+                    fontWeight: FontWeight.w700,
+                    color: Colors.white,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
             ),
-          ),
-          const SizedBox(width: Constants.space2),
-          Text(
-            'YurttaYe',
-            style: GoogleFonts.inter(
-              fontSize: Constants.textXl,
-              fontWeight: FontWeight.w700,
-              color: Constants.white,
-              letterSpacing: -0.5,
+            // Sağ taraftaki butonlar (Tema ve Filtre)
+            Row(
+              children: [
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Constants.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+                  onPressed: () {
+                    themeProvider.toggleTheme();
+                    print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
+                  },
+                  splashRadius: 24,
+                  constraints: const BoxConstraints(),
+                ),
+                IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Constants.white.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.filter_list,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  tooltip: 'Filtrele',
+                  onPressed: () => context.pushNamed('filter'),
+                  splashRadius: 24,
+                  constraints: const BoxConstraints(),
+                ),
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
+        ),
       ),
-      leading: IconButton(
-        icon: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Constants.white.withOpacity(0.2),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: const Icon(
-            Icons.language,
-            color: Constants.white,
-            size: 20,
-          ),
-        ),
-        tooltip: 'Website\'yi Ziyaret Et',
-        onPressed: _launchWebsite,
-      ),
-      actions: [
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
-              color: Constants.white,
-              size: 20,
-            ),
-          ),
-          tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
-          onPressed: () {
-            themeProvider.toggleTheme();
-            print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
-          },
-        ),
-        IconButton(
-          icon: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: const Icon(
-              Icons.filter_list,
-              color: Constants.white,
-              size: 20,
-            ),
-          ),
-          tooltip: 'Filtrele',
-          onPressed: () => context.pushNamed('filter'),
-        ),
-      ],
     );
   }
 
