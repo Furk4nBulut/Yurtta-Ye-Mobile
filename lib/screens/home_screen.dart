@@ -549,7 +549,7 @@ ${Localization.getCurrentText('email_thanks', languageCode)}''';
             const SizedBox(width: Constants.space2),
             Expanded(
               child: Text(
-                Localization.getCurrentText('upcoming_meals_not_found', languageProvider.currentLanguageCode).replaceFirst('', selectedMealType),
+                Localization.getCurrentText('upcoming_meals_not_found', languageProvider.currentLanguageCode),
                 style: Theme.of(context).textTheme.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -572,7 +572,7 @@ ${Localization.getCurrentText('email_thanks', languageCode)}''';
             children: [
               Expanded(
                 child: Text(
-                  Localization.getCurrentText('upcoming_meals_title', languageProvider.currentLanguageCode).replaceFirst('', selectedMealType),
+                  Localization.getCurrentText('upcoming_meals_title', languageProvider.currentLanguageCode),
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,

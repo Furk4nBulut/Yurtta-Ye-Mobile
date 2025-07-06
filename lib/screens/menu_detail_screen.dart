@@ -118,31 +118,13 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       elevation: 0,
       backgroundColor: appBarBg,
       centerTitle: true,
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: appBarFg.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(
-              Icons.restaurant_menu,
-              color: appBarFg,
-              size: 20,
-            ),
-          ),
-          const SizedBox(width: Constants.space3),
-          Text(
-            Localization.getText('menu_detail', languageCode),
-            style: GoogleFonts.inter(
-              fontSize: Constants.textLg,
-              fontWeight: FontWeight.w700,
-              color: appBarFg,
-            ),
-          ),
-        ],
+      title: Text(
+        Localization.getText('menu_detail', languageCode),
+        style: GoogleFonts.inter(
+          fontSize: Constants.textLg,
+          fontWeight: FontWeight.w700,
+          color: appBarFg,
+        ),
       ), 
       leading: IconButton(
         icon: Container(
@@ -313,7 +295,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      DateFormat('dd MMMM yyyy, EEEE').format(menu.date),
+                      _getLocalizedDate(menu.date),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textBase,
                         fontWeight: FontWeight.w600,
@@ -322,7 +304,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     ),
                     const SizedBox(height: Constants.space1),
                     Text(
-                      Localization.getText(menu.mealType.toLowerCase() == 'kahvaltı' ? 'breakfast' : menu.mealType.toLowerCase() == 'akşam yemeği' ? 'dinner' : 'lunch', languageCode),
+                      _getLocalizedMealType(menu.mealType, languageCode),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textSm,
                         fontWeight: FontWeight.w500,
@@ -404,6 +386,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildMealTypeSelector(String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageCode = Localizations.localeOf(context).languageCode;
+    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space2),
@@ -419,33 +403,42 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         ],
       ),
       child: Row(
-        children: AppConfig.mealTypes.map((mealType) {
-          final isSelected = _selectedMealType == mealType;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => setState(() => _selectedMealType = mealType),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  vertical: Constants.space3,
-                  horizontal: Constants.space2,
-                ),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppTheme.getMealTypePrimaryColor(mealTypeConstant) : Colors.transparent,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  mealType,
-                  style: GoogleFonts.inter(
-                    fontSize: Constants.textBase,
-                    fontWeight: FontWeight.w600,
-                    color: isSelected ? Constants.white : (isDark ? Constants.kykGray300 : Constants.kykGray700),
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+        children: [
+          _buildMealTypeOption('Kahvaltı', mealTypeConstant, languageCode),
+          const SizedBox(width: Constants.space2),
+          _buildMealTypeOption('Akşam Yemeği', mealTypeConstant, languageCode),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMealTypeOption(String mealType, String mealTypeConstant, String languageCode) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isSelected = _selectedMealType == mealType;
+    final localizedMealType = _getLocalizedMealType(mealType, languageCode);
+    
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => setState(() => _selectedMealType = mealType),
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: Constants.space3,
+            horizontal: Constants.space2,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.getMealTypePrimaryColor(mealTypeConstant) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            localizedMealType,
+            style: GoogleFonts.inter(
+              fontSize: Constants.textBase,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Constants.white : (isDark ? Constants.kykGray300 : Constants.kykGray700),
             ),
-          );
-        }).toList(),
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
     );
   }
@@ -539,7 +532,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 const SizedBox(width: Constants.space3),
                 Expanded(
                   child: Text(
-                    category,
+                    _getLocalizedCategoryName(category, languageCode),
                     style: GoogleFonts.inter(
                       fontSize: Constants.textSm,
                       fontWeight: FontWeight.w600,
@@ -582,6 +575,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Widget _buildMenuItem(MenuItem item, String category, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageCode = Localizations.localeOf(context).languageCode;
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space1),
       padding: const EdgeInsets.all(Constants.space2),
@@ -626,7 +620,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
-                '${item.gram}g',
+                '${item.gram}${Localization.getText('gram_unit', languageCode)}',
                 style: GoogleFonts.inter(
                   fontSize: Constants.textXs,
                   fontWeight: FontWeight.w600,
@@ -1118,17 +1112,17 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   Future<void> _launchEmail() async {
     const String email = 'bulutsoftdev@gmail.com';
-    const String subject = 'YurttaYe - Menü Veri Katkısı';
-    const String body = '''Merhaba,
+    final languageCode = Localizations.localeOf(context).languageCode;
+    
+    final String subject = Localization.getText('email_subject', languageCode);
+    final String body = '''${Localization.getText('email_greeting', languageCode)}
 
-YurttaYe uygulaması için menü verisi katkısında bulunmak istiyorum.
+${Localization.getText('email_city', languageCode)} 
+${Localization.getText('email_date', languageCode)} 
+${Localization.getText('email_meal_type', languageCode)} 
+${Localization.getText('email_menu_details', languageCode)}
 
-Şehir: 
-Tarih: 
-Öğün Türü: 
-Menü Detayları:
-
-Teşekkürler!''';
+${Localization.getText('email_thanks', languageCode)}''';
 
     final Uri emailUri = Uri(
       scheme: 'mailto',
@@ -1147,7 +1141,7 @@ Teşekkürler!''';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Email adresi kopyalandı: $email',
+                '${Localization.getText('email_copied', languageCode)}: $email',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w600),
               ),
               backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),
@@ -1156,7 +1150,7 @@ Teşekkürler!''';
                 borderRadius: BorderRadius.circular(12),
               ),
               action: SnackBarAction(
-                label: 'Tamam',
+                label: Localization.getText('ok', languageCode),
                 textColor: Constants.white,
                 onPressed: () {},
               ),
@@ -1169,7 +1163,7 @@ Teşekkürler!''';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Email açılamadı: $e',
+              '${Localization.getText('email_error', languageCode)}: $e',
               style: GoogleFonts.inter(fontWeight: FontWeight.w600),
             ),
             backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),
@@ -1180,6 +1174,49 @@ Teşekkürler!''';
           ),
         );
       }
+    }
+  }
+
+  String _getLocalizedMealType(String mealType, String languageCode) {
+    switch (mealType) {
+      case 'Kahvaltı':
+        return Localization.getText('breakfast', languageCode);
+      case 'Öğle Yemeği':
+        return Localization.getText('lunch', languageCode);
+      case 'Akşam Yemeği':
+        return Localization.getText('dinner', languageCode);
+      default:
+        return Localization.getText('lunch', languageCode);
+    }
+  }
+
+  String _getLocalizedDate(DateTime date) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    final locale = languageCode == 'tr' ? 'tr_TR' : 'en_US';
+    return DateFormat('dd MMMM yyyy, EEEE', locale).format(date);
+  }
+
+  String _getLocalizedCategoryName(String category, String languageCode) {
+    switch (category.toLowerCase()) {
+      case 'çorba':
+        return Localization.getText('soup', languageCode);
+      case 'ana yemek':
+      case 'et yemeği':
+        return Localization.getText('main_dish', languageCode);
+      case 'salata':
+      case 'yeşillik':
+        return Localization.getText('salad', languageCode);
+      case 'tatlı':
+      case 'dessert':
+        return Localization.getText('dessert', languageCode);
+      case 'pilav':
+      case 'makarna':
+        return Localization.getText('rice', languageCode);
+      case 'ekmek':
+      case 'kahvaltılık':
+        return Localization.getText('breakfast', languageCode);
+      default:
+        return category;
     }
   }
 }
