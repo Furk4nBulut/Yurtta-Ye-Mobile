@@ -9,6 +9,11 @@
         android:label="YurttaYe"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        
+        <!-- AdMob uygulama kimliği -->
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-9589008379442992~1967566012"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

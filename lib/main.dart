@@ -10,13 +10,22 @@ import 'package:yurttaye_mobile/screens/home_screen.dart';
 import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
 import 'package:yurttaye_mobile/services/notification_service.dart';
+import 'package:yurttaye_mobile/services/ad_service.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // .env dosyasını yükle
+  await dotenv.load(fileName: ".env");
+  
   await initializeDateFormatting('tr', null);
+  
+  // Google Mobile Ads'i başlat
+  await AdService.initialize();
   
   // Bildirim servisini başlat
   final notificationService = NotificationService();

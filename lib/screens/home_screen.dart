@@ -24,6 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:yurttaye_mobile/widgets/meal_schedule_card.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/services/ad_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -45,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _initializeAnimations();
     _selectMealTypeByTime();
     _initializeData();
+    _loadInterstitialAd();
   }
 
   void _initializeAnimations() {
@@ -69,6 +71,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       provider.fetchMenus(reset: true, initialLoad: true);
       print('Initiating fetchMenus from HomeScreen initState');
     });
+  }
+
+  void _loadInterstitialAd() {
+    AdService.loadInterstitialAd();
+  }
+
+  void _showInterstitialAd() {
+    AdService.showInterstitialAd();
   }
 
   void _selectMealTypeByTime() {
@@ -120,6 +130,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Future<void> _launchWebsite() async {
+    // Geçiş reklamı göster
+    _showInterstitialAd();
+    
     const String urlString = 'https://yurttaye.onrender.com/';
     final Uri url = Uri.parse(urlString);
     try {
