@@ -170,7 +170,6 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
               ),
               decoration: BoxDecoration(
                 color: isDark ? Constants.kykGray800 : Constants.white,
-                borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: _isHovered 
                       ? AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.3)
@@ -196,7 +195,6 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 onTapDown: (_) => _controller.forward(),
                 onTapUp: (_) => _controller.reverse(),
                 onTapCancel: () => _controller.reverse(),
-                borderRadius: BorderRadius.circular(10),
                 splashColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.1),
                 child: Column(
                   children: [

@@ -443,7 +443,6 @@ class AppTheme {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
         );
       case Constants.lunchType:
         return BoxDecoration(
@@ -455,7 +454,6 @@ class AppTheme {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
         );
       case Constants.dinnerType:
         return BoxDecoration(
@@ -467,7 +465,6 @@ class AppTheme {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
         );
       default:
         return BoxDecoration(
@@ -479,7 +476,6 @@ class AppTheme {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(12),
         );
     }
   }

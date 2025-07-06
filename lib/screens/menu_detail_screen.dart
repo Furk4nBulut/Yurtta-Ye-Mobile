@@ -110,7 +110,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     
     return AppBar(
       elevation: 0,
-      backgroundColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
+      backgroundColor: Constants.kykPrimary,
       centerTitle: true,
       title: Row(
         mainAxisSize: MainAxisSize.min,
@@ -175,7 +175,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   themeProvider.isDarkMode ? 'Karanlık tema aktif' : 'Aydınlık tema aktif',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
-                backgroundColor: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
+                backgroundColor: Constants.kykPrimary,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
