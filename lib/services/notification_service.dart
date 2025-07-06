@@ -132,7 +132,7 @@ class NotificationService {
       id: 3,
       title: 'Akşam Yemeği Başladı! 🍽️',
       body: 'Bugünün akşam yemeği menüsü:\n${_getMenuSummary(dinnerMenu)}',
-      scheduledTime: _getTodayAt(19, 23), // 19:16
+      scheduledTime: _getTodayAt(16, 00), // 19:16
     );
 
     await _scheduleNotification(

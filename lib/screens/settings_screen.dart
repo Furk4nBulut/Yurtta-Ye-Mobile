@@ -64,7 +64,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 1. Uygulama Ayarları (En İşlevsel)
-            _buildSectionTitle(context, Localization.getText('app_section', languageCode)),
+            _buildSectionTitle(context, Localization.getText('app_settings_section', languageCode)),
             const SizedBox(height: Constants.space3),
             _buildSettingsCard(
               context: context,
@@ -101,7 +101,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             const SizedBox(height: Constants.space4),
-            // 2. Bildirimler (İkinci En İşlevsel)
+            // 2. Bildirimler
             _buildSectionTitle(context, Localization.getText('notifications_section', languageCode)),
             const SizedBox(height: Constants.space3),
             _buildSettingsCard(
@@ -161,43 +161,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             const SizedBox(height: Constants.space4),
-            // 3. Uygulama Bilgileri
-            _buildSectionTitle(context, Localization.getText('app_info_section', languageCode)),
-            const SizedBox(height: Constants.space3),
-            _buildSettingsCard(
-              context: context,
-              isDark: isDark,
-              child: Column(
-                children: [
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.info_rounded,
-                    title: Localization.getText('app_version', languageCode),
-                    subtitle: '${AppConfig.appVersion} (${AppConfig.appBuildNumber})',
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _showVersionInfo(context, languageProvider);
-                    },
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.privacy_tip_rounded,
-                    title: Localization.getText('privacy_policy', languageCode),
-                    subtitle: Localization.getText('terms_of_use', languageCode),
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _showPrivacyPolicy(context, languageProvider);
-                    },
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: Constants.space4),
-            // 4. Destek
+            // 3. Destek
             _buildSectionTitle(context, Localization.getText('support_section', languageCode)),
             const SizedBox(height: Constants.space3),
             _buildSettingsCard(
@@ -257,7 +221,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
 
             const SizedBox(height: Constants.space4),
-            // 5. Geliştirici
+            // 4. Geliştirici
             _buildSectionTitle(context, Localization.getText('developer_section', languageCode)),
             const SizedBox(height: Constants.space3),
             _buildSettingsCard(
@@ -298,6 +262,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _launchEmail();
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: Constants.space4),
+            // 5. Uygulama Bilgileri
+            _buildSectionTitle(context, Localization.getText('app_info_section', languageCode)),
+            const SizedBox(height: Constants.space3),
+            _buildSettingsCard(
+              context: context,
+              isDark: isDark,
+              child: Column(
+                children: [
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.info_rounded,
+                    title: Localization.getText('app_version', languageCode),
+                    subtitle: '${AppConfig.appVersion} (${AppConfig.appBuildNumber})',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showVersionInfo(context, languageProvider);
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.privacy_tip_rounded,
+                    title: Localization.getText('privacy_policy', languageCode),
+                    subtitle: Localization.getText('terms_of_use', languageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showPrivacyPolicy(context, languageProvider);
                     },
                   ),
                   const Divider(height: 1),

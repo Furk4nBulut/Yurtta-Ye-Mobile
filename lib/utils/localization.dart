@@ -240,7 +240,7 @@ class Localization {
       'later': 'Daha sonra',
       
       // Tema ve Dil
-      'app_section': 'Hesap ve Uygulama',
+      'app_settings_section': 'Uygulama Ayarları',
       'app_info_section': 'Uygulama Bilgileri',
       'dark_mode': 'Karanlık Tema',
       'dark_mode_desc': 'Karanlık tema kullan',
@@ -506,7 +506,7 @@ class Localization {
       'later': 'Later',
       
       // Theme and Language
-      'app_section': 'Account & App',
+      'app_settings_section': 'App Settings',
       'app_info_section': 'App Information',
       'dark_mode': 'Dark Mode',
       'dark_mode_desc': 'Use dark theme',
