@@ -231,6 +231,40 @@ class Localization {
       'pasta': 'Makarna',
       'bread': 'Ekmek',
       'breakfast_items': 'Kahvaltılık',
+      
+      // Bildirim İzni
+      'notification_permission': 'Bildirim izni',
+      'notification_permission_desc': 'Yemek saatlerinde bildirim gönderebilmemiz için izninize ihtiyacımız var.',
+      'notification_permission_dialog': 'Yemek saatlerinde bildirim gönderebilmemiz için lütfen bildirim izni verin.',
+      'allow': 'İzin ver',
+      'later': 'Daha sonra',
+      
+      // Tema ve Dil
+      'app_section': 'Hesap ve Uygulama',
+      'app_info_section': 'Uygulama Bilgileri',
+      'dark_mode': 'Karanlık Tema',
+      'dark_mode_desc': 'Karanlık tema kullan',
+      'language_settings': 'Dil Ayarları',
+      'language_settings_desc': 'Uygulama dilini değiştir',
+      'turkish': 'Türkçe',
+      'english': 'İngilizce',
+      
+      // Bildirimler
+      'notifications_section': 'Bildirimler',
+      'test_notification': 'Test Bildirimi',
+      'test_notification_desc': 'Bildirim sistemini test et',
+      'pending_notifications': 'Aktif Bildirimler',
+      'pending_notifications_desc': 'Planlanan bildirimleri görüntüle',
+      'no_pending_notifications': 'Aktif bildirim bulunmuyor',
+      'reschedule_notifications': 'Bildirimleri Yenile',
+      'reschedule_notifications_desc': 'Bildirimleri yeniden planla',
+      
+      // Destek
+      'support_section': 'Destek',
+      'developer_section': 'Geliştirici',
+      
+      // Genel
+      'close': 'Kapat',
     },
     'en': {
       // App Bar
@@ -463,6 +497,40 @@ class Localization {
       'pasta': 'Pasta',
       'bread': 'Bread',
       'breakfast_items': 'Breakfast Items',
+      
+      // Notification Permission
+      'notification_permission': 'Notification permission',
+      'notification_permission_desc': 'We need your permission to send notifications at meal times.',
+      'notification_permission_dialog': 'Please allow notification permission so we can send you meal time notifications.',
+      'allow': 'Allow',
+      'later': 'Later',
+      
+      // Theme and Language
+      'app_section': 'Account & App',
+      'app_info_section': 'App Information',
+      'dark_mode': 'Dark Mode',
+      'dark_mode_desc': 'Use dark theme',
+      'language_settings': 'Language Settings',
+      'language_settings_desc': 'Change app language',
+      'turkish': 'Turkish',
+      'english': 'English',
+      
+      // Bildirimler
+      'notifications_section': 'Notifications',
+      'test_notification': 'Test Notification',
+      'test_notification_desc': 'Test the notification system',
+      'pending_notifications': 'Active Notifications',
+      'pending_notifications_desc': 'View scheduled notifications',
+      'no_pending_notifications': 'No active notifications',
+      'reschedule_notifications': 'Reschedule Notifications',
+      'reschedule_notifications_desc': 'Reschedule notifications',
+      
+      // Destek
+      'support_section': 'Support',
+      'developer_section': 'Developer',
+      
+      // Genel
+      'close': 'Close',
     },
   };
 

@@ -66,26 +66,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   void _initializeData() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = Provider.of<MenuProvider>(context, listen: false);
-      provider.fetchCities();
-      provider.fetchMenus(reset: true, initialLoad: true);
-      print('Initiating fetchMenus from HomeScreen initState');
+      if (mounted) {
+        final provider = Provider.of<MenuProvider>(context, listen: false);
+        provider.fetchCities();
+        provider.fetchMenus(reset: true, initialLoad: true);
+        print('Initiating fetchMenus from HomeScreen initState');
+      }
     });
   }
-
-
 
   void _selectMealTypeByTime() {
     final now = DateTime.now();
     final hour = now.hour;
     
-    if (hour >= 13 || hour < 6) {
+    if (mounted) {
       setState(() {
-        _selectedMealIndex = 1; // Akşam yemeği
-      });
-    } else {
-      setState(() {
-        _selectedMealIndex = 0; // Kahvaltı
+        if (hour >= 13 || hour < 6) {
+          _selectedMealIndex = 1; // Akşam yemeği
+        } else {
+          _selectedMealIndex = 0; // Kahvaltı
+        }
       });
     }
   }
@@ -94,13 +94,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     HapticFeedback.lightImpact();
     final provider = Provider.of<MenuProvider>(context, listen: false);
     provider.setSelectedMealIndex(index);
-    setState(() {
-      _opacity = 0.5;
-      _selectedMealIndex = index;
-    });
-    Future.delayed(const Duration(milliseconds: 300), () {
-      setState(() => _opacity = 1.0);
-    });
+    
+    if (mounted) {
+      setState(() {
+        _opacity = 0.5;
+        _selectedMealIndex = index;
+      });
+      
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          setState(() => _opacity = 1.0);
+        }
+      });
+    }
   }
 
   bool _hasSelectedDateData(MenuProvider provider, String selectedMealType) {

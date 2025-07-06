@@ -3,8 +3,8 @@ import 'package:intl/intl.dart';
 class AppConfig {
   // App Information
   static const String appName = 'YurttaYe';
-  static const String appVersion = '1.1.0';
-  static const String appBuildNumber = '9';
+  static const String appVersion = '1.3.0';
+  static const String appBuildNumber = '14';
   
   // Website URLs
   static const String websiteUrl = 'https://yurttaye.onrender.com/';

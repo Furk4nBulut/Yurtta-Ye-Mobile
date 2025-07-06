@@ -16,6 +16,7 @@ import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +36,16 @@ Future<void> main() async {
   final notificationService = NotificationService();
   await notificationService.initialize();
   
+  await _requestNotificationPermission();
+  
   runApp(const MyApp());
+}
+
+Future<void> _requestNotificationPermission() async {
+  final status = await Permission.notification.status;
+  if (!status.isGranted) {
+    await Permission.notification.request();
+  }
 }
 
 class MyApp extends StatelessWidget {

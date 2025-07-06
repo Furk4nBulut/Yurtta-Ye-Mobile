@@ -14,6 +14,8 @@ import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
 import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:yurttaye_mobile/providers/menu_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -61,10 +63,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(context, Localization.getText('app_settings', languageCode)),
+            // 1. Uygulama Ayarları (En İşlevsel)
+            _buildSectionTitle(context, Localization.getText('app_section', languageCode)),
             const SizedBox(height: Constants.space3),
-            
-            // Tema ve Dil Ayarları
+            _buildSettingsCard(
+              context: context,
+              isDark: isDark,
+              child: Column(
+                children: [
+                  _buildToggleSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.dark_mode_rounded,
+                    title: Localization.getText('dark_mode', languageCode),
+                    subtitle: Localization.getText('dark_mode_desc', languageCode),
+                    value: themeProvider.isDarkMode,
+                    onChanged: (value) {
+                      HapticFeedback.lightImpact();
+                      themeProvider.toggleTheme();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildLanguageSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.language_rounded,
+                    title: Localization.getText('language_settings', languageCode),
+                    subtitle: Localization.getText('language_settings_desc', languageCode),
+                    currentLanguage: languageCode,
+                    onLanguageChanged: (languageCode) {
+                      HapticFeedback.lightImpact();
+                      languageProvider.changeLanguage(languageCode);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: Constants.space4),
+            // 2. Bildirimler (İkinci En İşlevsel)
+            _buildSectionTitle(context, Localization.getText('notifications_section', languageCode)),
+            const SizedBox(height: Constants.space3),
             _buildSettingsCard(
               context: context,
               isDark: isDark,
@@ -73,31 +112,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.palette_rounded,
-                    title: Localization.getText('theme', languageCode),
-                    subtitle: themeProvider.isDarkMode 
-                        ? Localization.getText('dark_theme', languageCode)
-                        : Localization.getText('light_theme', languageCode),
-                    trailing: Switch(
-                      value: themeProvider.isDarkMode,
-                      onChanged: (value) {
-                        HapticFeedback.lightImpact();
-                        themeProvider.toggleTheme();
-                      },
-                      activeThumbColor: Constants.kykPrimary,
-                      activeTrackColor: Constants.kykPrimary.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.language_rounded,
-                    title: Localization.getText('language', languageCode),
-                    subtitle: languageProvider.currentLanguageName,
+                    icon: Icons.notifications_active_rounded,
+                    title: Localization.getText('notification_permission', languageCode),
+                    subtitle: Localization.getText('notification_permission_desc', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _showLanguageSelector(context, languageProvider);
+                      _showNotificationPermissionDialog(context, languageProvider);
                     },
                   ),
                   const Divider(height: 1),
@@ -105,100 +125,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     context: context,
                     isDark: isDark,
                     icon: Icons.notifications_rounded,
-                    title: Localization.getText('notifications', languageCode),
-                    subtitle: Localization.getText('meal_reminders', languageCode),
-                    trailing: Switch(
-                      value: _notificationsEnabled,
-                      onChanged: (value) {
-                        HapticFeedback.lightImpact();
-                        _toggleNotifications(value);
-                      },
-                      activeThumbColor: Constants.kykPrimary,
-                      activeTrackColor: Constants.kykPrimary.withValues(alpha: 0.5),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.science_rounded,
-                    title: 'Test Bildirimi',
-                    subtitle: 'Bildirim sistemini test et',
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      NotificationTest.showTestDialog(context);
-                    },
-                  ),
-                  const Divider(height: 1),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.monetization_on_rounded,
-                    title: Localization.getText('watch_ad', languageCode),
-                    subtitle: Localization.getText('watch_ad_desc', languageCode),
+                    title: Localization.getText('test_notification', languageCode),
+                    subtitle: Localization.getText('test_notification_desc', languageCode),
                     onTap: () async {
                       HapticFeedback.lightImpact();
-                      await AdManager.showAdIfAllowed();
-                    },
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getText('links', languageCode)),
-            const SizedBox(height: Constants.space3),
-            
-            // Bağlantılar Kartı
-            _buildSettingsCard(
-              context: context,
-              isDark: isDark,
-              child: Column(
-                children: [
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.language_rounded,
-                    title: Localization.getText('website', languageCode),
-                    subtitle: Localization.getText('website_subtitle', languageCode),
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _launchWebsite();
+                      await _testNotification();
                     },
                   ),
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.code_rounded,
-                    title: Localization.getText('github', languageCode),
-                    subtitle: Localization.getText('source_code', languageCode),
-                    onTap: () {
+                    icon: Icons.schedule_rounded,
+                    title: Localization.getText('pending_notifications', languageCode),
+                    subtitle: Localization.getText('pending_notifications_desc', languageCode),
+                    onTap: () async {
                       HapticFeedback.lightImpact();
-                      _launchGitHub();
+                      await _showPendingNotifications();
                     },
                   ),
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.play_circle_rounded,
-                    title: Localization.getText('google_play', languageCode),
-                    subtitle: Localization.getText('rate_app', languageCode),
-                    onTap: () {
+                    icon: Icons.refresh_rounded,
+                    title: Localization.getText('reschedule_notifications', languageCode),
+                    subtitle: Localization.getText('reschedule_notifications_desc', languageCode),
+                    onTap: () async {
                       HapticFeedback.lightImpact();
-                      _launchGooglePlay();
+                      await _rescheduleNotifications();
                     },
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getText('about', languageCode)),
+            // 3. Uygulama Bilgileri
+            _buildSectionTitle(context, Localization.getText('app_info_section', languageCode)),
             const SizedBox(height: Constants.space3),
-            
-            // Hakkında Kartı
             _buildSettingsCard(
               context: context,
               isDark: isDark,
@@ -227,27 +192,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _showPrivacyPolicy(context, languageProvider);
                     },
                   ),
-                  const Divider(height: 1),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.bug_report_rounded,
-                    title: Localization.getText('report_bug', languageCode),
-                    subtitle: Localization.getText('report_issue', languageCode),
-                    onTap: () {
-                      HapticFeedback.lightImpact();
-                      _reportBug(context, languageProvider);
-                    },
-                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getText('support', languageCode)),
+            // 4. Destek
+            _buildSectionTitle(context, Localization.getText('support_section', languageCode)),
             const SizedBox(height: Constants.space3),
-            
-            // Destek Kartı
             _buildSettingsCard(
               context: context,
               isDark: isDark,
@@ -303,12 +255,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getText('developer', languageCode)),
+            // 5. Geliştirici
+            _buildSectionTitle(context, Localization.getText('developer_section', languageCode)),
             const SizedBox(height: Constants.space3),
-            
-            // Geliştirici Kartı
             _buildSettingsCard(
               context: context,
               isDark: isDark,
@@ -349,17 +300,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       _launchEmail();
                     },
                   ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.bug_report_rounded,
+                    title: Localization.getText('report_bug', languageCode),
+                    subtitle: Localization.getText('report_issue', languageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _reportBug(context, languageProvider);
+                    },
+                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: Constants.space6),
-            
             // Banner Reklam
             const Center(child: BannerAdWidget()),
-            
             const SizedBox(height: Constants.space4),
-            
             // Alt bilgi
             Center(
               child: Column(
@@ -1002,6 +962,335 @@ class _SettingsScreenState extends State<SettingsScreen> {
       SnackBar(
         content: Text(Localization.getText('donation_coming_soon', languageCode)),
         backgroundColor: Constants.kykPrimary,
+      ),
+    );
+  }
+
+  Future<void> _testNotification() async {
+    try {
+      await _notificationService.sendTestNotification();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Test bildirimi gönderildi!'),
+            backgroundColor: Constants.kykSuccess,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Test bildirimi gönderilemedi: $e'),
+            backgroundColor: Constants.kykError,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _showPendingNotifications() async {
+    try {
+      final pendingNotifications = await _notificationService.getPendingNotifications();
+      
+      if (!mounted) return;
+      
+      final languageCode = Provider.of<LanguageProvider>(context, listen: false).currentLanguageCode;
+      final isDark = Theme.of(context).brightness == Brightness.dark;
+      
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
+          title: Text(
+            Localization.getText('pending_notifications', languageCode),
+            style: GoogleFonts.inter(
+              fontWeight: FontWeight.w600,
+              color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+            ),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: pendingNotifications.isEmpty
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.notifications_off_rounded,
+                        size: 48,
+                        color: isDark ? Constants.kykGray400 : Constants.kykGray500,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        Localization.getText('no_pending_notifications', languageCode),
+                        style: GoogleFonts.inter(
+                          fontSize: Constants.textBase,
+                          color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  )
+                : ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: pendingNotifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = pendingNotifications[index];
+                      return ListTile(
+                        leading: Icon(
+                          Icons.notifications_rounded,
+                          color: Constants.kykPrimary,
+                        ),
+                        title: Text(
+                          notification.title ?? 'Bildirim',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w500,
+                            color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                          ),
+                        ),
+                        subtitle: Text(
+                          'ID: ${notification.id}',
+                          style: GoogleFonts.inter(
+                            fontSize: Constants.textSm,
+                            color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                Localization.getText('close', languageCode),
+                style: GoogleFonts.inter(
+                  color: Constants.kykPrimary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bildirimler getirilemedi: $e'),
+            backgroundColor: Constants.kykError,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _rescheduleNotifications() async {
+    try {
+      // Menü provider'dan menüleri al
+      final menuProvider = Provider.of<MenuProvider>(context, listen: false);
+      final menus = menuProvider.menus;
+      
+      if (menus.isEmpty) {
+        // Eğer menü yoksa API'den çek
+        await menuProvider.fetchMenus();
+      }
+      
+      await _notificationService.rescheduleNotifications(menuProvider.menus);
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bildirimler yeniden planlandı!'),
+            backgroundColor: Constants.kykSuccess,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Bildirimler yeniden planlanamadı: $e'),
+            backgroundColor: Constants.kykError,
+          ),
+        );
+      }
+    }
+  }
+
+  void _showNotificationPermissionDialog(BuildContext context, LanguageProvider languageProvider) {
+    final languageCode = languageProvider.currentLanguageCode;
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(Localization.getText('notification_permission', languageCode)),
+        content: Text(Localization.getText('notification_permission_dialog', languageCode)),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              await openAppSettings();
+            },
+            child: Text(Localization.getText('allow', languageCode)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(Localization.getText('later', languageCode)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildToggleSettingsItem({
+    required BuildContext context,
+    required bool isDark,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required ValueChanged<bool> onChanged,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onChanged(!value),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(Constants.space4),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Constants.kykPrimary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: Constants.kykPrimary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: Constants.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textSm,
+                        color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Switch(
+                value: value,
+                onChanged: onChanged,
+                activeColor: Constants.kykPrimary,
+                activeTrackColor: Constants.kykPrimary.withOpacity(0.3),
+                inactiveThumbColor: isDark ? Constants.kykGray400 : Constants.kykGray300,
+                inactiveTrackColor: isDark ? Constants.kykGray600 : Constants.kykGray200,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageSettingsItem({
+    required BuildContext context,
+    required bool isDark,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required String currentLanguage,
+    required ValueChanged<String> onLanguageChanged,
+  }) {
+    final languageName = currentLanguage == 'tr' 
+        ? Localization.getText('turkish', currentLanguage)
+        : Localization.getText('english', currentLanguage);
+    
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => _showLanguageSelector(context, Provider.of<LanguageProvider>(context, listen: false)),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(Constants.space4),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Constants.kykPrimary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  icon,
+                  color: Constants.kykPrimary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: Constants.space3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textBase,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: Constants.textSm,
+                        color: isDark ? Constants.kykGray400 : Constants.kykGray600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    languageName,
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textSm,
+                      fontWeight: FontWeight.w500,
+                      color: Constants.kykPrimary,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: isDark ? Constants.kykGray400 : Constants.kykGray500,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

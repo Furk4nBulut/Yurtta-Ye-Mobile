@@ -166,20 +166,10 @@ class MenuProvider with ChangeNotifier {
 
   Future<void> _scheduleNotificationsForToday() async {
     try {
-      final today = DateTime.now();
-      final todayOnly = DateTime(today.year, today.month, today.day);
-      
-      // Bugünün menüsünü bul
-      final todayMenu = _allMenus.where((menu) => 
-        menu.date.isAtSameMomentAs(todayOnly)
-      ).firstOrNull;
-
-      if (todayMenu != null) {
-        final notificationsEnabled = await _notificationService.areNotificationsEnabled();
-        if (notificationsEnabled) {
-          await _notificationService.scheduleMealNotifications(todayMenu);
-          print('Bildirimler planlandı: ${todayMenu.mealType}');
-        }
+      final notificationsEnabled = await _notificationService.areNotificationsEnabled();
+      if (notificationsEnabled && _allMenus.isNotEmpty) {
+        await _notificationService.scheduleDailyMealNotifications(_allMenus);
+        print('Günlük yemek bildirimleri planlandı');
       }
     } catch (e) {
       print('Bildirim planlama hatası: $e');
