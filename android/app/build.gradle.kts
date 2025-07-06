@@ -31,7 +31,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yurttaye.yurttaye"
-        minSdk = flutter.minSdkVersion
+        minSdk = 23 // Google Mobile Ads için minimum SDK 23 gerekli
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
