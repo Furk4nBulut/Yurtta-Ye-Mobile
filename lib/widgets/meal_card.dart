@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
-import 'package:yurttaye_mobile/widgets/category_section.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 /// Kompakt ve toplu yemek kartı
@@ -64,13 +67,20 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
 
   /// Kısa öğün adı
   String _getShortMealType(String mealType) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    
     switch (mealType) {
       case 'Kahvaltı':
-        return 'Kahvaltı';
+        return languageCode == 'tr' 
+            ? Localization.getText('breakfast', languageCode)
+            : Localization.getText('breakfast_short', languageCode);
       case 'Öğle Yemeği':
-        return 'Öğle';
+        return Localization.getText('lunch', languageCode);
       case 'Akşam Yemeği':
-        return 'Akşam';
+        return languageCode == 'tr'
+            ? Localization.getText('dinner', languageCode)
+            : Localization.getText('dinner_short', languageCode);
       default:
         return mealType;
     }
@@ -140,6 +150,47 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
     }
   }
 
+  /// Kategori ismini lokalize et
+  String _getLocalizedCategoryName(String category) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    switch (category.toLowerCase()) {
+      case 'çorba':
+        return Localization.getText('soup', languageCode);
+      case 'ana yemek':
+        return Localization.getText('main_dish', languageCode);
+      case 'et yemeği':
+        return Localization.getText('meat_dish', languageCode);
+      case 'salata':
+        return Localization.getText('salad', languageCode);
+      case 'yeşillik':
+        return Localization.getText('greens', languageCode);
+      case 'tatlı':
+      case 'dessert':
+        return Localization.getText('dessert', languageCode);
+      case 'pilav':
+        return Localization.getText('rice', languageCode);
+      case 'makarna':
+        return Localization.getText('pasta', languageCode);
+      case 'ekmek':
+        return Localization.getText('bread', languageCode);
+      case 'kahvaltılık':
+        return Localization.getText('breakfast_items', languageCode);
+      default:
+        return category;
+    }
+  }
+
+  /// Tarihi lokalize et
+  String _getLocalizedDate(DateTime date) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    final locale = languageCode == 'tr' ? 'tr_TR' : 'en_US';
+    return DateFormat('d MMM yyyy', locale).format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
     final categories = widget.menu.items.fold<Map<String, List<MenuItem>>>(
@@ -152,9 +203,11 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
 
     final mealTypeConstant = _getMealTypeConstant(widget.menu.mealType);
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
 
     return Semantics(
-      label: '${widget.menu.mealType} menüsü - ${DateFormat('dd MMM yyyy').format(widget.menu.date)}',
+      label: '${_getShortMealType(widget.menu.mealType)} ${Localization.getText('menu', languageCode)} - ${_getLocalizedDate(widget.menu.date)}',
       child: MouseRegion(
         onEnter: (_) => setState(() => _isHovered = true),
         onExit: (_) => setState(() => _isHovered = false),
@@ -213,6 +266,8 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   /// Kompakt başlık bölümü
   Widget _buildCompactHeader(Map<String, List<MenuItem>> categories, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Constants.space4),
@@ -263,7 +318,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     const SizedBox(width: Constants.space3),
                     Flexible(
                       child: Text(
-                        DateFormat('d MMM yyyy').format(widget.menu.date),
+                        _getLocalizedDate(widget.menu.date),
                         style: AppTheme.getMealTypeSubtitleStyle(mealTypeConstant, context).copyWith(
                           color: isDark ? Constants.white.withOpacity(0.8) : Constants.white.withOpacity(0.9),
                         ),
@@ -279,7 +334,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                       Icon(Icons.local_fire_department, color: isDark ? Constants.white.withOpacity(0.9) : Constants.white, size: 16),
                       const SizedBox(width: 4),
                       Text(
-                        widget.menu.energy + ' kkal',
+                        widget.menu.energy + ' ' + Localization.getText('kcal', languageCode),
                         style: GoogleFonts.inter(
                           fontSize: Constants.textSm,
                           fontWeight: FontWeight.w600,
@@ -300,6 +355,8 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   /// Kompakt içerik bölümü
   Widget _buildCompactContent(Map<String, List<MenuItem>> categories, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
     
     return Padding(
       padding: const EdgeInsets.all(Constants.space3),
@@ -329,7 +386,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 ),
                 const SizedBox(width: Constants.space2),
                 Text(
-                  'Detayları Görüntüle',
+                  Localization.getText('view_details', languageCode),
                   style: GoogleFonts.inter(
                     fontSize: Constants.textSm,
                     fontWeight: FontWeight.w600,
@@ -379,7 +436,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 const SizedBox(width: Constants.space2),
                 Expanded(
                   child: Text(
-                    category,
+                    _getLocalizedCategoryName(category),
                     style: GoogleFonts.inter(
                       fontSize: Constants.textBase,
                       fontWeight: FontWeight.w600,

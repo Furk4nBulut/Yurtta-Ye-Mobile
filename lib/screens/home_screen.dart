@@ -23,6 +23,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:yurttaye_mobile/widgets/meal_schedule_card.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -147,9 +148,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         throw 'Failed to launch $urlString';
       }
     } catch (e) {
+      final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Website açılamadı: $e'),
+          content: Text('${Localization.getCurrentText('website_error', languageProvider.currentLanguageCode)}: $e'),
           duration: const Duration(seconds: 3),
         ),
       );
@@ -158,17 +160,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   Future<void> _launchEmail() async {
     const String email = 'bulutsoftdev@gmail.com';
-    const String subject = 'YurttaYe - Menü Veri Katkısı';
-    const String body = '''Merhaba,
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    final String subject = Localization.getCurrentText('email_subject', languageCode);
+    final String body = '''${Localization.getCurrentText('email_greeting', languageCode)}
 
-YurttaYe uygulaması için menü verisi katkısında bulunmak istiyorum.
+${Localization.getCurrentText('email_city', languageCode)} 
+${Localization.getCurrentText('email_date', languageCode)} 
+${Localization.getCurrentText('email_meal_type', languageCode)} 
+${Localization.getCurrentText('email_menu_details', languageCode)}
 
-Şehir: 
-Tarih: 
-Öğün Türü: 
-Menü Detayları:
-
-Teşekkürler!''';
+${Localization.getCurrentText('email_thanks', languageCode)}''';
 
     final Uri emailUri = Uri(
       scheme: 'mailto',
@@ -186,12 +189,12 @@ Teşekkürler!''';
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Email adresi kopyalandı: $email',
+                '${Localization.getCurrentText('email_copied', languageProvider.currentLanguageCode)}: $email',
                 style: GoogleFonts.inter(fontWeight: FontWeight.w500),
               ),
               backgroundColor: Constants.kykPrimary,
               action: SnackBarAction(
-                label: 'Tamam',
+                label: Localization.getCurrentText('ok', languageProvider.currentLanguageCode),
                 textColor: Constants.white,
                 onPressed: () {},
               ),
@@ -204,7 +207,7 @@ Teşekkürler!''';
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Email açılamadı: $e',
+              '${Localization.getCurrentText('email_error', languageProvider.currentLanguageCode)}: $e',
               style: GoogleFonts.inter(fontWeight: FontWeight.w500),
             ),
             backgroundColor: Constants.kykPrimary,
@@ -232,7 +235,7 @@ Teşekkürler!''';
     return Scaffold(
       extendBody: true,
       appBar: _buildAppBar(themeProvider, languageProvider, mealTypeConstant),
-      body: _buildBody(provider, selectedMealType, hasSelectedDateData, mealTypeConstant),
+      body: _buildBody(provider, selectedMealType, hasSelectedDateData, mealTypeConstant, languageProvider),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedMealIndex: _selectedMealIndex,
         onMealTypeChanged: _onMealTypeChanged,
@@ -272,7 +275,7 @@ Teşekkürler!''';
                       size: 20,
                     ),
                   ),
-                  tooltip: 'Website\'yi Ziyaret Et',
+                  tooltip: Localization.getCurrentText('website_visit', languageProvider.currentLanguageCode),
                   onPressed: _launchWebsite,
                   splashRadius: 24,
                   constraints: const BoxConstraints(),
@@ -290,7 +293,7 @@ Teşekkürler!''';
                       size: 20,
                     ),
                   ),
-                  tooltip: 'Dili Değiştir',
+                  tooltip: Localization.getCurrentText('change_language', languageProvider.currentLanguageCode),
                   onPressed: () {
                     _showLanguageSelector(context, languageProvider);
                   },
@@ -303,7 +306,7 @@ Teşekkürler!''';
             Expanded(
               child: Center(
                 child: Text(
-                  'YurttaYe',
+                  Localization.getCurrentText('app_title', languageProvider.currentLanguageCode),
                   style: GoogleFonts.inter(
                     fontSize: Constants.textXl,
                     fontWeight: FontWeight.w700,
@@ -331,7 +334,9 @@ Teşekkürler!''';
                       size: 20,
                     ),
                   ),
-                  tooltip: themeProvider.isDarkMode ? 'Açık Tema' : 'Koyu Tema',
+                  tooltip: themeProvider.isDarkMode 
+                    ? Localization.getCurrentText('light_theme_tooltip', languageProvider.currentLanguageCode)
+                    : Localization.getCurrentText('dark_theme_tooltip', languageProvider.currentLanguageCode),
                   onPressed: () {
                     themeProvider.toggleTheme();
                     print('Theme toggled: ${themeProvider.isDarkMode ? 'Dark' : 'Light'}');
@@ -352,7 +357,7 @@ Teşekkürler!''';
                       size: 20,
                     ),
                   ),
-                  tooltip: 'Filtrele',
+                  tooltip: Localization.getCurrentText('filter', languageProvider.currentLanguageCode),
                   onPressed: () => context.pushNamed('filter'),
                   splashRadius: 24,
                   constraints: const BoxConstraints(),
@@ -366,7 +371,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant) {
+  Widget _buildBody(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant, LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
@@ -411,7 +416,7 @@ Teşekkürler!''';
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             _buildDateSelector(provider, selectedMealType),
-                            _buildMainContent(provider, selectedMealType, hasSelectedDateData, mealTypeConstant),
+                            _buildMainContent(provider, selectedMealType, hasSelectedDateData, mealTypeConstant, languageProvider),
                             const SizedBox(height: Constants.space6),
                           ],
                         ),
@@ -440,7 +445,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant) {
+  Widget _buildMainContent(MenuProvider provider, String selectedMealType, bool hasSelectedDateData, String mealTypeConstant, LanguageProvider languageProvider) {
     if (!hasSelectedDateData) {
       return Container(
         width: double.infinity,
@@ -464,7 +469,7 @@ Teşekkürler!''';
           const SizedBox(height: 16),
           const MealScheduleCard(),
           const SizedBox(height: 16),
-          _buildWeeklyMealsSection(provider, mealTypeConstant),
+          _buildWeeklyMealsSection(provider, mealTypeConstant, languageProvider),
         ],
       ),
     );
@@ -497,7 +502,7 @@ Teşekkürler!''';
     );
   }
 
-  Widget _buildWeeklyMealsSection(MenuProvider provider, String mealTypeConstant) {
+  Widget _buildWeeklyMealsSection(MenuProvider provider, String mealTypeConstant, LanguageProvider languageProvider) {
     // Seçili öğün türüne göre gelecek menüleri filtrele
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
     final upcomingMenus = provider.allMenus
@@ -544,7 +549,7 @@ Teşekkürler!''';
             const SizedBox(width: Constants.space2),
             Expanded(
               child: Text(
-                'Gelecek $selectedMealType bulunamadı',
+                Localization.getCurrentText('upcoming_meals_not_found', languageProvider.currentLanguageCode).replaceFirst('', selectedMealType),
                 style: Theme.of(context).textTheme.bodyLarge,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -567,7 +572,7 @@ Teşekkürler!''';
             children: [
               Expanded(
                 child: Text(
-                  'Gelecek $selectedMealType Menüleri',
+                  Localization.getCurrentText('upcoming_meals_title', languageProvider.currentLanguageCode).replaceFirst('', selectedMealType),
                   style: GoogleFonts.inter(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -641,7 +646,7 @@ Teşekkürler!''';
             Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                'Dil Seçin',
+                Localization.getCurrentText('select_language', languageProvider.currentLanguageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,

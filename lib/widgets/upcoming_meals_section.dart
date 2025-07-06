@@ -4,6 +4,8 @@ import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 
 class UpcomingMealsSection extends StatelessWidget {
   final DateTime selectedDate;
@@ -18,6 +20,8 @@ class UpcomingMealsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
     
     return Consumer<MenuProvider>(
       builder: (context, menuProvider, child) {
@@ -52,7 +56,7 @@ class UpcomingMealsSection extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Yaklaşan Yemekler',
+                        Localization.getText('upcoming_meals_section', languageCode),
                         style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -64,7 +68,7 @@ class UpcomingMealsSection extends StatelessWidget {
                           // Tümünü gör aksiyonu
                         },
                         child: Text(
-                          'Tümünü Gör',
+                          Localization.getText('view_all', languageCode),
                           style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,

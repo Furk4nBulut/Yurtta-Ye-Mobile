@@ -5,6 +5,7 @@ import 'package:yurttaye_mobile/screens/home_screen.dart';
 import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/settings_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: '/splash',
@@ -54,7 +55,10 @@ final GoRouter router = GoRouter(
       ],
     ),
   ],
-  errorBuilder: (context, state) => Scaffold(
-    body: Center(child: Text('Sayfa bulunamadı: ${state.error}')),
-  ),
+  errorBuilder: (context, state) {
+    final languageCode = Localizations.localeOf(context).languageCode;
+    return Scaffold(
+      body: Center(child: Text('${Localization.getText('page_not_found', languageCode)}: ${state.error}')),
+    );
+  },
 );

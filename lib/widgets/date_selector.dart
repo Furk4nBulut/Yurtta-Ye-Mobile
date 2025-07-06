@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 
 class DateSelector extends StatefulWidget {
   final DateTime selectedDate;
@@ -92,8 +96,13 @@ class _DateSelectorState extends State<DateSelector> {
   Widget build(BuildContext context) {
     final selectedDate = widget.selectedDate;
     final days = _daysInMonth(_currentMonth);
-    final centerDateLabel = DateFormat('d MMMM yyyy', 'tr').format(selectedDate);
-    final dayName = DateFormat('EEEE', 'tr').format(selectedDate);
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
+    
+    // Gün ismini Localization'dan al
+    final dayName = _getLocalizedDayName(selectedDate, languageCode);
+    final centerDateLabel = _getLocalizedDateLabel(selectedDate, languageCode);
+    
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final primaryColor = widget.mealType != null 
         ? AppTheme.getMealTypePrimaryColor(widget.mealType!)
@@ -176,7 +185,7 @@ class _DateSelectorState extends State<DateSelector> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              DateFormat('E', 'tr').format(day).toUpperCase(),
+                              _getLocalizedShortDayName(day, languageCode).toUpperCase(),
                               style: GoogleFonts.inter(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
@@ -247,6 +256,71 @@ class _DateSelectorState extends State<DateSelector> {
         const SizedBox(height: 4),
       ],
     );
+  }
+
+  String _getLocalizedDayName(DateTime date, String languageCode) {
+    final weekday = date.weekday;
+    switch (weekday) {
+      case 1:
+        return Localization.getText('monday', languageCode);
+      case 2:
+        return Localization.getText('tuesday', languageCode);
+      case 3:
+        return Localization.getText('wednesday', languageCode);
+      case 4:
+        return Localization.getText('thursday', languageCode);
+      case 5:
+        return Localization.getText('friday', languageCode);
+      case 6:
+        return Localization.getText('saturday', languageCode);
+      case 7:
+        return Localization.getText('sunday', languageCode);
+      default:
+        return Localization.getText('monday', languageCode);
+    }
+  }
+
+  String _getLocalizedShortDayName(DateTime date, String languageCode) {
+    final dayName = _getLocalizedDayName(date, languageCode);
+    return dayName.substring(0, 3);
+  }
+
+  String _getLocalizedDateLabel(DateTime date, String languageCode) {
+    final day = date.day;
+    final month = _getLocalizedMonthName(date.month, languageCode);
+    final year = date.year;
+    return '$day $month $year';
+  }
+
+  String _getLocalizedMonthName(int month, String languageCode) {
+    switch (month) {
+      case 1:
+        return Localization.getText('january', languageCode);
+      case 2:
+        return Localization.getText('february', languageCode);
+      case 3:
+        return Localization.getText('march', languageCode);
+      case 4:
+        return Localization.getText('april', languageCode);
+      case 5:
+        return Localization.getText('may', languageCode);
+      case 6:
+        return Localization.getText('june', languageCode);
+      case 7:
+        return Localization.getText('july', languageCode);
+      case 8:
+        return Localization.getText('august', languageCode);
+      case 9:
+        return Localization.getText('september', languageCode);
+      case 10:
+        return Localization.getText('october', languageCode);
+      case 11:
+        return Localization.getText('november', languageCode);
+      case 12:
+        return Localization.getText('december', languageCode);
+      default:
+        return Localization.getText('january', languageCode);
+    }
   }
 
   Widget _miniIconButton(IconData icon, VoidCallback onTap, Color primaryColor) {

@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 
 class CustomBottomNavigationBar extends StatelessWidget {
   final int selectedMealIndex;
@@ -22,6 +25,9 @@ class CustomBottomNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
+    
     return Container(
       decoration: BoxDecoration(
         color: isDark ? Constants.kykGray900 : Constants.white,
@@ -40,30 +46,30 @@ class CustomBottomNavigationBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               _MinimalNavItem(
-                icon: Icons.breakfast_dining_rounded,
-                label: 'Kahvaltı',
+                  icon: Icons.breakfast_dining_rounded,
+                  label: Localization.getText('breakfast_short', languageCode),
                 selected: selectedMealIndex == 0,
                 color: AppTheme.getMealTypePrimaryColor(Constants.breakfastType),
-                onTap: () => onMealTypeChanged(0),
-              ),
+                  onTap: () => onMealTypeChanged(0),
+                ),
               _SimpleSettingsButton(
                 pulseController: pulseController,
                 pulseAnimation: pulseAnimation,
-                onTap: () {
-                  HapticFeedback.mediumImpact();
-                  pulseController.stop();
-                  pulseController.forward().then((_) {
-                    pulseController.repeat(reverse: true);
-                  });
+                    onTap: () {
+                      HapticFeedback.mediumImpact();
+                      pulseController.stop();
+                      pulseController.forward().then((_) {
+                        pulseController.repeat(reverse: true);
+                      });
                   context.pushNamed('settings');
                 },
               ),
               _MinimalNavItem(
-                icon: Icons.dinner_dining_rounded,
-                label: 'Akşam',
+                  icon: Icons.dinner_dining_rounded,
+                  label: Localization.getText('dinner_short', languageCode),
                 selected: selectedMealIndex == 1,
                 color: AppTheme.getMealTypePrimaryColor(Constants.dinnerType),
-                onTap: () => onMealTypeChanged(1),
+                  onTap: () => onMealTypeChanged(1),
               ),
             ],
           ),
@@ -99,7 +105,7 @@ class _MinimalNavItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              icon,
+                icon,
               size: 22,
               color: selected ? color : (isDark ? Constants.kykGray400 : Constants.kykGray500),
             ),

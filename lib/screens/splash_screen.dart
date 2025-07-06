@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -118,7 +119,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+    // Localization
+    final languageCode = Localizations.localeOf(context).languageCode;
     return Scaffold(
       body: Container(
         decoration: BoxDecoration(
@@ -183,7 +185,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                   child: Column(
                     children: [
                       Text(
-                        'YurttaYe',
+                        Localization.getText('app_title', languageCode),
                         style: GoogleFonts.inter(
                           fontSize: Constants.text2xl * 1.5,
                           fontWeight: FontWeight.w700,
@@ -193,7 +195,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                       ),
                       const SizedBox(height: Constants.space2),
                       Text(
-                        'Yurt Yemekleri',
+                        Localization.getText('app_subtitle', languageCode),
                         style: GoogleFonts.inter(
                           fontSize: Constants.textLg,
                           fontWeight: FontWeight.w500,
@@ -228,7 +230,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                     ),
                     const SizedBox(height: Constants.space4),
                     Text(
-                      'Yükleniyor...',
+                      Localization.getText('loading_text', languageCode),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textSm,
                         fontWeight: FontWeight.w500,

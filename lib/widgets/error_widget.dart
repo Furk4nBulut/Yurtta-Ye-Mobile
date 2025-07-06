@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 
 /// KYK Yurt Yemekleri için özel tasarlanmış hata widget'ı
 class AppErrorWidget extends StatelessWidget {
@@ -16,6 +19,8 @@ class AppErrorWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
     
     return Center(
       child: Padding(
@@ -40,7 +45,7 @@ class AppErrorWidget extends StatelessWidget {
             
             // Hata başlığı
             Text(
-              'Bir Hata Oluştu',
+              Localization.getText('error_occurred', languageCode),
               style: GoogleFonts.inter(
                 fontSize: Constants.textXl,
                 fontWeight: FontWeight.w600,
@@ -67,7 +72,7 @@ class AppErrorWidget extends StatelessWidget {
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
               label: Text(
-                'Tekrar Dene',
+                Localization.getText('retry', languageCode),
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                 ),
@@ -94,7 +99,7 @@ class AppErrorWidget extends StatelessWidget {
               },
               icon: const Icon(Icons.home),
               label: Text(
-                'Ana Sayfaya Dön',
+                Localization.getText('go_home', languageCode),
                 style: GoogleFonts.inter(
                   fontWeight: FontWeight.w600,
                 ),

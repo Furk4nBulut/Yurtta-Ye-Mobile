@@ -17,6 +17,7 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final languageProvider = Provider.of<LanguageProvider>(context);
+    final languageCode = languageProvider.currentLanguageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
@@ -27,7 +28,7 @@ class SettingsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(context, Localization.getCurrentText('app_settings', languageProvider.currentLanguageCode)),
+            _buildSectionTitle(context, Localization.getText('app_settings', languageCode)),
             const SizedBox(height: Constants.space3),
             
             // Tema ve Dil Ayarları
@@ -40,10 +41,10 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.palette_rounded,
-                    title: Localization.getCurrentText('theme', languageProvider.currentLanguageCode),
+                    title: Localization.getText('theme', languageCode),
                     subtitle: themeProvider.isDarkMode 
-                        ? Localization.getCurrentText('dark_theme', languageProvider.currentLanguageCode)
-                        : Localization.getCurrentText('light_theme', languageProvider.currentLanguageCode),
+                        ? Localization.getText('dark_theme', languageCode)
+                        : Localization.getText('light_theme', languageCode),
                     trailing: Switch(
                       value: themeProvider.isDarkMode,
                       onChanged: (value) {
@@ -59,7 +60,7 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.language_rounded,
-                    title: Localization.getCurrentText('language', languageProvider.currentLanguageCode),
+                    title: Localization.getText('language', languageCode),
                     subtitle: languageProvider.currentLanguageName,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -71,8 +72,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.notifications_rounded,
-                    title: Localization.getCurrentText('notifications', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('meal_reminders', languageProvider.currentLanguageCode),
+                    title: Localization.getText('notifications', languageCode),
+                    subtitle: Localization.getText('meal_reminders', languageCode),
                     trailing: Switch(
                       value: true,
                       onChanged: (value) {
@@ -88,7 +89,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getCurrentText('links', languageProvider.currentLanguageCode)),
+            _buildSectionTitle(context, Localization.getText('links', languageCode)),
             const SizedBox(height: Constants.space3),
             
             // Bağlantılar Kartı
@@ -101,8 +102,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.language_rounded,
-                    title: Localization.getCurrentText('website', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('website_subtitle', languageProvider.currentLanguageCode),
+                    title: Localization.getText('website', languageCode),
+                    subtitle: Localization.getText('website_subtitle', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _launchWebsite();
@@ -113,8 +114,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.code_rounded,
-                    title: Localization.getCurrentText('github', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('source_code', languageProvider.currentLanguageCode),
+                    title: Localization.getText('github', languageCode),
+                    subtitle: Localization.getText('source_code', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _launchGitHub();
@@ -125,8 +126,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.play_circle_rounded,
-                    title: Localization.getCurrentText('google_play', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('rate_app', languageProvider.currentLanguageCode),
+                    title: Localization.getText('google_play', languageCode),
+                    subtitle: Localization.getText('rate_app', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _launchGooglePlay();
@@ -137,7 +138,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getCurrentText('about', languageProvider.currentLanguageCode)),
+            _buildSectionTitle(context, Localization.getText('about', languageCode)),
             const SizedBox(height: Constants.space3),
             
             // Hakkında Kartı
@@ -150,7 +151,7 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.info_rounded,
-                    title: Localization.getCurrentText('app_version', languageProvider.currentLanguageCode),
+                    title: Localization.getText('app_version', languageCode),
                     subtitle: '${AppConfig.appVersion} (${AppConfig.appBuildNumber})',
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -162,8 +163,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.privacy_tip_rounded,
-                    title: Localization.getCurrentText('privacy_policy', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('terms_of_use', languageProvider.currentLanguageCode),
+                    title: Localization.getText('privacy_policy', languageCode),
+                    subtitle: Localization.getText('terms_of_use', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _showPrivacyPolicy(context, languageProvider);
@@ -174,8 +175,8 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.bug_report_rounded,
-                    title: Localization.getCurrentText('report_bug', languageProvider.currentLanguageCode),
-                    subtitle: Localization.getCurrentText('report_issue', languageProvider.currentLanguageCode),
+                    title: Localization.getText('report_bug', languageCode),
+                    subtitle: Localization.getText('report_issue', languageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
                       _reportBug(context, languageProvider);
@@ -186,7 +187,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, Localization.getCurrentText('developer', languageProvider.currentLanguageCode)),
+            _buildSectionTitle(context, Localization.getText('developer', languageCode)),
             const SizedBox(height: Constants.space3),
             
             // Geliştirici Kartı
@@ -199,7 +200,7 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.person_rounded,
-                    title: Localization.getCurrentText('developer', languageProvider.currentLanguageCode),
+                    title: Localization.getText('developer', languageCode),
                     subtitle: AppConfig.developerName,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -211,7 +212,7 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.business_rounded,
-                    title: Localization.getCurrentText('company', languageProvider.currentLanguageCode),
+                    title: Localization.getText('company', languageCode),
                     subtitle: AppConfig.developerCompany,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -223,7 +224,7 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.email_rounded,
-                    title: Localization.getCurrentText('contact', languageProvider.currentLanguageCode),
+                    title: Localization.getText('contact', languageCode),
                     subtitle: AppConfig.developerEmail,
                     onTap: () {
                       HapticFeedback.lightImpact();
@@ -272,7 +273,7 @@ class SettingsScreen extends StatelessWidget {
       elevation: 0,
       centerTitle: true,
               title: Text(
-          Localization.getCurrentText('settings', languageProvider.currentLanguageCode),
+          Localization.getText('settings', languageProvider.currentLanguageCode),
         style: GoogleFonts.inter(
           fontSize: Constants.textLg,
           fontWeight: FontWeight.w600,
@@ -431,7 +432,7 @@ class SettingsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.all(20),
                               child: Text(
-                  Localization.getCurrentText('select_language', languageProvider.currentLanguageCode),
+                  Localization.getText('select_language', languageProvider.currentLanguageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,
@@ -482,7 +483,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          Localization.getCurrentText('app_info', languageProvider.currentLanguageCode),
+          Localization.getText('app_info', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: isDark ? Constants.kykGray200 : Constants.kykGray800,
@@ -492,12 +493,12 @@ class SettingsScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow(Localization.getCurrentText('name', languageProvider.currentLanguageCode), AppConfig.appName),
-            _buildInfoRow(Localization.getCurrentText('version', languageProvider.currentLanguageCode), AppConfig.appVersion),
-            _buildInfoRow(Localization.getCurrentText('build', languageProvider.currentLanguageCode), AppConfig.appBuildNumber),
-            _buildInfoRow(Localization.getCurrentText('developer', languageProvider.currentLanguageCode), AppConfig.developerName),
-            _buildInfoRow(Localization.getCurrentText('platform', languageProvider.currentLanguageCode), 'Flutter'),
-            _buildInfoRow(Localization.getCurrentText('license', languageProvider.currentLanguageCode), 'MIT'),
+            _buildInfoRow(Localization.getText('name', languageProvider.currentLanguageCode), AppConfig.appName),
+            _buildInfoRow(Localization.getText('version', languageProvider.currentLanguageCode), AppConfig.appVersion),
+            _buildInfoRow(Localization.getText('build', languageProvider.currentLanguageCode), AppConfig.appBuildNumber),
+            _buildInfoRow(Localization.getText('developer', languageProvider.currentLanguageCode), AppConfig.developerName),
+            _buildInfoRow(Localization.getText('platform', languageProvider.currentLanguageCode), 'Flutter'),
+            _buildInfoRow(Localization.getText('license', languageProvider.currentLanguageCode), 'MIT'),
           ],
         ),
         actions: [
@@ -551,7 +552,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          Localization.getCurrentText('privacy_policy', languageProvider.currentLanguageCode),
+          Localization.getText('privacy_policy', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: isDark ? Constants.kykGray200 : Constants.kykGray800,
@@ -568,7 +569,7 @@ class SettingsScreen extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              Localization.getCurrentText('understood', languageProvider.currentLanguageCode),
+              Localization.getText('understood', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 color: Constants.kykPrimary,
                 fontWeight: FontWeight.w600,
@@ -589,7 +590,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          Localization.getCurrentText('developer_info', languageProvider.currentLanguageCode),
+          Localization.getText('developer_info', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: isDark ? Constants.kykGray200 : Constants.kykGray800,
@@ -599,9 +600,9 @@ class SettingsScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow(Localization.getCurrentText('name', languageProvider.currentLanguageCode), AppConfig.developerName),
-            _buildInfoRow(Localization.getCurrentText('company', languageProvider.currentLanguageCode), AppConfig.developerCompany),
-            _buildInfoRow(Localization.getCurrentText('email', languageProvider.currentLanguageCode), AppConfig.developerEmail),
+            _buildInfoRow(Localization.getText('name', languageProvider.currentLanguageCode), AppConfig.developerName),
+            _buildInfoRow(Localization.getText('company', languageProvider.currentLanguageCode), AppConfig.developerCompany),
+            _buildInfoRow(Localization.getText('email', languageProvider.currentLanguageCode), AppConfig.developerEmail),
             _buildInfoRow('Website', 'yurttaye.onrender.com'),
             _buildInfoRow('GitHub', 'github.com/bulutsoft-dev'),
           ],

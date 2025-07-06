@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
+import 'package:provider/provider.dart';
 
 class EmptyStateWidget extends StatefulWidget {
   final DateTime selectedDate;
@@ -28,6 +31,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final today = DateTime.now();
     final todayOnly = DateTime(today.year, today.month, today.day);
     final selectedDay = DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day);
@@ -52,7 +56,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
             child: Column(
               children: [
                 // Sade ana bölüm
-                _buildSimpleMainSection(isToday, isDark),
+                _buildSimpleMainSection(isToday, isDark, languageProvider),
                 const SizedBox(height: Constants.space6),
 
                 // Ayırıcı çizgi
@@ -60,7 +64,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
                 const SizedBox(height: Constants.space5),
 
                 // Veri katkısı bölümü
-                _buildDataContribution(isDark),
+                _buildDataContribution(isDark, languageProvider),
                 const SizedBox(height: Constants.space5),
 
                 _buildDivider(isDark),
@@ -68,7 +72,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
                 const SizedBox(height: Constants.space3),
 
                 // Yenile butonu
-                _buildRefreshButton(isDark),
+                _buildRefreshButton(isDark, languageProvider),
               ],
             ),
           ),
@@ -78,7 +82,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Sade ana bölüm
-  Widget _buildSimpleMainSection(bool isToday, bool isDark) {
+  Widget _buildSimpleMainSection(bool isToday, bool isDark, LanguageProvider languageProvider) {
     return Column(
       children: [
         // Sade ikon
@@ -91,7 +95,9 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
 
         // Sade başlık
         Text(
-          isToday ? 'Bugün için menü henüz yayınlanmadı' : 'Menü bulunamadı',
+          isToday 
+            ? Localization.getCurrentText('empty_today_title', languageProvider.currentLanguageCode)
+            : Localization.getCurrentText('empty_not_found_title', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontSize: Constants.textXl,
             fontWeight: FontWeight.w600,
@@ -107,8 +113,8 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
         // Sade açıklama
         Text(
           isToday
-              ? 'Bugünün menüsü henüz sisteme girilmemiş. Lütfen daha sonra tekrar kontrol edin.'
-              : '${DateFormat('dd MMMM yyyy').format(widget.selectedDate)} tarihi için henüz veri girişi yapılmadı.',
+            ? Localization.getCurrentText('empty_today_desc', languageProvider.currentLanguageCode)
+            : '${_getLocalizedDate(widget.selectedDate, languageProvider)} ${Localization.getCurrentText('empty_date_desc', languageProvider.currentLanguageCode)}',
           style: GoogleFonts.inter(
             fontSize: Constants.textBase,
             color: isDark ? Constants.white.withOpacity(0.7) : Constants.kykGray600,
@@ -131,7 +137,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Veri katkısı bölümü
-  Widget _buildDataContribution(bool isDark) {
+  Widget _buildDataContribution(bool isDark, LanguageProvider languageProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -152,7 +158,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
             const SizedBox(width: Constants.space3),
             Expanded(
               child: Text(
-                'Veri Katkısı',
+                Localization.getCurrentText('data_contribution', languageProvider.currentLanguageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,
@@ -164,7 +170,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
         ),
         const SizedBox(height: Constants.space3),
         Text(
-          'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz.',
+          Localization.getCurrentText('data_contribution_desc', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontSize: Constants.textSm,
             color: isDark ? Constants.white.withOpacity(0.7) : Constants.kykGray600,
@@ -181,7 +187,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
             onPressed: widget.onEmailPressed,
             icon: const Icon(Icons.email, size: 20),
             label: Text(
-              'Bize Ulaşın',
+              Localization.getCurrentText('contact_us', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 fontSize: Constants.textBase,
                 fontWeight: FontWeight.w500,
@@ -206,7 +212,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Yenile butonu - Loading state ile
-  Widget _buildRefreshButton(bool isDark) {
+  Widget _buildRefreshButton(bool isDark, LanguageProvider languageProvider) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(
@@ -241,7 +247,9 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
             )
           : const Icon(Icons.refresh, size: 20),
         label: Text(
-          _isRefreshing ? 'Yenileniyor...' : 'Yenile',
+          _isRefreshing 
+            ? Localization.getCurrentText('refreshing', languageProvider.currentLanguageCode)
+            : Localization.getCurrentText('refresh', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontSize: Constants.textBase,
             fontWeight: FontWeight.w500,
@@ -261,5 +269,11 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
         ),
       ),
     );
+  }
+
+  /// Tarihi lokalize et
+  String _getLocalizedDate(DateTime date, LanguageProvider languageProvider) {
+    final locale = languageProvider.currentLanguageCode == 'tr' ? 'tr_TR' : 'en_US';
+    return DateFormat('dd MMMM yyyy', locale).format(date);
   }
 } 

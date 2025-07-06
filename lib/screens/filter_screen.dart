@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
 import 'package:yurttaye_mobile/widgets/shimmer_loading.dart';
@@ -66,6 +68,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
   @override
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       backgroundColor: isDark ? Constants.kykGray900 : Constants.kykGray50,
@@ -74,7 +77,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
         elevation: 0,
         centerTitle: true,
         title: Text(
-          'Filtrele',
+          Localization.getCurrentText('filter', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontSize: Constants.textLg,
             fontWeight: FontWeight.w600,
@@ -108,7 +111,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       Icon(Icons.check_circle, color: Constants.white, size: 20),
                       const SizedBox(width: 8),
                       Text(
-                        'Filtreler sıfırlandı',
+                        Localization.getCurrentText('filters_reset', languageProvider.currentLanguageCode),
                         style: GoogleFonts.inter(fontWeight: FontWeight.w500),
                       ),
                     ],
@@ -121,7 +124,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             },
             icon: const Icon(Icons.refresh, color: Constants.white, size: 18),
             label: Text(
-              'Sıfırla',
+              Localization.getCurrentText('reset', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 color: Constants.white,
                 fontWeight: FontWeight.w600,
@@ -150,17 +153,17 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                             children: [
                               Expanded(
                                 child: _buildSharpFilterSection(
-                                  'Şehir',
+                                  Localization.getCurrentText('city', languageProvider.currentLanguageCode),
                                   Icons.location_city,
-                                  _buildEnhancedCityFilter(provider),
+                                  _buildEnhancedCityFilter(provider, languageProvider),
                                 ),
                               ),
                               const SizedBox(width: 4),
                               Expanded(
                                 child: _buildSharpFilterSection(
-                                  'Öğün',
+                                  Localization.getCurrentText('meal', languageProvider.currentLanguageCode),
                                   Icons.restaurant_menu,
-                                  _buildEnhancedMealTypeFilter(provider),
+                                  _buildEnhancedMealTypeFilter(provider, languageProvider),
                                 ),
                               ),
                             ],
@@ -168,9 +171,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                           SizedBox(height: 0),
                           // Tarih seçici tam genişlik
                           _buildSharpFilterSection(
-                            'Tarih',
+                            Localization.getCurrentText('date', languageProvider.currentLanguageCode),
                             Icons.calendar_today,
-                            _buildEnhancedDateFilter(provider),
+                            _buildEnhancedDateFilter(provider, languageProvider),
                           ),
                         ],
                       ),
@@ -178,7 +181,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     // Hiç boşluk yok
                     // Sonuçlar bölümü - Yukarıya dayalı
                     Expanded(
-                      child: _buildSharpResultsSection(provider),
+                      child: _buildSharpResultsSection(provider, languageProvider),
                     ),
                   ],
                 ),
@@ -242,7 +245,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildEnhancedCityFilter(MenuProvider provider) {
+  Widget _buildEnhancedCityFilter(MenuProvider provider, LanguageProvider languageProvider) {
     if (provider.cities.isEmpty) {
       return Container(
         padding: const EdgeInsets.all(3),
@@ -262,7 +265,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             ),
             const SizedBox(width: 3),
             Text(
-              'Yükleniyor...',
+              Localization.getCurrentText('loading', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 color: Constants.kykGray500,
@@ -333,7 +336,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildEnhancedMealTypeFilter(MenuProvider provider) {
+  Widget _buildEnhancedMealTypeFilter(MenuProvider provider, LanguageProvider languageProvider) {
     return SizedBox(
       height: 26,
       child: Row(
@@ -376,7 +379,9 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                     ),
                     const SizedBox(width: 2),
                     Text(
-                      mealType == 'Kahvaltı' ? 'Kahv' : 'Akş',
+                      mealType == 'Kahvaltı' 
+                          ? Localization.getCurrentText('breakfast_short', languageProvider.currentLanguageCode)
+                          : Localization.getCurrentText('dinner_short', languageProvider.currentLanguageCode),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textSm,
                         fontWeight: FontWeight.w500,
@@ -393,7 +398,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildEnhancedDateFilter(MenuProvider provider) {
+  Widget _buildEnhancedDateFilter(MenuProvider provider, LanguageProvider languageProvider) {
     return Row(
       children: [
         Expanded(
@@ -424,7 +429,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             label: Text(
               _selectedDate != null
                   ? DateFormat('dd/MM').format(_selectedDate!)
-                  : 'Tarih',
+                  : Localization.getCurrentText('date', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 fontWeight: FontWeight.w500,
                 fontSize: Constants.textSm,
@@ -483,7 +488,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildSharpResultsSection(MenuProvider provider) {
+  Widget _buildSharpResultsSection(MenuProvider provider, LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
@@ -516,7 +521,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                 const SizedBox(width: Constants.space2),
                 Expanded(
                   child: Text(
-                    'Filtrelenmiş Sonuçlar',
+                    Localization.getCurrentText('filtered_results', languageProvider.currentLanguageCode),
                     style: GoogleFonts.inter(
                       fontSize: Constants.textBase,
                       fontWeight: FontWeight.w600,
@@ -556,7 +561,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                         onRetry: () => provider.fetchMenus(reset: true),
                       )
                     : provider.menus.isEmpty
-                        ? _buildEmptyResults()
+                        ? _buildEmptyResults(languageProvider)
                         : RefreshIndicator(
                             onRefresh: () async => provider.fetchMenus(reset: true),
                             child: ListView.builder(
@@ -594,7 +599,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
     );
   }
 
-  Widget _buildEmptyResults() {
+  Widget _buildEmptyResults(LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Padding(
@@ -616,7 +621,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
             ),
             const SizedBox(height: Constants.space3),
             Text(
-              'Sonuç Bulunamadı',
+              Localization.getCurrentText('no_results_found', languageProvider.currentLanguageCode),
               style: GoogleFonts.inter(
                 fontSize: Constants.textLg,
                 fontWeight: FontWeight.w600,
@@ -624,17 +629,17 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
               ),
             ),
             const SizedBox(height: Constants.space2),
-            Text(
-              _selectedDate != null
-                  ? '${DateFormat('dd MMM yyyy').format(_selectedDate!)} tarihi için henüz veri girişi yapılmadı.'
-                  : 'Seçilen kriterlere uygun sonuç bulunamadı.',
-              style: GoogleFonts.inter(
-                fontSize: Constants.textSm,
-                color: isDark ? Constants.kykGray300 : Constants.kykGray500,
-                height: 1.4,
+                          Text(
+                _selectedDate != null
+                    ? '${DateFormat('dd MMM yyyy').format(_selectedDate!)} ${Localization.getCurrentText('date_no_data', languageProvider.currentLanguageCode)}'
+                    : Localization.getCurrentText('no_results_description', languageProvider.currentLanguageCode),
+                style: GoogleFonts.inter(
+                  fontSize: Constants.textSm,
+                  color: isDark ? Constants.kykGray300 : Constants.kykGray500,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
             const SizedBox(height: Constants.space3),
 
             // Veri katkısı mesajı - Daha kompakt
@@ -667,7 +672,7 @@ class _FilterScreenState extends State<FilterScreen> with SingleTickerProviderSt
                       const SizedBox(width: Constants.space2),
                       Expanded(
                         child: Text(
-                          'Veri Katkısı',
+                          Localization.getCurrentText('data_contribution', languageProvider.currentLanguageCode),
                           style: GoogleFonts.inter(
                             fontSize: Constants.textBase,
                             fontWeight: FontWeight.w600,

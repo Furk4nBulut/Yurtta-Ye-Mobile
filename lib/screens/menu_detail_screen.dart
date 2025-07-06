@@ -12,6 +12,7 @@ import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
 
 class MenuDetailScreen extends StatefulWidget {
   final int menuId;
@@ -54,10 +55,13 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
       ),
     );
 
+    // Localization
+    final languageCode = Localizations.localeOf(context).languageCode;
+
     if (menu.id == 0) {
       return Scaffold(
-        appBar: _buildAppBar(themeProvider, _getMealTypeConstant(menu.mealType)),
-        body: _buildEmptyState(),
+        appBar: _buildAppBar(themeProvider, _getMealTypeConstant(menu.mealType), languageCode),
+        body: _buildEmptyState(languageCode),
       );
     }
 
@@ -81,7 +85,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
     return Scaffold(
       backgroundColor: isDark ? Constants.kykGray900 : Constants.kykGray50,
-      appBar: _buildAppBar(themeProvider, mealTypeConstant),
+      appBar: _buildAppBar(themeProvider, mealTypeConstant, languageCode),
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -105,7 +109,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant, String languageCode) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final appBarBg = isDark ? Constants.darkSurface : Constants.kykPrimary;
     final appBarFg = isDark ? Constants.darkTextPrimary : Constants.white;
@@ -131,7 +135,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           ),
           const SizedBox(width: Constants.space3),
           Text(
-            'Menü Detayı',
+            Localization.getText('menu_detail', languageCode),
             style: GoogleFonts.inter(
               fontSize: Constants.textLg,
               fontWeight: FontWeight.w700,
@@ -174,7 +178,9 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  themeProvider.isDarkMode ? 'Karanlık tema aktif' : 'Aydınlık tema aktif',
+                  themeProvider.isDarkMode
+                    ? Localization.getText('dark_theme_active', languageCode)
+                    : Localization.getText('light_theme_active', languageCode),
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
                 backgroundColor: appBarBg,
@@ -206,7 +212,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
     );
   }
 
-  Widget _buildEmptyState() {
+  Widget _buildEmptyState(String languageCode) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Container(
@@ -238,7 +244,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
               const SizedBox(height: Constants.space4),
               Text(
-                'Menü Bulunamadı',
+                Localization.getText('no_menu_for_meal', languageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.text2xl,
                   fontWeight: FontWeight.w700,
@@ -248,7 +254,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
               const SizedBox(height: Constants.space3),
               Text(
-                'Aradığınız menü bulunamadı veya henüz yüklenmedi.',
+                Localization.getText('no_menu_description', languageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textBase,
                   color: isDark ? Constants.kykGray300 : Constants.kykGray600,
@@ -263,6 +269,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildHeroHeader(Menu menu, String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Constants.space4),
@@ -315,7 +322,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     ),
                     const SizedBox(height: Constants.space1),
                     Text(
-                      menu.mealType,
+                      Localization.getText(menu.mealType.toLowerCase() == 'kahvaltı' ? 'breakfast' : menu.mealType.toLowerCase() == 'akşam yemeği' ? 'dinner' : 'lunch', languageCode),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textSm,
                         fontWeight: FontWeight.w500,
@@ -328,7 +335,6 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             ],
           ),
           const SizedBox(height: Constants.space3),
-          
           // İstatistikler
           Wrap(
             spacing: Constants.space4,
@@ -338,18 +344,18 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               _buildStatItem(
                 Icons.restaurant,
                 '${menu.items.length}',
-                'Yemek Çeşidi',
+                Localization.getText('filtered_results', languageCode),
               ),
               _buildStatItem(
                 Icons.category,
                 '${menu.items.map((e) => e.category).toSet().length}',
-                'Kategori',
+                Localization.getText('category', languageCode),
               ),
               if (menu.energy.isNotEmpty)
                 _buildStatItem(
                   Icons.local_fire_department,
                   menu.energy,
-                  'Kalori',
+                  Localization.getText('energy', languageCode),
                 ),
             ],
           ),
@@ -445,6 +451,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMenuContent(Menu menu, String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = menu.items.fold<Map<String, List<MenuItem>>>(
       {},
@@ -475,7 +482,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
               const SizedBox(width: Constants.space2),
               Text(
-                'Bugünün Menüsü',
+                Localization.getText('filtered_results', languageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,
@@ -485,13 +492,13 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             ],
           ),
           const SizedBox(height: Constants.space2),
-          ...categories.entries.map((entry) => _buildCategoryCard(entry.key, entry.value, mealTypeConstant)),
+          ...categories.entries.map((entry) => _buildCategoryCard(entry.key, entry.value, mealTypeConstant, languageCode)),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryCard(String category, List<MenuItem> items, String mealTypeConstant) {
+  Widget _buildCategoryCard(String category, List<MenuItem> items, String mealTypeConstant, String languageCode) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space2),
@@ -561,7 +568,6 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ],
             ),
           ),
-          
           // Yemek listesi
           Padding(
             padding: const EdgeInsets.all(Constants.space3),
@@ -634,6 +640,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildNoMenuForMealType(String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
@@ -665,7 +672,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           ),
           const SizedBox(height: Constants.space4),
           Text(
-            'Menü Bulunamadı',
+            Localization.getText('no_menu_for_meal', languageCode),
             style: GoogleFonts.inter(
               fontSize: Constants.textXl,
               fontWeight: FontWeight.w700,
@@ -674,7 +681,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           ),
           const SizedBox(height: Constants.space2),
           Text(
-            'Seçilen öğün türü için menü henüz yayınlanmamış.',
+            Localization.getText('no_menu_description', languageCode),
             style: GoogleFonts.inter(
               fontSize: Constants.textBase,
               color: isDark ? Constants.kykGray300 : Constants.kykGray600,
@@ -683,7 +690,6 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: Constants.space4),
-          
           // Veri katkısı mesajı
           Container(
             padding: const EdgeInsets.all(Constants.space5),
@@ -714,7 +720,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     const SizedBox(width: Constants.space4),
                     Expanded(
                       child: Text(
-                        'Veri Katkısı',
+                        Localization.getText('data_contribution', languageCode),
                         style: GoogleFonts.inter(
                           fontSize: Constants.textLg,
                           fontWeight: FontWeight.w700,
@@ -726,7 +732,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 ),
                 const SizedBox(height: Constants.space4),
                 Text(
-                  'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
+                  Localization.getText('data_contribution_desc', languageCode),
                   style: GoogleFonts.inter(
                     fontSize: Constants.textBase,
                     color: isDark ? Constants.kykGray300 : Constants.kykGray600,
@@ -741,7 +747,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     onPressed: () => _launchEmail(),
                     icon: const Icon(Icons.email, size: 20),
                     label: Text(
-                      'Bize Ulaşın',
+                      Localization.getText('contact_us', languageCode),
                       style: GoogleFonts.inter(
                         fontSize: Constants.textBase,
                         fontWeight: FontWeight.w600,
@@ -770,6 +776,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildNutritionSection(Menu menu, String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     if (menu.energy.isEmpty) return const SizedBox.shrink();
 
@@ -810,7 +817,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
               const SizedBox(width: Constants.space3),
               Text(
-                'Besin Değerleri',
+                Localization.getText('nutrition_info', languageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w700,
@@ -848,6 +855,14 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                   ),
                 ),
+                const SizedBox(width: Constants.space2),
+                Text(
+                  Localization.getText('kcal', languageCode),
+                  style: GoogleFonts.inter(
+                    fontSize: Constants.textBase,
+                    color: AppTheme.getMealTypePrimaryColor(mealTypeConstant),
+                  ),
+                ),
               ],
             ),
           ),
@@ -857,6 +872,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMealHoursInfo(String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
@@ -895,7 +911,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               ),
               const SizedBox(width: Constants.space3),
               Text(
-                'Yemek Saatleri',
+                Localization.getText('meal_hours', languageCode),
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w700,
@@ -909,8 +925,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             children: [
               Expanded(
                 child: _buildMealTimeCard(
-                  'Sabah Yemeği',
-                  '06:30 - 13:00',
+                  Localization.getText('breakfast', languageCode),
+                  Localization.getText('breakfast_hours', languageCode),
                   Icons.wb_sunny,
                   AppTheme.getMealTypePrimaryColor(mealTypeConstant),
                 ),
@@ -918,8 +934,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               const SizedBox(width: Constants.space3),
               Expanded(
                 child: _buildMealTimeCard(
-                  'Akşam Yemeği',
-                  '16:00 - 23:00',
+                  Localization.getText('dinner', languageCode),
+                  Localization.getText('dinner_hours', languageCode),
                   Icons.nightlight,
                   AppTheme.getMealTypeSecondaryColor(mealTypeConstant),
                 ),
@@ -983,8 +999,8 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildDisclaimerInfo(String mealTypeConstant) {
+    final languageCode = Localizations.localeOf(context).languageCode;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
@@ -1020,7 +1036,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           const SizedBox(width: Constants.space3),
           Expanded(
             child: Text(
-              'Menüler KYK veya çeşitli sebeplerden dolayı yazılanla uyuşmayabilir. Lütfen yurt yönetimi ile teyit ediniz.',
+              Localization.getText('disclaimer_text', languageCode),
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 fontWeight: FontWeight.w600,
@@ -1083,11 +1099,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   void _shareMenu() {
+    final languageCode = Localizations.localeOf(context).languageCode;
     // Menü paylaşma fonksiyonu
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Menü paylaşma özelliği yakında eklenecek!',
+          Localization.getText('share_menu', languageCode),
           style: GoogleFonts.inter(fontWeight: FontWeight.w600),
         ),
         backgroundColor: AppTheme.getMealTypePrimaryColor(_getMealTypeConstant(_selectedMealType)),

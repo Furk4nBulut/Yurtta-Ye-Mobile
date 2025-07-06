@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
+import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 
 /// KYK Yurt Yemekleri için özel tasarlanmış gelecek öğün kartı
 class UpcomingMealCard extends StatefulWidget {
@@ -91,17 +95,19 @@ class _UpcomingMealCardState extends State<UpcomingMealCard> with SingleTickerPr
     final today = DateTime.now();
     final menuDate = widget.menu.date;
     final difference = menuDate.difference(today).inDays;
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
     
     if (difference == 0) {
-      return 'Bugün';
+      return Localization.getText('today', languageCode);
     } else if (difference == 1) {
-      return 'Yarın';
+      return Localization.getText('tomorrow', languageCode);
     } else if (difference == -1) {
-      return 'Dün';
+      return Localization.getText('yesterday', languageCode);
     } else if (difference > 1) {
-      return '$difference gün sonra';
+      return '$difference ${Localization.getText('days_later', languageCode)}';
     } else {
-      return '${difference.abs()} gün önce';
+      return '${difference.abs()} ${Localization.getText('days_ago', languageCode)}';
     }
   }
 
