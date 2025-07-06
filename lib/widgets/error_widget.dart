@@ -15,6 +15,8 @@ class AppErrorWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Constants.space6),
@@ -25,7 +27,7 @@ class AppErrorWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(Constants.space6),
               decoration: BoxDecoration(
-                color: Constants.kykError.withOpacity(0.1),
+                color: Constants.kykError.withOpacity(isDark ? 0.2 : 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Icon(
@@ -42,7 +44,7 @@ class AppErrorWidget extends StatelessWidget {
               style: GoogleFonts.inter(
                 fontSize: Constants.textXl,
                 fontWeight: FontWeight.w600,
-                color: Constants.kykGray700,
+                color: isDark ? Constants.white : Constants.kykGray700,
               ),
               textAlign: TextAlign.center,
             ),
@@ -53,7 +55,7 @@ class AppErrorWidget extends StatelessWidget {
               error,
               style: GoogleFonts.inter(
                 fontSize: Constants.textBase,
-                color: Constants.kykGray500,
+                color: isDark ? Constants.kykGray300 : Constants.kykGray500,
                 height: 1.5,
               ),
               textAlign: TextAlign.center,

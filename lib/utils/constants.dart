@@ -11,7 +11,7 @@ class Constants {
   static const Color kykWarning = Color(0xFFF59E0B);      // Turuncu - Uyarı
   static const Color kykError = Color(0xFFEF4444);        // Kırmızı - Hata
   
-  // Nötr Renkler
+  // Nötr Renkler - Aydınlık Tema
   static const Color kykGray50 = Color(0xFFF8FAFC);       // Çok açık gri
   static const Color kykGray100 = Color(0xFFF1F5F9);      // Açık gri
   static const Color kykGray200 = Color(0xFFE2E8F0);      // Orta açık gri
@@ -22,6 +22,26 @@ class Constants {
   static const Color kykGray700 = Color(0xFF334155);      // Çok koyu gri
   static const Color kykGray800 = Color(0xFF1E293B);      // En koyu gri
   static const Color kykGray900 = Color(0xFF0F172A);      // Siyaha yakın
+  
+  // Karanlık Tema İçin Özel Renkler - Daha Yumuşak ve Modern
+  static const Color darkBackground = Color(0xFF0A0A0A);      // Çok koyu arka plan
+  static const Color darkSurface = Color(0xFF1A1A1A);         // Koyu yüzey
+  static const Color darkCard = Color(0xFF2A2A2A);            // Koyu kart
+  static const Color darkBorder = Color(0xFF3A3A3A);          // Koyu kenarlık
+  static const Color darkTextPrimary = Color(0xFFF5F5F5);     // Ana metin rengi
+  static const Color darkTextSecondary = Color(0xFFB0B0B0);   // İkincil metin rengi
+  static const Color darkTextTertiary = Color(0xFF808080);    // Üçüncül metin rengi
+  static const Color darkDivider = Color(0xFF404040);         // Ayırıcı çizgi
+  static const Color darkHover = Color(0xFF353535);           // Hover durumu
+  static const Color darkActive = Color(0xFF404040);          // Aktif durum
+  
+  // Karanlık Tema İçin Yumuşak Renkler
+  static const Color darkBlue = Color(0xFF1E293B);            // Yumuşak koyu mavi
+  static const Color darkBlueLight = Color(0xFF334155);       // Açık koyu mavi
+  static const Color darkBlueLighter = Color(0xFF475569);     // Daha açık koyu mavi
+  static const Color darkGray = Color(0xFF374151);            // Yumuşak koyu gri
+  static const Color darkGrayLight = Color(0xFF4B5563);       // Açık koyu gri
+  static const Color darkGrayLighter = Color(0xFF6B7280);     // Daha açık koyu gri
   
   // Beyaz ve Şeffaflık
   static const Color white = Color(0xFFFFFFFF);

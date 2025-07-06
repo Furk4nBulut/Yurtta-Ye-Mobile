@@ -169,18 +169,18 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 vertical: Constants.space2,
               ),
               decoration: BoxDecoration(
-                color: isDark ? Constants.kykGray800 : Constants.white,
+                color: isDark ? Constants.darkCard : Constants.white,
                 border: Border.all(
                   color: _isHovered 
                       ? AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.3)
-                      : isDark ? Constants.kykGray700 : Constants.kykGray200,
+                      : isDark ? Constants.darkBorder : Constants.kykGray200,
                   width: _isHovered ? 1.5 : 1,
                 ),
                 boxShadow: [
                   BoxShadow(
                     color: _isHovered 
                         ? AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.15)
-                        : (isDark ? Constants.black : Constants.kykGray200).withOpacity(_isHovered ? 0.12 : 0.08),
+                        : (isDark ? Constants.black : Constants.kykGray200).withOpacity(_isHovered ? 0.08 : 0.05),
                     blurRadius: _isHovered ? 12 : 8,
                     offset: const Offset(0, 4),
                   ),
@@ -212,6 +212,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
 
   /// Kompakt başlık bölümü
   Widget _buildCompactHeader(Map<String, List<MenuItem>> categories, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(Constants.space4),
@@ -223,12 +224,21 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.2),
+              color: isDark ? Constants.black.withOpacity(0.85) : Constants.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               _getMealTypeIcon(widget.menu.mealType),
-              color: Constants.white,
+              color: isDark ? Color(0xFFFFF59D) : Constants.white,
+              shadows: isDark
+                  ? [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.5),
+                        blurRadius: 6,
+                        offset: Offset(0, 2),
+                      ),
+                    ]
+                  : null,
               size: 20,
             ),
           ),
@@ -244,7 +254,9 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     Flexible(
                       child: Text(
                         _getShortMealType(widget.menu.mealType),
-                        style: AppTheme.getMealTypeTitleStyle(mealTypeConstant, context),
+                        style: AppTheme.getMealTypeTitleStyle(mealTypeConstant, context).copyWith(
+                          color: isDark ? Constants.white : Constants.white,
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -252,7 +264,9 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     Flexible(
                       child: Text(
                         DateFormat('d MMM yyyy').format(widget.menu.date),
-                        style: AppTheme.getMealTypeSubtitleStyle(mealTypeConstant, context),
+                        style: AppTheme.getMealTypeSubtitleStyle(mealTypeConstant, context).copyWith(
+                          color: isDark ? Constants.white.withOpacity(0.8) : Constants.white.withOpacity(0.9),
+                        ),
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -262,14 +276,14 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.local_fire_department, color: Constants.white, size: 16),
+                      Icon(Icons.local_fire_department, color: isDark ? Constants.white.withOpacity(0.9) : Constants.white, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         widget.menu.energy + ' kkal',
                         style: GoogleFonts.inter(
                           fontSize: Constants.textSm,
                           fontWeight: FontWeight.w600,
-                          color: Constants.white,
+                          color: isDark ? Constants.white.withOpacity(0.9) : Constants.white,
                         ),
                       ),
                     ],
@@ -333,14 +347,13 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   /// Kompakt kategori
   Widget _buildCompactCategory(String category, List<MenuItem> items) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space2),
       decoration: BoxDecoration(
-        color: isDark ? Constants.kykGray700 : Constants.kykGray50,
+        color: isDark ? Constants.darkGray : Constants.kykGray50,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isDark ? Constants.kykGray600 : Constants.kykGray200,
+          color: isDark ? Constants.darkBorder : Constants.kykGray200,
           width: 1,
         ),
       ),
@@ -353,7 +366,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
               vertical: Constants.space2,
             ),
             decoration: BoxDecoration(
-              color: _getCategoryColor(category).withOpacity(isDark ? 0.2 : 0.1),
+              color: _getCategoryColor(category).withOpacity(isDark ? 0.13 : 0.09),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
             ),
             child: Row(
@@ -361,7 +374,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 Icon(
                   _getCategoryIcon(category),
                   size: 16,
-                  color: _getCategoryColor(category),
+                  color: isDark ? Color(0xFFFFF59D) : _getCategoryColor(category),
                 ),
                 const SizedBox(width: Constants.space2),
                 Expanded(
@@ -380,7 +393,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     vertical: 2,
                   ),
                   decoration: BoxDecoration(
-                    color: _getCategoryColor(category),
+                    color: isDark ? _getCategoryColor(category).withOpacity(0.5) : _getCategoryColor(category),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -388,7 +401,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                     style: GoogleFonts.inter(
                       fontSize: Constants.textXs,
                       fontWeight: FontWeight.w600,
-                      color: Constants.white,
+                      color: isDark ? Constants.white : Constants.white,
                     ),
                   ),
                 ),
@@ -411,17 +424,25 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
   /// Kompakt yemek öğesi
   Widget _buildCompactMenuItem(MenuItem item, String category) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
       child: Row(
         children: [
           Container(
-            width: 6,
-            height: 6,
+            width: 10,
+            height: 10,
             decoration: BoxDecoration(
-              color: _getCategoryColor(category),
-              borderRadius: BorderRadius.circular(3),
+              color: isDark 
+                  ? Colors.white 
+                  : _getCategoryColor(category),
+              borderRadius: BorderRadius.circular(5),
+              boxShadow: isDark ? [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.3),
+                  blurRadius: 4,
+                  spreadRadius: 1,
+                ),
+              ] : null,
             ),
           ),
           const SizedBox(width: Constants.space2),
@@ -431,7 +452,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 fontWeight: FontWeight.w500,
-                color: isDark ? Constants.kykGray300 : Constants.kykGray700,
+                color: isDark ? Constants.white : Constants.kykGray700,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -445,7 +466,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 vertical: 2,
               ),
               decoration: BoxDecoration(
-                color: isDark ? Constants.kykGray600 : Constants.kykGray100,
+                color: isDark ? Constants.darkGrayLight : Constants.kykGray100,
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -453,7 +474,7 @@ class _MealCardState extends State<MealCard> with SingleTickerProviderStateMixin
                 style: GoogleFonts.inter(
                   fontSize: Constants.textXs,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Constants.kykGray300 : Constants.kykGray600,
+                  color: isDark ? Constants.white.withOpacity(0.8) : Constants.kykGray600,
                 ),
               ),
             ),

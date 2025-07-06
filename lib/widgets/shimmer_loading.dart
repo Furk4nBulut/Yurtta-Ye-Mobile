@@ -8,30 +8,32 @@ class ShimmerLoading extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Shimmer.fromColors(
-      baseColor: Constants.kykGray200,
-      highlightColor: Constants.kykGray100,
+      baseColor: isDark ? Constants.kykGray700 : Constants.kykGray200,
+      highlightColor: isDark ? Constants.kykGray600 : Constants.kykGray100,
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(Constants.space4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Tarih navigasyonu shimmer
-            _buildDateNavigationShimmer(),
+            _buildDateNavigationShimmer(isDark),
             const SizedBox(height: Constants.space4),
             
             // Ana menü kartı shimmer
-            _buildMainMenuCardShimmer(),
+            _buildMainMenuCardShimmer(isDark),
             const SizedBox(height: Constants.space4),
             
             // Gelecek günler başlığı shimmer
-            _buildSectionTitleShimmer(),
+            _buildSectionTitleShimmer(isDark),
             const SizedBox(height: Constants.space3),
             
             // Gelecek menü kartları shimmer
             ...List.generate(3, (index) => Padding(
               padding: const EdgeInsets.only(bottom: Constants.space2),
-              child: _buildUpcomingMenuCardShimmer(),
+              child: _buildUpcomingMenuCardShimmer(isDark),
             )),
           ],
         ),
@@ -39,14 +41,14 @@ class ShimmerLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildDateNavigationShimmer() {
+  Widget _buildDateNavigationShimmer(bool isDark) {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Constants.kykGray200,
+          color: isDark ? Constants.kykGray700 : Constants.kykGray200,
           width: 1,
         ),
       ),
@@ -59,7 +61,7 @@ class ShimmerLoading extends StatelessWidget {
             height: 40,
             margin: const EdgeInsets.all(Constants.space3),
             decoration: BoxDecoration(
-              color: Constants.kykGray300,
+              color: isDark ? Constants.kykGray600 : Constants.kykGray300,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -72,7 +74,7 @@ class ShimmerLoading extends StatelessWidget {
                 width: 120,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Constants.kykGray300,
+                  color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -81,7 +83,7 @@ class ShimmerLoading extends StatelessWidget {
                 width: 80,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: Constants.kykGray300,
+                  color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),
@@ -94,7 +96,7 @@ class ShimmerLoading extends StatelessWidget {
             height: 40,
             margin: const EdgeInsets.all(Constants.space3),
             decoration: BoxDecoration(
-              color: Constants.kykGray300,
+              color: isDark ? Constants.kykGray600 : Constants.kykGray300,
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -103,13 +105,13 @@ class ShimmerLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildMainMenuCardShimmer() {
+  Widget _buildMainMenuCardShimmer(bool isDark) {
     return Container(
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Constants.kykGray200,
+          color: isDark ? Constants.kykGray700 : Constants.kykGray200,
           width: 1,
         ),
       ),
@@ -119,7 +121,7 @@ class ShimmerLoading extends StatelessWidget {
           Container(
             height: 100,
             decoration: BoxDecoration(
-              color: Constants.kykGray300,
+              color: isDark ? Constants.kykGray600 : Constants.kykGray300,
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
             ),
             child: Padding(
@@ -189,22 +191,22 @@ class ShimmerLoading extends StatelessWidget {
                   width: 140,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: Constants.kykGray300,
+                    color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
                 const SizedBox(height: Constants.space4),
                 
                 // Kategori 1
-                _buildCategoryShimmer(),
+                _buildCategoryShimmer(isDark),
                 const SizedBox(height: Constants.space3),
                 
                 // Kategori 2
-                _buildCategoryShimmer(),
+                _buildCategoryShimmer(isDark),
                 const SizedBox(height: Constants.space3),
                 
                 // Kategori 3
-                _buildCategoryShimmer(),
+                _buildCategoryShimmer(isDark),
                 const SizedBox(height: Constants.space4),
                 
                 // Detay butonu
@@ -212,10 +214,10 @@ class ShimmerLoading extends StatelessWidget {
                   width: double.infinity,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: Constants.kykGray200,
+                    color: isDark ? Constants.kykGray700 : Constants.kykGray200,
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Constants.kykGray300,
+                      color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                       width: 1,
                     ),
                   ),
@@ -228,7 +230,7 @@ class ShimmerLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryShimmer() {
+  Widget _buildCategoryShimmer(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -239,7 +241,7 @@ class ShimmerLoading extends StatelessWidget {
               width: 4,
               height: 20,
               decoration: BoxDecoration(
-                color: Constants.kykGray300,
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -248,7 +250,7 @@ class ShimmerLoading extends StatelessWidget {
               width: 80,
               height: 18,
               decoration: BoxDecoration(
-                color: Constants.kykGray300,
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -265,7 +267,7 @@ class ShimmerLoading extends StatelessWidget {
                 width: 16,
                 height: 16,
                 decoration: BoxDecoration(
-                  color: Constants.kykGray300,
+                  color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                   borderRadius: BorderRadius.circular(8),
                 ),
               ),
@@ -274,7 +276,7 @@ class ShimmerLoading extends StatelessWidget {
                 child: Container(
                   height: 16,
                   decoration: BoxDecoration(
-                    color: Constants.kykGray300,
+                    color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -284,7 +286,7 @@ class ShimmerLoading extends StatelessWidget {
                 width: 40,
                 height: 20,
                 decoration: BoxDecoration(
-                  color: Constants.kykGray200,
+                  color: isDark ? Constants.kykGray700 : Constants.kykGray200,
                   borderRadius: BorderRadius.circular(6),
                 ),
               ),
@@ -295,25 +297,25 @@ class ShimmerLoading extends StatelessWidget {
     );
   }
 
-  Widget _buildSectionTitleShimmer() {
+  Widget _buildSectionTitleShimmer(bool isDark) {
     return Container(
       width: 120,
       height: 24,
       decoration: BoxDecoration(
-        color: Constants.kykGray300,
+        color: isDark ? Constants.kykGray600 : Constants.kykGray300,
         borderRadius: BorderRadius.circular(4),
       ),
     );
   }
 
-  Widget _buildUpcomingMenuCardShimmer() {
+  Widget _buildUpcomingMenuCardShimmer(bool isDark) {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Constants.kykGray200,
+          color: isDark ? Constants.kykGray700 : Constants.kykGray200,
           width: 1,
         ),
       ),
@@ -326,7 +328,7 @@ class ShimmerLoading extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: Constants.kykGray300,
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
@@ -342,7 +344,7 @@ class ShimmerLoading extends StatelessWidget {
                     width: 100,
                     height: 16,
                     decoration: BoxDecoration(
-                      color: Constants.kykGray300,
+                      color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -351,7 +353,7 @@ class ShimmerLoading extends StatelessWidget {
                     width: 80,
                     height: 14,
                     decoration: BoxDecoration(
-                      color: Constants.kykGray300,
+                      color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                       borderRadius: BorderRadius.circular(4),
                     ),
                   ),
@@ -364,7 +366,7 @@ class ShimmerLoading extends StatelessWidget {
               width: 24,
               height: 24,
               decoration: BoxDecoration(
-                color: Constants.kykGray300,
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
                 borderRadius: BorderRadius.circular(12),
               ),
             ),

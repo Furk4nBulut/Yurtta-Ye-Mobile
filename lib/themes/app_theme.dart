@@ -204,15 +204,15 @@ class AppTheme {
       primary: Constants.kykSecondary,
       secondary: Constants.kykAccent,
       tertiary: Constants.kykSuccess,
-      surface: Constants.kykGray800,
-      background: Constants.kykGray900,
+      surface: Constants.darkSurface,
+      background: Constants.darkBackground,
       error: Constants.kykError,
       onPrimary: Constants.white,
-      onSecondary: Constants.kykGray900,
-      onSurface: Constants.white,
-      onBackground: Constants.white,
+      onSecondary: Constants.darkBackground,
+      onSurface: Constants.darkTextPrimary,
+      onBackground: Constants.darkTextPrimary,
     ),
-    scaffoldBackgroundColor: Constants.kykGray900,
+    scaffoldBackgroundColor: Constants.darkBackground,
     textTheme: GoogleFonts.interTextTheme(
       TextTheme(
         displayLarge: TextStyle(
@@ -249,12 +249,12 @@ class AppTheme {
         ),
         bodyMedium: TextStyle(
           fontSize: Constants.textSm,
-          color: Constants.kykGray300,
+          color: Constants.darkTextSecondary,
           height: 1.4,
         ),
         bodySmall: TextStyle(
           fontSize: Constants.textXs,
-          color: Constants.kykGray400,
+          color: Constants.darkTextTertiary,
           height: 1.3,
         ),
         labelLarge: TextStyle(
@@ -266,11 +266,11 @@ class AppTheme {
     ),
     cardTheme: CardThemeData(
       elevation: 4,
-      color: Constants.kykGray800,
+      color: Constants.darkCard,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
-          color: Constants.kykGray700,
+          color: Constants.darkBorder,
           width: 1,
         ),
       ),
@@ -318,12 +318,12 @@ class AppTheme {
       ),
     ),
     chipTheme: ChipThemeData(
-      backgroundColor: Constants.kykGray700,
+      backgroundColor: Constants.darkGray,
       selectedColor: Constants.kykAccent,
       checkmarkColor: Constants.white,
       labelStyle: GoogleFonts.inter(
         fontSize: Constants.textSm,
-        color: Constants.white,
+        color: Constants.darkTextPrimary,
         fontWeight: FontWeight.w500,
       ),
       padding: const EdgeInsets.symmetric(
@@ -332,32 +332,32 @@ class AppTheme {
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(color: Constants.kykGray600),
+        side: BorderSide(color: Constants.darkBorder),
       ),
       elevation: 2,
       pressElevation: 4,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: Constants.kykGray800,
-      foregroundColor: Constants.white,
+      backgroundColor: Constants.darkSurface,
+      foregroundColor: Constants.darkTextPrimary,
       elevation: 0,
       titleTextStyle: GoogleFonts.inter(
         fontSize: Constants.textXl,
         fontWeight: FontWeight.w600,
-        color: Constants.white,
+        color: Constants.darkTextPrimary,
         letterSpacing: -0.25,
       ),
       iconTheme: const IconThemeData(
-        color: Constants.white,
+        color: Constants.darkTextPrimary,
         size: Constants.textXl,
       ),
       centerTitle: true,
       surfaceTintColor: Colors.transparent,
     ),
     bottomNavigationBarTheme: BottomNavigationBarThemeData(
-      backgroundColor: Constants.kykGray800,
+      backgroundColor: Constants.darkSurface,
       selectedItemColor: Constants.kykSecondary,
-      unselectedItemColor: Constants.kykGray400,
+      unselectedItemColor: Constants.darkTextTertiary,
       selectedLabelStyle: GoogleFonts.inter(
         fontSize: Constants.textXs,
         fontWeight: FontWeight.w600,
@@ -371,11 +371,11 @@ class AppTheme {
       type: BottomNavigationBarType.fixed,
     ),
     iconTheme: IconThemeData(
-      color: Constants.kykGray300,
+      color: Constants.darkTextSecondary,
       size: Constants.textBase,
     ),
     dividerTheme: DividerThemeData(
-      color: Constants.kykGray700,
+      color: Constants.darkDivider,
       thickness: 1,
       space: 1,
     ),

@@ -244,7 +244,9 @@ Teşekkürler!''';
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return AppBar(
+      centerTitle: true,
       title: Row(
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(

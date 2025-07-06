@@ -27,6 +27,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final today = DateTime.now();
     final todayOnly = DateTime(today.year, today.month, today.day);
     final selectedDay = DateTime(widget.selectedDate.year, widget.selectedDate.month, widget.selectedDate.day);
@@ -41,33 +42,33 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           Container(
             padding: const EdgeInsets.all(Constants.space6),
             decoration: BoxDecoration(
-              color: Constants.white,
+              color: isDark ? Constants.darkCard : Constants.white,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: Constants.kykGray200,
+                color: isDark ? Constants.darkBorder : Constants.kykGray200,
                 width: 1,
               ),
             ),
             child: Column(
               children: [
                 // Sade ana bölüm
-                _buildSimpleMainSection(isToday),
+                _buildSimpleMainSection(isToday, isDark),
                 const SizedBox(height: Constants.space6),
 
                 // Ayırıcı çizgi
-                _buildDivider(),
+                _buildDivider(isDark),
                 const SizedBox(height: Constants.space5),
 
                 // Veri katkısı bölümü
-                _buildDataContribution(),
+                _buildDataContribution(isDark),
                 const SizedBox(height: Constants.space5),
 
-                _buildDivider(),
+                _buildDivider(isDark),
 
                 const SizedBox(height: Constants.space3),
 
                 // Yenile butonu
-                _buildRefreshButton(),
+                _buildRefreshButton(isDark),
               ],
             ),
           ),
@@ -77,14 +78,14 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Sade ana bölüm
-  Widget _buildSimpleMainSection(bool isToday) {
+  Widget _buildSimpleMainSection(bool isToday, bool isDark) {
     return Column(
       children: [
         // Sade ikon
         Icon(
           isToday ? Icons.schedule : Icons.restaurant_menu,
           size: Constants.text2xl * 2,
-          color: Constants.kykPrimary,
+          color: isDark ? Constants.white.withOpacity(0.8) : Constants.kykPrimary,
         ),
         const SizedBox(height: Constants.space5),
 
@@ -94,7 +95,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           style: GoogleFonts.inter(
             fontSize: Constants.textXl,
             fontWeight: FontWeight.w600,
-            color: Constants.kykGray800,
+            color: isDark ? Constants.darkTextPrimary : Constants.kykGray800,
             height: 1.3,
           ),
           textAlign: TextAlign.center,
@@ -110,7 +111,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
               : '${DateFormat('dd MMMM yyyy').format(widget.selectedDate)} tarihi için henüz veri girişi yapılmadı.',
           style: GoogleFonts.inter(
             fontSize: Constants.textBase,
-            color: Constants.kykGray600,
+            color: isDark ? Constants.white.withOpacity(0.7) : Constants.kykGray600,
             height: 1.5,
           ),
           textAlign: TextAlign.center,
@@ -122,15 +123,15 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Ayırıcı çizgi
-  Widget _buildDivider() {
+  Widget _buildDivider(bool isDark) {
     return Container(
       height: 1,
-      color: Constants.kykGray200,
+      color: isDark ? Constants.darkDivider : Constants.kykGray200,
     );
   }
 
   // Veri katkısı bölümü
-  Widget _buildDataContribution() {
+  Widget _buildDataContribution(bool isDark) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -155,7 +156,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,
-                  color: Constants.kykGray800,
+                  color: isDark ? Constants.darkTextPrimary : Constants.kykGray800,
                 ),
               ),
             ),
@@ -166,7 +167,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
           'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz.',
           style: GoogleFonts.inter(
             fontSize: Constants.textSm,
-            color: Constants.kykGray600,
+            color: isDark ? Constants.white.withOpacity(0.7) : Constants.kykGray600,
             height: 1.4,
           ),
           textAlign: TextAlign.left,
@@ -205,7 +206,7 @@ class _EmptyStateWidgetState extends State<EmptyStateWidget> {
   }
 
   // Yenile butonu - Loading state ile
-  Widget _buildRefreshButton() {
+  Widget _buildRefreshButton(bool isDark) {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton.icon(

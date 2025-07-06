@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/widgets/upcoming_meal_card.dart';
+import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class UpcomingMealsSection extends StatelessWidget {
   final DateTime selectedDate;
@@ -15,6 +17,8 @@ class UpcomingMealsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     return Consumer<MenuProvider>(
       builder: (context, menuProvider, child) {
         final upcomingMeals = menuProvider.getUpcomingMeals(selectedDate);
@@ -29,11 +33,11 @@ class UpcomingMealsSection extends StatelessWidget {
             margin: const EdgeInsets.symmetric(vertical: 16),
             padding: const EdgeInsets.only(top: 12, bottom: 20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: isDark ? Constants.kykGray800 : Constants.white,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: (isDark ? Constants.black : Constants.black).withOpacity(0.04),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -49,10 +53,10 @@ class UpcomingMealsSection extends StatelessWidget {
                     children: [
                       Text(
                         'Yaklaşan Yemekler',
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                          color: isDark ? Constants.white : Constants.kykGray800,
                         ),
                       ),
                       TextButton(
@@ -61,10 +65,10 @@ class UpcomingMealsSection extends StatelessWidget {
                         },
                         child: Text(
                           'Tümünü Gör',
-                          style: TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Theme.of(context).primaryColor,
+                            color: Constants.kykPrimary,
                           ),
                         ),
                       ),

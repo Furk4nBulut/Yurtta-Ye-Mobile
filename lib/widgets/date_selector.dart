@@ -117,7 +117,7 @@ class _DateSelectorState extends State<DateSelector> {
                         style: GoogleFonts.inter(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Constants.kykGray400 : Constants.kykGray500,
+                          color: isDark ? Constants.white.withOpacity(0.7) : Constants.kykGray500,
                           letterSpacing: -0.1,
                         ),
                       ),
@@ -162,10 +162,10 @@ class _DateSelectorState extends State<DateSelector> {
                         height: 40,
                         margin: const EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
-                          color: isSelected ? primaryColor : (isDark ? Constants.kykGray800 : Colors.white),
+                          color: isSelected ? primaryColor : (isDark ? Constants.darkCard : Colors.white),
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
-                            color: isSelected ? primaryColor : (isDark ? Constants.kykGray700 : Constants.kykGray200),
+                            color: isSelected ? primaryColor : (isDark ? Constants.darkBorder : Constants.kykGray200),
                             width: 1.2,
                           ),
                           boxShadow: isSelected
@@ -180,7 +180,7 @@ class _DateSelectorState extends State<DateSelector> {
                               style: GoogleFonts.inter(
                                 fontSize: 10.5,
                                 fontWeight: FontWeight.w600,
-                                color: isSelected ? Colors.white : (isDark ? Constants.kykGray400 : Constants.kykGray500),
+                                color: isSelected ? Colors.white : (isDark ? Constants.white.withOpacity(0.6) : Constants.kykGray500),
                               ),
                             ),
                             const SizedBox(height: 1),
@@ -212,8 +212,8 @@ class _DateSelectorState extends State<DateSelector> {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [
-                          isDark ? Constants.kykGray900 : Colors.white,
-                          (isDark ? Constants.kykGray900 : Colors.white).withOpacity(0.0),
+                          isDark ? Constants.darkBackground : Colors.white,
+                          (isDark ? Constants.darkBackground : Colors.white).withOpacity(0.0),
                         ],
                       ),
                     ),
@@ -233,8 +233,8 @@ class _DateSelectorState extends State<DateSelector> {
                         begin: Alignment.centerRight,
                         end: Alignment.centerLeft,
                         colors: [
-                          isDark ? Constants.kykGray900 : Colors.white,
-                          (isDark ? Constants.kykGray900 : Colors.white).withOpacity(0.0),
+                          isDark ? Constants.darkBackground : Colors.white,
+                          (isDark ? Constants.darkBackground : Colors.white).withOpacity(0.0),
                         ],
                       ),
                     ),
@@ -253,7 +253,7 @@ class _DateSelectorState extends State<DateSelector> {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Material(
-      color: isDark ? Constants.kykGray800 : Colors.white,
+      color: isDark ? Constants.darkCard : Colors.white,
       borderRadius: BorderRadius.circular(7),
       child: InkWell(
         borderRadius: BorderRadius.circular(7),

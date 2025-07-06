@@ -107,10 +107,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
 
   PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final appBarBg = isDark ? Constants.darkSurface : Constants.kykPrimary;
+    final appBarFg = isDark ? Constants.darkTextPrimary : Constants.white;
     
     return AppBar(
       elevation: 0,
-      backgroundColor: Constants.kykPrimary,
+      backgroundColor: appBarBg,
       centerTitle: true,
       title: Row(
         mainAxisSize: MainAxisSize.min,
@@ -118,12 +120,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.15),
+              color: appBarFg.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.restaurant_menu,
-              color: Constants.white,
+              color: appBarFg,
               size: 20,
             ),
           ),
@@ -133,7 +135,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             style: GoogleFonts.inter(
               fontSize: Constants.textLg,
               fontWeight: FontWeight.w700,
-              color: Constants.white,
+              color: appBarFg,
             ),
           ),
         ],
@@ -142,12 +144,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         icon: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Constants.white.withOpacity(0.15),
+            color: appBarFg.withOpacity(0.15),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back_ios,
-            color: Constants.white,
+            color: appBarFg,
             size: 18,
           ),
         ),
@@ -158,12 +160,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.15),
+              color: appBarFg.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
               themeProvider.isDarkMode ? Icons.brightness_7 : Icons.brightness_4,
-              color: Constants.white,
+              color: appBarFg,
               size: 18,
             ),
           ),
@@ -175,7 +177,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   themeProvider.isDarkMode ? 'Karanlık tema aktif' : 'Aydınlık tema aktif',
                   style: GoogleFonts.inter(fontWeight: FontWeight.w600),
                 ),
-                backgroundColor: Constants.kykPrimary,
+                backgroundColor: appBarBg,
                 behavior: SnackBarBehavior.floating,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -189,12 +191,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
           icon: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Constants.white.withOpacity(0.15),
+              color: appBarFg.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.share,
-              color: Constants.white,
+              color: appBarFg,
               size: 18,
             ),
           ),
@@ -395,15 +397,16 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMealTypeSelector(String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.15),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -429,7 +432,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   style: GoogleFonts.inter(
                     fontSize: Constants.textBase,
                     fontWeight: FontWeight.w600,
-                    color: isSelected ? Constants.white : Constants.kykGray700,
+                    color: isSelected ? Constants.white : (isDark ? Constants.kykGray300 : Constants.kykGray700),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -442,6 +445,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMenuContent(Menu menu, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final categories = menu.items.fold<Map<String, List<MenuItem>>>(
       {},
       (map, item) {
@@ -475,7 +479,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w600,
-                  color: Constants.kykGray800,
+                  color: isDark ? Constants.white : Constants.kykGray800,
                 ),
               ),
             ],
@@ -488,14 +492,15 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildCategoryCard(String category, List<MenuItem> items, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space2),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.08),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.08),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -531,7 +536,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                     style: GoogleFonts.inter(
                       fontSize: Constants.textSm,
                       fontWeight: FontWeight.w600,
-                      color: Constants.kykGray800,
+                      color: isDark ? Constants.white : Constants.kykGray800,
                     ),
                   ),
                 ),
@@ -570,11 +575,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMenuItem(MenuItem item, String category, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.only(bottom: Constants.space1),
       padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
-        color: Constants.kykGray50,
+        color: isDark ? Constants.kykGray700 : Constants.kykGray50,
         borderRadius: BorderRadius.circular(6),
         border: Border.all(
           color: _getCategoryColor(category).withOpacity(0.1),
@@ -598,7 +604,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
               style: GoogleFonts.inter(
                 fontSize: Constants.textSm,
                 fontWeight: FontWeight.w500,
-                color: Constants.kykGray800,
+                color: isDark ? Constants.white : Constants.kykGray800,
                 height: 1.3,
               ),
             ),
@@ -628,15 +634,16 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildNoMenuForMealType(String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space6),
       padding: const EdgeInsets.all(Constants.space6),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.15),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.15),
             blurRadius: 15,
             offset: const Offset(0, 5),
           ),
@@ -662,7 +669,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             style: GoogleFonts.inter(
               fontSize: Constants.textXl,
               fontWeight: FontWeight.w700,
-              color: Constants.kykGray800,
+              color: isDark ? Constants.white : Constants.kykGray800,
             ),
           ),
           const SizedBox(height: Constants.space2),
@@ -670,7 +677,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             'Seçilen öğün türü için menü henüz yayınlanmamış.',
             style: GoogleFonts.inter(
               fontSize: Constants.textBase,
-              color: Constants.kykGray600,
+              color: isDark ? Constants.kykGray300 : Constants.kykGray600,
               height: 1.6,
             ),
             textAlign: TextAlign.center,
@@ -711,7 +718,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                         style: GoogleFonts.inter(
                           fontSize: Constants.textLg,
                           fontWeight: FontWeight.w700,
-                          color: Constants.kykGray800,
+                          color: isDark ? Constants.white : Constants.kykGray800,
                         ),
                       ),
                     ),
@@ -722,7 +729,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                   'Eğer elinizde menüyle ilgili bir bilgi varsa, bize ulaşarak katkıda bulunabilirsiniz!',
                   style: GoogleFonts.inter(
                     fontSize: Constants.textBase,
-                    color: Constants.kykGray600,
+                    color: isDark ? Constants.kykGray300 : Constants.kykGray600,
                     height: 1.6,
                   ),
                   textAlign: TextAlign.center,
@@ -763,13 +770,14 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildNutritionSection(Menu menu, String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     if (menu.energy.isEmpty) return const SizedBox.shrink();
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
@@ -777,7 +785,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.15),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -806,7 +814,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w700,
-                  color: Constants.kykGray800,
+                  color: isDark ? Constants.white : Constants.kykGray800,
                 ),
               ),
             ],
@@ -849,11 +857,12 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMealHoursInfo(String mealTypeConstant) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: Constants.space4),
       padding: const EdgeInsets.all(Constants.space4),
       decoration: BoxDecoration(
-        color: Constants.white,
+        color: isDark ? Constants.kykGray800 : Constants.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: AppTheme.getMealTypePrimaryColor(mealTypeConstant).withOpacity(0.2),
@@ -861,7 +870,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Constants.kykGray200.withOpacity(0.15),
+            color: (isDark ? Constants.black : Constants.kykGray200).withOpacity(0.15),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -890,7 +899,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
                 style: GoogleFonts.inter(
                   fontSize: Constants.textLg,
                   fontWeight: FontWeight.w700,
-                  color: Constants.kykGray800,
+                  color: isDark ? Constants.white : Constants.kykGray800,
                 ),
               ),
             ],
@@ -923,6 +932,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
   }
 
   Widget _buildMealTimeCard(String title, String time, IconData icon, Color color) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(Constants.space2),
       decoration: BoxDecoration(
@@ -953,7 +963,7 @@ class _MenuDetailScreenState extends State<MenuDetailScreen> {
             style: GoogleFonts.inter(
               fontSize: Constants.textSm,
               fontWeight: FontWeight.w700,
-              color: Constants.kykGray800,
+              color: isDark ? Constants.white : Constants.kykGray800,
             ),
             textAlign: TextAlign.center,
           ),
