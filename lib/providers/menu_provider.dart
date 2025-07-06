@@ -6,10 +6,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yurttaye_mobile/models/city.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/services/api_service.dart';
+import 'package:yurttaye_mobile/services/notification_service.dart';
 import 'package:yurttaye_mobile/utils/app_config.dart';
 
 class MenuProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  final NotificationService _notificationService = NotificationService();
   List<City> _cities = [];
   List<Menu> _menus = []; // Filtered menus
   List<Menu> _allMenus = []; // Unfiltered menus for HomeScreen
@@ -149,6 +151,9 @@ class MenuProvider with ChangeNotifier {
       await prefs.setString('menus', jsonEncode(_allMenus.map((m) => m.toJson()).toList()));
       print('Menus cached: ${_allMenus.length} items');
 
+      // Plan bildirimler için bugünün menüsünü bul
+      await _scheduleNotificationsForToday();
+
     } catch (e) {
       _error = e.toString();
       _hasMore = false;
@@ -156,6 +161,28 @@ class MenuProvider with ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+    }
+  }
+
+  Future<void> _scheduleNotificationsForToday() async {
+    try {
+      final today = DateTime.now();
+      final todayOnly = DateTime(today.year, today.month, today.day);
+      
+      // Bugünün menüsünü bul
+      final todayMenu = _allMenus.where((menu) => 
+        menu.date.isAtSameMomentAs(todayOnly)
+      ).firstOrNull;
+
+      if (todayMenu != null) {
+        final notificationsEnabled = await _notificationService.areNotificationsEnabled();
+        if (notificationsEnabled) {
+          await _notificationService.scheduleMealNotifications(todayMenu);
+          print('Bildirimler planlandı: ${todayMenu.mealType}');
+        }
+      }
+    } catch (e) {
+      print('Bildirim planlama hatası: $e');
     }
   }
 

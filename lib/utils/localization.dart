@@ -15,6 +15,14 @@ class Localization {
       'light_theme': 'Açık Tema',
       'notifications': 'Bildirimler',
       'meal_reminders': 'Yemek hatırlatıcıları',
+      'notification_settings': 'Bildirim Ayarları',
+      'notification_enabled': 'Bildirimler açık',
+      'notification_disabled': 'Bildirimler kapalı',
+      'breakfast_started': 'Kahvaltı Başladı!',
+      'breakfast_ending': 'Kahvaltı Bitmek Üzere!',
+      'dinner_started': 'Akşam Yemeği Başladı!',
+      'dinner_ending': 'Akşam Yemeği Bitmek Üzere!',
+      'menu_not_available': 'Menü henüz açıklanmadı',
       'select_language': 'Dil Seçin',
       
       // Links Section
@@ -210,6 +218,14 @@ class Localization {
       'light_theme': 'Light Theme',
       'notifications': 'Notifications',
       'meal_reminders': 'Meal reminders',
+      'notification_settings': 'Notification Settings',
+      'notification_enabled': 'Notifications enabled',
+      'notification_disabled': 'Notifications disabled',
+      'breakfast_started': 'Breakfast Started!',
+      'breakfast_ending': 'Breakfast Ending Soon!',
+      'dinner_started': 'Dinner Started!',
+      'dinner_ending': 'Dinner Ending Soon!',
+      'menu_not_available': 'Menu not available yet',
       'select_language': 'Select Language',
       
       // Links Section

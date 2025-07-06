@@ -17,6 +17,25 @@ class Menu {
     required this.items,
   });
 
+  // Kahvaltı menüsü getter'ı
+  List<String> get breakfast {
+    return items
+        .where((item) => item.category.toLowerCase().contains('kahvaltı') ||
+                        item.category.toLowerCase().contains('breakfast'))
+        .map((item) => item.name)
+        .toList();
+  }
+
+  // Akşam yemeği menüsü getter'ı
+  List<String> get dinner {
+    return items
+        .where((item) => item.category.toLowerCase().contains('akşam') ||
+                        item.category.toLowerCase().contains('dinner') ||
+                        item.category.toLowerCase().contains('ana yemek'))
+        .map((item) => item.name)
+        .toList();
+  }
+
   factory Menu.fromJson(Map<String, dynamic> json) {
     try {
       final items = (json['items'] as List<dynamic>?)?.map((item) {

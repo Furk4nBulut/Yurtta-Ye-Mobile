@@ -6,12 +6,42 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
+import 'package:yurttaye_mobile/services/notification_service.dart';
+import 'package:yurttaye_mobile/services/notification_test.dart';
 import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/utils/localization.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  final NotificationService _notificationService = NotificationService();
+  bool _notificationsEnabled = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotificationSettings();
+  }
+
+  Future<void> _loadNotificationSettings() async {
+    final enabled = await _notificationService.areNotificationsEnabled();
+    setState(() {
+      _notificationsEnabled = enabled;
+    });
+  }
+
+  Future<void> _toggleNotifications(bool value) async {
+    await _notificationService.setNotificationsEnabled(value);
+    setState(() {
+      _notificationsEnabled = value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,14 +105,26 @@ class SettingsScreen extends StatelessWidget {
                     title: Localization.getText('notifications', languageCode),
                     subtitle: Localization.getText('meal_reminders', languageCode),
                     trailing: Switch(
-                      value: true,
+                      value: _notificationsEnabled,
                       onChanged: (value) {
                         HapticFeedback.lightImpact();
-                        // TODO: Implement notification settings
+                        _toggleNotifications(value);
                       },
                       activeThumbColor: Constants.kykPrimary,
                       activeTrackColor: Constants.kykPrimary.withValues(alpha: 0.5),
                     ),
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.science_rounded,
+                    title: 'Test Bildirimi',
+                    subtitle: 'Bildirim sistemini test et',
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      NotificationTest.showTestDialog(context);
+                    },
                   ),
                 ],
               ),

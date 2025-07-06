@@ -9,6 +9,7 @@ import 'package:yurttaye_mobile/screens/filter_screen.dart';
 import 'package:yurttaye_mobile/screens/home_screen.dart';
 import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
+import 'package:yurttaye_mobile/services/notification_service.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -16,6 +17,11 @@ import 'package:intl/date_symbol_data_local.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('tr', null);
+  
+  // Bildirim servisini başlat
+  final notificationService = NotificationService();
+  await notificationService.initialize();
+  
   runApp(const MyApp());
 }
 
