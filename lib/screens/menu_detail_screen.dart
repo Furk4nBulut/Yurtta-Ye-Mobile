@@ -8,7 +8,7 @@ import 'package:yurttaye_mobile/models/menu_item.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
-import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:intl/intl.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:url_launcher/url_launcher.dart';

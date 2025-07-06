@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:yurttaye_mobile/models/city.dart';
 import 'package:yurttaye_mobile/models/menu.dart';
 import 'package:yurttaye_mobile/services/api_service.dart';
-import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 
 class MenuProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();

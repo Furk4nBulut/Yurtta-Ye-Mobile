@@ -4,8 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
+import 'package:yurttaye_mobile/utils/localization.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -13,20 +16,21 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     return Scaffold(
       backgroundColor: isDark ? Constants.kykGray900 : Constants.kykGray50,
-      appBar: _buildAppBar(context, isDark),
+      appBar: _buildAppBar(context, isDark, languageProvider),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(Constants.space4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle(context, 'Uygulama Ayarları'),
+            _buildSectionTitle(context, Localization.getCurrentText('app_settings', languageProvider.currentLanguageCode)),
             const SizedBox(height: Constants.space3),
             
-            // Tema Ayarları
+            // Tema ve Dil Ayarları
             _buildSettingsCard(
               context: context,
               isDark: isDark,
@@ -36,8 +40,10 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.palette_rounded,
-                    title: 'Tema',
-                    subtitle: themeProvider.isDarkMode ? 'Koyu Tema' : 'Açık Tema',
+                    title: Localization.getCurrentText('theme', languageProvider.currentLanguageCode),
+                    subtitle: themeProvider.isDarkMode 
+                        ? Localization.getCurrentText('dark_theme', languageProvider.currentLanguageCode)
+                        : Localization.getCurrentText('light_theme', languageProvider.currentLanguageCode),
                     trailing: Switch(
                       value: themeProvider.isDarkMode,
                       onChanged: (value) {
@@ -52,9 +58,21 @@ class SettingsScreen extends StatelessWidget {
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
+                    icon: Icons.language_rounded,
+                    title: Localization.getCurrentText('language', languageProvider.currentLanguageCode),
+                    subtitle: languageProvider.currentLanguageName,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _showLanguageSelector(context, languageProvider);
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
                     icon: Icons.notifications_rounded,
-                    title: 'Bildirimler',
-                    subtitle: 'Yemek hatırlatıcıları',
+                    title: Localization.getCurrentText('notifications', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('meal_reminders', languageProvider.currentLanguageCode),
                     trailing: Switch(
                       value: true,
                       onChanged: (value) {
@@ -70,7 +88,56 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, 'Hakkında'),
+            _buildSectionTitle(context, Localization.getCurrentText('links', languageProvider.currentLanguageCode)),
+            const SizedBox(height: Constants.space3),
+            
+            // Bağlantılar Kartı
+            _buildSettingsCard(
+              context: context,
+              isDark: isDark,
+              child: Column(
+                children: [
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.language_rounded,
+                    title: Localization.getCurrentText('website', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('website_subtitle', languageProvider.currentLanguageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _launchWebsite();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.code_rounded,
+                    title: Localization.getCurrentText('github', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('source_code', languageProvider.currentLanguageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _launchGitHub();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.play_circle_rounded,
+                    title: Localization.getCurrentText('google_play', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('rate_app', languageProvider.currentLanguageCode),
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _launchGooglePlay();
+                    },
+                  ),
+                ],
+              ),
+            ),
+            
+            const SizedBox(height: Constants.space4),
+            _buildSectionTitle(context, Localization.getCurrentText('about', languageProvider.currentLanguageCode)),
             const SizedBox(height: Constants.space3),
             
             // Hakkında Kartı
@@ -83,11 +150,11 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.info_rounded,
-                    title: 'Uygulama Versiyonu',
-                    subtitle: '1.0.0',
+                    title: Localization.getCurrentText('app_version', languageProvider.currentLanguageCode),
+                    subtitle: '${AppConfig.appVersion} (${AppConfig.appBuildNumber})',
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _showVersionInfo(context);
+                      _showVersionInfo(context, languageProvider);
                     },
                   ),
                   const Divider(height: 1),
@@ -95,23 +162,23 @@ class SettingsScreen extends StatelessWidget {
                     context: context,
                     isDark: isDark,
                     icon: Icons.privacy_tip_rounded,
-                    title: 'Gizlilik Politikası',
-                    subtitle: 'Kullanım şartları',
+                    title: Localization.getCurrentText('privacy_policy', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('terms_of_use', languageProvider.currentLanguageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _showPrivacyPolicy(context);
+                      _showPrivacyPolicy(context, languageProvider);
                     },
                   ),
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.language_rounded,
-                    title: 'Website',
-                    subtitle: 'yurttaye.com',
+                    icon: Icons.bug_report_rounded,
+                    title: Localization.getCurrentText('report_bug', languageProvider.currentLanguageCode),
+                    subtitle: Localization.getCurrentText('report_issue', languageProvider.currentLanguageCode),
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _launchWebsite();
+                      _reportBug(context, languageProvider);
                     },
                   ),
                 ],
@@ -119,7 +186,7 @@ class SettingsScreen extends StatelessWidget {
             ),
             
             const SizedBox(height: Constants.space4),
-            _buildSectionTitle(context, 'Geliştirici'),
+            _buildSectionTitle(context, Localization.getCurrentText('developer', languageProvider.currentLanguageCode)),
             const SizedBox(height: Constants.space3),
             
             // Geliştirici Kartı
@@ -131,24 +198,36 @@ class SettingsScreen extends StatelessWidget {
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.code_rounded,
-                    title: 'GitHub',
-                    subtitle: 'Kaynak kod',
+                    icon: Icons.person_rounded,
+                    title: Localization.getCurrentText('developer', languageProvider.currentLanguageCode),
+                    subtitle: AppConfig.developerName,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _launchGitHub();
+                      _showDeveloperInfo(context, languageProvider);
                     },
                   ),
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
-                    icon: Icons.bug_report_rounded,
-                    title: 'Hata Bildir',
-                    subtitle: 'Sorun bildir',
+                    icon: Icons.business_rounded,
+                    title: Localization.getCurrentText('company', languageProvider.currentLanguageCode),
+                    subtitle: AppConfig.developerCompany,
                     onTap: () {
                       HapticFeedback.lightImpact();
-                      _reportBug(context);
+                      _launchDeveloperWebsite();
+                    },
+                  ),
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.email_rounded,
+                    title: Localization.getCurrentText('contact', languageProvider.currentLanguageCode),
+                    subtitle: AppConfig.developerEmail,
+                    onTap: () {
+                      HapticFeedback.lightImpact();
+                      _launchEmail();
                     },
                   ),
                 ],
@@ -159,13 +238,26 @@ class SettingsScreen extends StatelessWidget {
             
             // Alt bilgi
             Center(
-              child: Text(
-                'YurttaYe v1.0.0',
-                style: GoogleFonts.inter(
-                  fontSize: Constants.textSm,
-                  color: isDark ? Constants.kykGray400 : Constants.kykGray500,
-                  fontWeight: FontWeight.w500,
-                ),
+              child: Column(
+                children: [
+                  Text(
+                    '${AppConfig.appName} v${AppConfig.appVersion}',
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textSm,
+                      color: isDark ? Constants.kykGray400 : Constants.kykGray500,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '© 2025 ${AppConfig.developerCompany}',
+                    style: GoogleFonts.inter(
+                      fontSize: Constants.textXs,
+                      color: isDark ? Constants.kykGray500 : Constants.kykGray400,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -174,13 +266,13 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(BuildContext context, bool isDark) {
+  PreferredSizeWidget _buildAppBar(BuildContext context, bool isDark, LanguageProvider languageProvider) {
     return AppBar(
       backgroundColor: isDark ? Constants.kykGray800 : Constants.kykPrimary,
       elevation: 0,
       centerTitle: true,
-      title: Text(
-        'Ayarlar',
+              title: Text(
+          Localization.getCurrentText('settings', languageProvider.currentLanguageCode),
         style: GoogleFonts.inter(
           fontSize: Constants.textLg,
           fontWeight: FontWeight.w600,
@@ -313,7 +405,75 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showVersionInfo(BuildContext context) {
+  void _showLanguageSelector(BuildContext context, LanguageProvider languageProvider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? Constants.kykGray800 : Constants.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+                              child: Text(
+                  Localization.getCurrentText('select_language', languageProvider.currentLanguageCode),
+                style: GoogleFonts.inter(
+                  fontSize: Constants.textLg,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                ),
+              ),
+            ),
+            ...languageProvider.supportedLanguages.map((language) {
+              final isSelected = language['code'] == languageProvider.currentLanguageCode;
+              return ListTile(
+                leading: Text(
+                  language['flag']!,
+                  style: const TextStyle(fontSize: 24),
+                ),
+                title: Text(
+                  language['name']!,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                  ),
+                ),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Constants.kykPrimary,
+                        size: 24,
+                      )
+                    : null,
+                onTap: () {
+                  languageProvider.changeLanguage(language['code']!);
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showVersionInfo(BuildContext context, LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     showDialog(
@@ -322,7 +482,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Uygulama Bilgileri',
+          Localization.getCurrentText('app_info', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: isDark ? Constants.kykGray200 : Constants.kykGray800,
@@ -332,10 +492,12 @@ class SettingsScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildInfoRow('Versiyon', '1.0.0'),
-            _buildInfoRow('Geliştirici', 'YurttaYe Team'),
-            _buildInfoRow('Platform', 'Flutter'),
-            _buildInfoRow('Lisans', 'MIT'),
+            _buildInfoRow(Localization.getCurrentText('name', languageProvider.currentLanguageCode), AppConfig.appName),
+            _buildInfoRow(Localization.getCurrentText('version', languageProvider.currentLanguageCode), AppConfig.appVersion),
+            _buildInfoRow(Localization.getCurrentText('build', languageProvider.currentLanguageCode), AppConfig.appBuildNumber),
+            _buildInfoRow(Localization.getCurrentText('developer', languageProvider.currentLanguageCode), AppConfig.developerName),
+            _buildInfoRow(Localization.getCurrentText('platform', languageProvider.currentLanguageCode), 'Flutter'),
+            _buildInfoRow(Localization.getCurrentText('license', languageProvider.currentLanguageCode), 'MIT'),
           ],
         ),
         actions: [
@@ -380,7 +542,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  void _showPrivacyPolicy(BuildContext context) {
+  void _showPrivacyPolicy(BuildContext context, LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     showDialog(
@@ -389,7 +551,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Gizlilik Politikası',
+          Localization.getCurrentText('privacy_policy', languageProvider.currentLanguageCode),
           style: GoogleFonts.inter(
             fontWeight: FontWeight.w600,
             color: isDark ? Constants.kykGray200 : Constants.kykGray800,
@@ -406,7 +568,49 @@ class SettingsScreen extends StatelessWidget {
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(
-              'Anladım',
+              Localization.getCurrentText('understood', languageProvider.currentLanguageCode),
+              style: GoogleFonts.inter(
+                color: Constants.kykPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeveloperInfo(BuildContext context, LanguageProvider languageProvider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: isDark ? Constants.kykGray800 : Constants.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: Text(
+          Localization.getCurrentText('developer_info', languageProvider.currentLanguageCode),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildInfoRow(Localization.getCurrentText('name', languageProvider.currentLanguageCode), AppConfig.developerName),
+            _buildInfoRow(Localization.getCurrentText('company', languageProvider.currentLanguageCode), AppConfig.developerCompany),
+            _buildInfoRow(Localization.getCurrentText('email', languageProvider.currentLanguageCode), AppConfig.developerEmail),
+            _buildInfoRow('Website', 'yurttaye.onrender.com'),
+            _buildInfoRow('GitHub', 'github.com/bulutsoft-dev'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(
+              'Tamam',
               style: GoogleFonts.inter(
                 color: Constants.kykPrimary,
                 fontWeight: FontWeight.w600,
@@ -419,20 +623,42 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Future<void> _launchWebsite() async {
-    const url = 'https://yurttaye.com';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+    if (await canLaunchUrl(Uri.parse(AppConfig.websiteUrl))) {
+      await launchUrl(Uri.parse(AppConfig.websiteUrl));
     }
   }
 
   Future<void> _launchGitHub() async {
-    const url = 'https://github.com/yurttaye/yurttaye-mobile';
-    if (await canLaunchUrl(Uri.parse(url))) {
-      await launchUrl(Uri.parse(url));
+    if (await canLaunchUrl(Uri.parse(AppConfig.githubUrl))) {
+      await launchUrl(Uri.parse(AppConfig.githubUrl));
     }
   }
 
-  void _reportBug(BuildContext context) {
+  Future<void> _launchGooglePlay() async {
+    if (await canLaunchUrl(Uri.parse(AppConfig.googlePlayUrl))) {
+      await launchUrl(Uri.parse(AppConfig.googlePlayUrl));
+    }
+  }
+
+  Future<void> _launchDeveloperWebsite() async {
+    if (await canLaunchUrl(Uri.parse(AppConfig.websiteUrl))) {
+      await launchUrl(Uri.parse(AppConfig.websiteUrl));
+    }
+  }
+
+  Future<void> _launchEmail() async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: AppConfig.developerEmail,
+      query: 'subject=YurttaYe Uygulama Desteği',
+    );
+    
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    }
+  }
+
+  void _reportBug(BuildContext context, LanguageProvider languageProvider) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     
     showDialog(
@@ -472,6 +698,19 @@ class SettingsScreen extends StatelessWidget {
             },
             child: Text(
               'GitHub',
+              style: GoogleFonts.inter(
+                color: Constants.kykPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              _launchEmail();
+            },
+            child: Text(
+              'E-posta',
               style: GoogleFonts.inter(
                 color: Constants.kykPrimary,
                 fontWeight: FontWeight.w600,

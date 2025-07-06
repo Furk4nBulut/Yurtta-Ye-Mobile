@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/routes/app_routes.dart';
@@ -26,14 +28,25 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => MenuProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
       ],
-      child: Consumer<ThemeProvider>(
-        builder: (context, themeProvider, child) {
+      child: Consumer2<ThemeProvider, LanguageProvider>(
+        builder: (context, themeProvider, languageProvider, child) {
           return MaterialApp.router(
             title: 'YurttaYe',
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+            locale: languageProvider.currentLocale,
+            supportedLocales: const [
+              Locale('tr', 'TR'),
+              Locale('en', 'US'),
+            ],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
             routerConfig: router,
             debugShowCheckedModeBanner: false,
           );

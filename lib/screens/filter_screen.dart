@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
-import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';

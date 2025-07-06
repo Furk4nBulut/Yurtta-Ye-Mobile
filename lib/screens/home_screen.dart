@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:yurttaye_mobile/providers/language_provider.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
-import 'package:yurttaye_mobile/utils/config.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 import 'package:yurttaye_mobile/widgets/error_widget.dart';
 import 'package:yurttaye_mobile/widgets/meal_card.dart';
@@ -223,13 +224,14 @@ Teşekkürler!''';
   Widget build(BuildContext context) {
     final provider = Provider.of<MenuProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final selectedMealType = AppConfig.mealTypes[_selectedMealIndex];
     final hasSelectedDateData = _hasSelectedDateData(provider, selectedMealType);
     final mealTypeConstant = _getMealTypeConstant(selectedMealType);
 
     return Scaffold(
       extendBody: true,
-      appBar: _buildAppBar(themeProvider, mealTypeConstant),
+      appBar: _buildAppBar(themeProvider, languageProvider, mealTypeConstant),
       body: _buildBody(provider, selectedMealType, hasSelectedDateData, mealTypeConstant),
       bottomNavigationBar: CustomBottomNavigationBar(
         selectedMealIndex: _selectedMealIndex,
@@ -240,7 +242,7 @@ Teşekkürler!''';
     );
   }
 
-  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, String mealTypeConstant) {
+  PreferredSizeWidget _buildAppBar(ThemeProvider themeProvider, LanguageProvider languageProvider, String mealTypeConstant) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final statusBarHeight = MediaQuery.of(context).padding.top;
     
@@ -290,33 +292,7 @@ Teşekkürler!''';
                   ),
                   tooltip: 'Dili Değiştir',
                   onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Dil Seç'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.flag),
-                              title: const Text('Türkçe'),
-                              onTap: () {
-                                // TODO: Uygulama dilini Türkçe yap
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.flag_outlined),
-                              title: const Text('English'),
-                              onTap: () {
-                                // TODO: Uygulama dilini İngilizce yap
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
+                    _showLanguageSelector(context, languageProvider);
                   },
                   splashRadius: 24,
                   constraints: const BoxConstraints(),
@@ -636,6 +612,74 @@ Teşekkürler!''';
           ),
         ),
       ],
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context, LanguageProvider languageProvider) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: BoxDecoration(
+          color: isDark ? Constants.kykGray800 : Constants.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: isDark ? Constants.kykGray600 : Constants.kykGray300,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                'Dil Seçin',
+                style: GoogleFonts.inter(
+                  fontSize: Constants.textLg,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                ),
+              ),
+            ),
+            ...languageProvider.supportedLanguages.map((language) {
+              final isSelected = language['code'] == languageProvider.currentLanguageCode;
+              return ListTile(
+                leading: Text(
+                  language['flag']!,
+                  style: const TextStyle(fontSize: 24),
+                ),
+                title: Text(
+                  language['name']!,
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? Constants.kykGray200 : Constants.kykGray800,
+                  ),
+                ),
+                trailing: isSelected
+                    ? Icon(
+                        Icons.check_circle,
+                        color: Constants.kykPrimary,
+                        size: 24,
+                      )
+                    : null,
+                onTap: () {
+                  languageProvider.changeLanguage(language['code']!);
+                  Navigator.of(context).pop();
+                },
+              );
+            }).toList(),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
     );
   }
 }
