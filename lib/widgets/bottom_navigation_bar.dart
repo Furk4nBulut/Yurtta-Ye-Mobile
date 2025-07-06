@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:yurttaye_mobile/providers/theme_provider.dart';
 import 'package:yurttaye_mobile/themes/app_theme.dart';
 import 'package:yurttaye_mobile/utils/constants.dart';
 
@@ -14,105 +12,58 @@ class CustomBottomNavigationBar extends StatelessWidget {
   final Animation<double> pulseAnimation;
 
   const CustomBottomNavigationBar({
-    Key? key,
+    super.key,
     required this.selectedMealIndex,
     required this.onMealTypeChanged,
     required this.pulseController,
     required this.pulseAnimation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? Constants.kykGray800 : Constants.white,
+        color: isDark ? Constants.kykGray900 : Constants.white,
         border: Border(
           top: BorderSide(
-            color: isDark ? Constants.kykGray700 : Constants.kykGray300,
+            color: isDark ? Constants.kykGray700 : Constants.kykGray200,
             width: 1,
           ),
         ),
       ),
       child: SafeArea(
-        child: Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: Constants.space2, vertical: Constants.space2),
+        child: SizedBox(
+          height: 64,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Kahvaltı butonu
-              Expanded(
-                child: _buildMealTypeButton(
-                  context: context,
-                  icon: Icons.breakfast_dining_rounded,
-                  label: 'Kahvaltı',
-                  isSelected: selectedMealIndex == 0,
-                  mealType: Constants.breakfastType,
-                  onTap: () => onMealTypeChanged(0),
-                ),
+              _MinimalNavItem(
+                icon: Icons.breakfast_dining_rounded,
+                label: 'Kahvaltı',
+                selected: selectedMealIndex == 0,
+                color: AppTheme.getMealTypePrimaryColor(Constants.breakfastType),
+                onTap: () => onMealTypeChanged(0),
               ),
-              
-              // Ortadaki filtre butonu
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: Constants.space2),
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: () {
-                      HapticFeedback.mediumImpact();
-                      // Özel animasyon efekti
-                      pulseController.stop();
-                      pulseController.forward().then((_) {
-                        pulseController.repeat(reverse: true);
-                      });
-                      
-                      context.pushNamed('filter');
-                    },
-                    borderRadius: BorderRadius.circular(20),
-                    child: Ink(
-                      child: AnimatedBuilder(
-                        animation: pulseAnimation,
-                        builder: (context, child) {
-                          return Transform.scale(
-                            scale: pulseAnimation.value,
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                gradient: AppTheme.getMealTypeLinearGradient(Constants.breakfastType),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: AppTheme.getMealTypePrimaryColor(Constants.breakfastType),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.filter_list_rounded,
-                                color: Constants.white,
-                                size: 20,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
+              _SimpleSettingsButton(
+                pulseController: pulseController,
+                pulseAnimation: pulseAnimation,
+                onTap: () {
+                  HapticFeedback.mediumImpact();
+                  pulseController.stop();
+                  pulseController.forward().then((_) {
+                    pulseController.repeat(reverse: true);
+                  });
+                  context.pushNamed('settings');
+                },
               ),
-              
-              // Akşam yemeği butonu
-              Expanded(
-                child: _buildMealTypeButton(
-                  context: context,
-                  icon: Icons.dinner_dining_rounded,
-                  label: 'Akşam',
-                  isSelected: selectedMealIndex == 1,
-                  mealType: Constants.dinnerType,
-                  onTap: () => onMealTypeChanged(1),
-                ),
+              _MinimalNavItem(
+                icon: Icons.dinner_dining_rounded,
+                label: 'Akşam',
+                selected: selectedMealIndex == 1,
+                color: AppTheme.getMealTypePrimaryColor(Constants.dinnerType),
+                onTap: () => onMealTypeChanged(1),
               ),
             ],
           ),
@@ -120,79 +71,107 @@ class CustomBottomNavigationBar extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildMealTypeButton({
-    required BuildContext context,
-    required IconData icon,
-    required String label,
-    required bool isSelected,
-    required String mealType,
-    required VoidCallback onTap,
-  }) {
+class _MinimalNavItem extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _MinimalNavItem({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryColor = AppTheme.getMealTypePrimaryColor(mealType);
-    
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          color: isSelected 
-              ? (isDark ? primaryColor.withOpacity(0.2) : Constants.kykGray100) 
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: isSelected ? primaryColor : Colors.transparent,
-            width: 1,
-          ),
-        ),
+    return Expanded(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.all(5),
-              decoration: BoxDecoration(
-                color: isSelected 
-                    ? primaryColor 
-                    : (isDark ? Constants.kykGray700 : Constants.kykGray100),
-                borderRadius: BorderRadius.circular(6),
-                border: Border.all(
-                  color: isSelected 
-                      ? primaryColor 
-                      : (isDark ? Constants.kykGray600 : Constants.kykGray300),
-                  width: 1,
-                ),
-              ),
-              child: Icon(
-                icon,
-                color: isSelected 
-                    ? Constants.white 
-                    : (isDark ? Constants.kykGray300 : Constants.kykGray600),
-                size: 18,
-              ),
+            Icon(
+              icon,
+              size: 22,
+              color: selected ? color : (isDark ? Constants.kykGray400 : Constants.kykGray500),
             ),
-            const SizedBox(height: 1),
+            const SizedBox(height: 2),
             Text(
               label,
               style: GoogleFonts.inter(
-                fontSize: 9,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                color: isSelected 
-                    ? primaryColor 
-                    : (isDark ? Constants.kykGray300 : Constants.kykGray600),
+                fontSize: 10,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                color: selected ? color : (isDark ? Constants.kykGray400 : Constants.kykGray500),
               ),
-              textAlign: TextAlign.center,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              height: 3,
+              width: selected ? 24 : 0,
+              decoration: BoxDecoration(
+                color: selected ? color : Colors.transparent,
+                borderRadius: BorderRadius.circular(2),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SimpleSettingsButton extends StatelessWidget {
+  final AnimationController pulseController;
+  final Animation<double> pulseAnimation;
+  final VoidCallback onTap;
+
+  const _SimpleSettingsButton({
+    required this.pulseController,
+    required this.pulseAnimation,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: AnimatedBuilder(
+        animation: pulseAnimation,
+        builder: (context, child) {
+          return Transform.scale(
+            scale: pulseAnimation.value,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(20),
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primary,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.settings_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
       ),
     );
   }

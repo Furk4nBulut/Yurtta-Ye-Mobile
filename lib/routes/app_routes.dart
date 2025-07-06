@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:yurttaye_mobile/screens/filter_screen.dart';
 import 'package:yurttaye_mobile/screens/home_screen.dart';
 import 'package:yurttaye_mobile/screens/menu_detail_screen.dart';
+import 'package:yurttaye_mobile/screens/settings_screen.dart';
 import 'package:yurttaye_mobile/screens/splash_screen.dart';
 
 final GoRouter router = GoRouter(
@@ -44,6 +45,11 @@ final GoRouter router = GoRouter(
           path: 'filter',
           name: 'filter',
           builder: (context, state) => const FilterScreen(),
+        ),
+        GoRoute(
+          path: 'settings',
+          name: 'settings',
+          builder: (context, state) => const SettingsScreen(),
         ),
       ],
     ),
