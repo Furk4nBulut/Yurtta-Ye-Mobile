@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AppConfig {
   // App Information
@@ -50,9 +51,13 @@ class AppConfig {
   static const bool isDebug = true; // Debug modda test reklamları göster
 
   // Banner reklam birimi kimliği
-  static const String bannerAdUnitId = isDebug
-      ? 'ca-app-pub-3940256099942544/6300978111' // Test banner ad unit ID
-      : 'ca-app-pub-9589008379442992/4947036856'; // Gerçek banner ad unit ID
+  static String get bannerAdUnitId {
+    if (isDebug) {
+      return dotenv.env['TEST_BANNER_AD_UNIT_ID'] ?? 'ca-app-pub-3940256099942544/6300978111';
+    } else {
+      return dotenv.env['BANNER_AD_UNIT_ID'] ?? 'ca-app-pub-9589008379442992/4947036856';
+    }
+  }
 
   // Geçişli reklam birimi kimliği
   static const String interstitialAdUnitId = isDebug
