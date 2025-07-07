@@ -8,11 +8,14 @@ class AdService {
     return AppConfig.interstitialAdUnitId;
   }
 
+  static String get rewardedAdUnitId => AppConfig.rewardedAdUnitId;
+
   static Future<void> initialize() async {
     await MobileAds.instance.initialize();
   }
 
   static InterstitialAd? _interstitialAd;
+  static RewardedAd? _rewardedAd;
 
   static Future<void> loadInterstitialAd() async {
     await InterstitialAd.load(
@@ -63,5 +66,54 @@ class AdService {
 
   static void dispose() {
     _interstitialAd?.dispose();
+  }
+
+  static Future<void> loadRewardedAd() async {
+    await RewardedAd.load(
+      adUnitId: rewardedAdUnitId,
+      request: const AdRequest(),
+      rewardedAdLoadCallback: RewardedAdLoadCallback(
+        onAdLoaded: (ad) {
+          _rewardedAd = ad;
+          print('Rewarded reklam yüklendi');
+        },
+        onAdFailedToLoad: (error) {
+          print('Rewarded reklam yüklenemedi: $error');
+          _rewardedAd = null;
+        },
+      ),
+    );
+  }
+
+  static Future<void> showRewardedAd({required VoidCallback onRewarded, VoidCallback? onClosed}) async {
+    if (_rewardedAd == null) {
+      print('Rewarded reklam henüz yüklenmedi, yükleniyor...');
+      await loadRewardedAd();
+    }
+    if (_rewardedAd != null) {
+      _rewardedAd!.fullScreenContentCallback = FullScreenContentCallback(
+        onAdDismissedFullScreenContent: (ad) {
+          ad.dispose();
+          _rewardedAd = null;
+          loadRewardedAd();
+          if (onClosed != null) onClosed();
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          print('Rewarded reklam gösterilemedi: $error');
+          ad.dispose();
+          _rewardedAd = null;
+          if (onClosed != null) onClosed();
+        },
+      );
+      await _rewardedAd!.show(
+        onUserEarnedReward: (ad, reward) {
+          print('Kullanıcı ödül kazandı: ${reward.amount} ${reward.type}');
+          onRewarded();
+        },
+      );
+    } else {
+      print('Rewarded reklam yüklenemedi.');
+      if (onClosed != null) onClosed();
+    }
   }
 } 

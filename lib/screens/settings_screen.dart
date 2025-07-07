@@ -16,6 +16,7 @@ import 'package:yurttaye_mobile/utils/localization.dart';
 import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
+import 'package:yurttaye_mobile/services/ad_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -951,18 +952,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _launchDonation(int amount) {
-    // Burada gerçek bağış sistemi entegrasyonu yapılabilir
-    // Şimdilik sadece bilgi mesajı gösterelim
+  void _launchDonation(int amount) async {
     final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
     final languageCode = languageProvider.currentLanguageCode;
-    
     Navigator.of(context).pop();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(Localization.getText('donation_coming_soon', languageCode)),
-        backgroundColor: Constants.kykPrimary,
-      ),
+    await AdService.showRewardedAd(
+      onRewarded: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(Localization.getText('thank_you_for_support', languageCode)),
+            backgroundColor: Constants.kykSuccess,
+          ),
+        );
+      },
+      onClosed: () {
+        // Reklam kapatıldı ama ödül kazanılmadıysa istersen burada başka bir mesaj gösterebilirsin.
+      },
     );
   }
 

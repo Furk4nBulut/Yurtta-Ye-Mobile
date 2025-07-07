@@ -5,8 +5,8 @@ import 'package:flutter/foundation.dart';
 class AppConfig {
   // App Information
   static const String appName = 'YurttaYe';
-  static const String appVersion = '1.3.0';
-  static const String appBuildNumber = '14';
+  static const String appVersion = '1.3.2';
+  static const String appBuildNumber = '20';
   
   // Website URLs
   static const String websiteUrl = 'https://yurttaye.onrender.com/';
@@ -66,6 +66,15 @@ class AppConfig {
       return dotenv.env['TEST_INTERSTITIAL_AD_UNIT_ID'] ?? 'ca-app-pub-3940256099942544/1033173712';
     } else {
       return dotenv.env['INTERSTITIAL_AD_UNIT_ID'] ?? 'ca-app-pub-9589008379442992/7379674790';
+    }
+  }
+
+  // Rewarded reklam birimi kimliği
+  static String get rewardedAdUnitId {
+    if (isDebug) {
+      return dotenv.env['TEST_REWARDED_AD_UNIT_ID'] ?? 'ca-app-pub-3940256099942544/5224354917';
+    } else {
+      return dotenv.env['REWARDED_AD_UNIT_ID'] ?? 'ca-app-pub-9589008379442992/6298796913';
     }
   }
 } 
