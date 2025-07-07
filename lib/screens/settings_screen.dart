@@ -178,7 +178,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Localization.getText('support_developer_desc', languageCode),
                     onTap: () async {
                       HapticFeedback.lightImpact();
-                      await AdManager.showAdIfAllowed();
+                      await AdService.showRewardedAd(
+                        onRewarded: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(Localization.getText('thank_you_for_support', languageCode)),
+                              backgroundColor: Constants.kykSuccess,
+                            ),
+                          );
+                        },
+                        onClosed: () {},
+                      );
                     },
                   ),
                   const Divider(height: 1),
@@ -958,11 +968,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Navigator.of(context).pop();
     await AdService.showRewardedAd(
       onRewarded: () {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
             content: Text(Localization.getText('thank_you_for_support', languageCode)),
             backgroundColor: Constants.kykSuccess,
-          ),
+      ),
         );
       },
       onClosed: () {
