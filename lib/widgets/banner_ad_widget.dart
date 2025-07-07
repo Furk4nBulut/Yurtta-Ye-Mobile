@@ -22,9 +22,7 @@ class _BannerAdWidgetState extends State<BannerAdWidget> {
 
   void _loadBannerAd() {
     _bannerAd = BannerAd(
-      adUnitId: AppConfig.isDebug 
-          ? 'ca-app-pub-3940256099942544/6300978111' // Test banner ad unit ID
-          : AppConfig.bannerAdUnitId, // Production banner ad unit ID
+      adUnitId: AppConfig.bannerAdUnitId,
       size: AdSize.banner,
       request: const AdRequest(),
       listener: BannerAdListener(

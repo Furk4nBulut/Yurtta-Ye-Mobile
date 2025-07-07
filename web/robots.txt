@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# AdMob app-ads.txt dosyasına erişime izin ver
+Allow: /app-ads.txt
+
+Sitemap: https://yurttaye.onrender.com/sitemap.xml 

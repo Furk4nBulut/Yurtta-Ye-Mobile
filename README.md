@@ -1,124 +1,153 @@
-Yurtta Ye - Web and Mobile Application
-Overview
-Yurtta Ye is a comprehensive platform designed to streamline food ordering and management for dormitory residents. The system consists of two main components:
+# YurttaYe - KYK Yemek Menüsü Uygulaması
 
-Yurtta-Ye-MVC-Web: A web application built with ASP.NET Core MVC, providing a robust backend and user interface for managing food orders, menus, and user accounts.
-Yurtta-Ye-Mobile: A mobile application developed using Flutter, offering a user-friendly interface for residents to browse menus, place orders, and track their orders on the go.
+## Genel Bakış
+YurttaYe, KYK yurtlarında yaşayan öğrenciler için günlük yemek menülerini takip etmeyi kolaylaştıran bir mobil uygulamadır. Uygulama, kahvaltı ve akşam yemeği menülerini şehir bazlı olarak görüntüleme imkanı sunar.
 
-Both applications work together to provide a seamless experience for users, enabling efficient food ordering and management within dormitory settings.
-Features
-Yurtta-Ye-MVC-Web
+## Özellikler
 
-User Management: Register, login, and manage user profiles (admin and resident roles).
-Menu Management: Admins can create, update, and delete daily or weekly menus.
-Order Processing: Residents can view available menus, place orders, and track order status.
-Responsive Design: Built with Bootstrap for a consistent experience across devices.
-Database Integration: Utilizes Entity Framework Core with SQL Server for data persistence.
+### 📱 Mobil Uygulama
+- **Günlük Menüler**: Kahvaltı ve akşam yemeği menülerini günlük olarak takip edin
+- **Şehir Bazlı**: Bulunduğunuz şehre göre yurt menülerini görüntüleyin
+- **Bildirimler**: Yemek saatlerinde otomatik bildirimler alın
+- **Çoklu Dil**: Türkçe ve İngilizce dil desteği
+- **Karanlık/Aydınlık Tema**: Kullanıcı tercihine göre tema seçimi
+- **Reklam Entegrasyonu**: Google AdMob ile reklam desteği
 
-Yurtta-Ye-Mobile
+### 🌐 Web Sitesi
+- **Uygulama Tanıtımı**: YurttaYe uygulamasının özelliklerini tanıtan web sitesi
+- **Google Play Bağlantısı**: Doğrudan uygulama indirme linki
+- **AdMob Doğrulama**: app-ads.txt dosyası ile AdMob doğrulama desteği
+## Kullanılan Teknolojiler
 
-Cross-Platform Support: Runs on both iOS and Android using Flutter.
-Menu Browsing: View daily/weekly menus with detailed food descriptions.
-Order Placement: Place orders directly from the mobile app with real-time updates.
-Push Notifications: Receive updates on order status and menu changes.
-Firestore Integration: Stores order and user data using Google Firestore for scalability.
-OpenWeatherMap API: Displays local weather information for a personalized user experience.
+### 📱 Mobil Uygulama
+- **Framework**: Flutter (Dart)
+- **State Management**: Provider
+- **Reklam**: Google Mobile Ads (AdMob)
+- **Bildirimler**: Flutter Local Notifications
+- **API**: HTTP ile REST API entegrasyonu
+- **Platformlar**: Android (iOS desteği planlanıyor)
 
-Technologies Used
-Web Application
+### 🌐 Web Sitesi
+- **HTML/CSS**: Modern ve responsive tasarım
+- **Hosting**: Render.com
+- **Domain**: yurttaye.onrender.com
 
-Backend: ASP.NET Core MVC
-Frontend: HTML, CSS, Bootstrap
-Database: SQL Server with Entity Framework Core
-Authentication: ASP.NET Identity
-Hosting: Configurable for IIS or cloud platforms like Azure
+## AdMob Doğrulama
 
-Mobile Application
+Bu proje, Google AdMob reklam platformu ile entegre edilmiştir. AdMob doğrulaması için gerekli dosyalar:
 
-Framework: Flutter (Dart)
-Database: Google Firestore
-API: OpenWeatherMap API for weather data
-State Management: Provider or Riverpod (based on project setup)
-Platforms: iOS, Android
+### app-ads.txt İçeriği:
+```
+google.com, pub-9589008379442992, DIRECT, f08c47fec0942fa0
+```
 
-Installation and Setup
-Prerequisites
+### Doğrulama Adımları:
+1. `app-ads.txt` dosyası `yurttaye.onrender.com` web sitesinin kök dizininde yayınlanmalı
+2. `https://yurttaye.onrender.com/app-ads.txt` adresinin erişilebilir olduğu kontrol edilmeli
+3. AdMob hesabında uygulama doğrulaması yeniden çalıştırılmalı
 
-Web:
-.NET SDK 6.0 or later
-SQL Server (Express or full version)
-Visual Studio 2022 or later (recommended)
+## Kurulum ve Geliştirme
 
+### Gereksinimler
 
-Mobile:
-Flutter SDK (latest stable version)
-Android Studio or Xcode for emulator/simulator
-Google Cloud account for Firestore setup
-OpenWeatherMap API key
+**Mobil Uygulama:**
+- Flutter SDK (en son kararlı sürüm)
+- Android Studio veya VS Code
+- Android SDK (minimum API 23)
+- Google AdMob hesabı
 
+**Web Sitesi:**
+- Render.com hesabı (hosting için)
+- Domain yönetimi
 
+### Mobil Uygulama Kurulumu
 
-Web Application Setup
-
-Clone the Repository:git clone https://github.com/bulutsoft-dev/Yurtta-Ye-MVC-Web.git
-cd Yurtta-Ye-MVC-Web
-
-
-Configure Database:
-Update the connection string in appsettings.json to point to your SQL Server instance.
-Run migrations:dotnet ef database update
-
-
-
-
-Run the Application:dotnet run
-
-
-Access the web app at http://localhost:5000 (or the configured port).
-
-Mobile Application Setup
-
-Clone the Repository:git clone https://github.com/Furk4nBulut/Yurtta-Ye-Mobile.git
+1. **Repository'yi klonlayın:**
+```bash
+git clone https://github.com/bulutsoft-dev/Yurtta-Ye-Mobile.git
 cd Yurtta-Ye-Mobile
+```
+
+2. **Bağımlılıkları yükleyin:**
+```bash
+flutter pub get
+```
+
+3. **AdMob yapılandırması:**
+- `android/app/src/main/AndroidManifest.xml` dosyasında AdMob uygulama ID'sini kontrol edin
+- `lib/services/ad_service.dart` dosyasında reklam birimi ID'lerini kontrol edin
+
+4. **Uygulamayı çalıştırın:**
+```bash
+flutter run
+```
+
+### Web Sitesi Kurulumu
+
+1. **Web dosyalarını yükleyin:**
+- `web/` klasöründeki dosyaları `yurttaye.onrender.com` web sitesine yükleyin
+- `app-ads.txt` dosyasının kök dizinde olduğundan emin olun
+
+2. **Doğrulama:**
+- `https://yurttaye.onrender.com/app-ads.txt` adresinin erişilebilir olduğunu kontrol edin
 
 
-Install Dependencies:flutter pub get
 
+## Kullanım
 
-Configure Firestore:
-Set up a Firestore project in the Google Cloud Console.
-Add the google-services.json (Android) or GoogleService-Info.plist (iOS) to the respective project directories.
+### 📱 Mobil Uygulama
+- **Ana Sayfa**: Günlük yemek menülerini görüntüleme
+- **Filtreleme**: Şehir ve tarih bazlı menü filtreleme
+- **Ayarlar**: Tema, dil ve bildirim ayarları
+- **Bildirimler**: Yemek saatlerinde otomatik hatırlatmalar
 
+### 🌐 Web Sitesi
+- **Ana Sayfa**: Uygulama tanıtımı ve özellikler
+- **İndirme Linki**: Google Play Store'a yönlendirme
+- **AdMob Doğrulama**: app-ads.txt dosyası ile reklam doğrulaması
 
-Configure OpenWeatherMap API:
-Obtain an API key from OpenWeatherMap.
-Add the API key to the app configuration (e.g., in a .env file or constants file).
+## AdMob Sorun Giderme
 
+### Yaygın Sorunlar ve Çözümleri:
 
-Run the Application:flutter run
+1. **"app-ads.txt dosyası bulunamadı" hatası:**
+   - `app-ads.txt` dosyasının `yurttaye.onrender.com` kök dizininde olduğunu kontrol edin
+   - Dosya içeriğinin doğru olduğunu doğrulayın: `google.com, pub-9589008379442992, DIRECT, f08c47fec0942fa0`
 
+2. **"Publisher ID eşleşmiyor" hatası:**
+   - AdMob hesabınızdaki Publisher ID'nin `pub-9589008379442992` olduğunu kontrol edin
+   - AndroidManifest.xml dosyasındaki AdMob uygulama ID'sini kontrol edin
 
-Test on an emulator, simulator, or physical device.
+3. **"Alan adı doğrulanamadı" hatası:**
+   - Google Play Console'da belirtilen alan adının `yurttaye.onrender.com` olduğunu kontrol edin
+   - Web sitesinin erişilebilir olduğunu doğrulayın
 
-Usage
+## Katkıda Bulunma
 
-Web: Admins can log in to manage menus and orders, while residents can browse menus, place orders, and view order history.
-Mobile: Residents can use the app to check menus, place orders, and receive real-time updates on order status and weather conditions.
+Katkılarınızı bekliyoruz! Lütfen şu adımları takip edin:
 
-Contributing
-Contributions are welcome! Please follow these steps:
+1. Repository'yi fork edin
+2. Yeni bir branch oluşturun (`git checkout -b feature/your-feature`)
+3. Değişikliklerinizi commit edin (`git commit -m "Add your feature"`)
+4. Branch'i push edin (`git push origin feature/your-feature`)
+5. Pull request açın
 
-Fork the repository (web or mobile).
-Create a new branch (git checkout -b feature/your-feature).
-Commit your changes (git commit -m "Add your feature").
-Push to the branch (git push origin feature/your-feature).
-Open a pull request.
+## Lisans
 
-License
-This project is licensed under the MIT License. See the LICENSE file in each repository for details.
-Contact
-For questions or feedback, reach out to the project maintainers:
+Bu proje MIT Lisansı altında lisanslanmıştır.
 
-Web: bulutsoft-dev
-Mobile: Furk4nBulut
+## İletişim
+
+Sorularınız veya geri bildirimleriniz için:
+
+**Furkan Bulut** - BulutSoft Dev
+- E-posta: bulutsoftdev@gmail.com
+- GitHub: https://github.com/bulutsoft-dev
+- Web Sitesi: https://yurttaye.onrender.com
+
+## Bağlantılar
+
+- **Google Play Store**: https://play.google.com/store/apps/details?id=com.yurttaye.yurttaye
+- **Web Sitesi**: https://yurttaye.onrender.com
+- **GitHub Repository**: https://github.com/bulutsoft-dev/Yurtta-Ye-Mobile
 

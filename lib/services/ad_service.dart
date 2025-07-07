@@ -1,16 +1,11 @@
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
+import 'package:yurttaye_mobile/utils/app_config.dart';
 
 class AdService {
   static String get interstitialAdUnitId {
-    // Debug modda test reklamı, release modda gerçek reklam kullan
-    if (kDebugMode) {
-      return 'ca-app-pub-3940256099942544/1033173712'; // Test geçiş reklamı
-    } else {
-      // Release modda .env dosyasından al
-      return dotenv.env['INTERSTITIAL_AD_UNIT_ID'] ?? 'ca-app-pub-9589008379442992/7379674790';
-    }
+    return AppConfig.interstitialAdUnitId;
   }
 
   static Future<void> initialize() async {
