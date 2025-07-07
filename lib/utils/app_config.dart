@@ -1,5 +1,6 @@
 import 'package:intl/intl.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 class AppConfig {
   // App Information
@@ -48,7 +49,7 @@ class AppConfig {
   static const int initialPage = 1;
   
   // AdMob Reklam Ayarları
-  static const bool isDebug = true; // Debug modda test reklamları göster
+  static final bool isDebug = !kReleaseMode; // Build tipine göre otomatik ayarlanır
 
   // Banner reklam birimi kimliği
   static String get bannerAdUnitId {
@@ -60,7 +61,11 @@ class AppConfig {
   }
 
   // Geçişli reklam birimi kimliği
-  static const String interstitialAdUnitId = isDebug
-      ? 'ca-app-pub-3940256099942544/1033173712' // Test interstitial ad unit ID
-      : 'ca-app-pub-9589008379442992/7379674790'; // Gerçek interstitial ad unit ID
+  static String get interstitialAdUnitId {
+    if (isDebug) {
+      return dotenv.env['TEST_INTERSTITIAL_AD_UNIT_ID'] ?? 'ca-app-pub-3940256099942544/1033173712';
+    } else {
+      return dotenv.env['INTERSTITIAL_AD_UNIT_ID'] ?? 'ca-app-pub-9589008379442992/7379674790';
+    }
+  }
 } 
