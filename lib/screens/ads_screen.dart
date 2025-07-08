@@ -192,13 +192,14 @@ class _AdsScreenState extends State<AdsScreen> {
               Localization.getText('ad_info_about_desc', languageCode),
               style: GoogleFonts.inter(fontSize: 15, color: isDark ? Constants.kykGray300 : Constants.kykGray700),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            // --- Bilgi Kartları ---
             _infoRow(Icons.view_stream_rounded, Localization.getText('ad_info_banner', languageCode), Localization.getText('ad_info_banner_desc', languageCode)),
             const SizedBox(height: 8),
             _infoRow(Icons.flip_to_front_rounded, Localization.getText('ad_info_interstitial', languageCode), Localization.getText('ad_info_interstitial_desc', languageCode)),
             const SizedBox(height: 8),
             _infoRow(Icons.monetization_on_rounded, Localization.getText('ad_info_coin', languageCode), Localization.getText('ad_info_coin_desc', languageCode)),
-            const SizedBox(height: 20),
+            const SizedBox(height: 28),
             // 1. Reklamlar ve Coin Yönetimi başlığı
             _buildSectionTitle(context, Localization.getText('ads_section', languageCode), isDark),
             const SizedBox(height: Constants.space3),
@@ -239,7 +240,9 @@ class _AdsScreenState extends State<AdsScreen> {
                       );
                     },
                   ),
+                  const SizedBox(height: 8),
                   const Divider(height: 1),
+                  const SizedBox(height: 8),
                   // --- Banner Reklam Engelle ---
                   _buildSettingsItem(
                     context: context,
@@ -267,7 +270,9 @@ class _AdsScreenState extends State<AdsScreen> {
                       }
                     },
                   ),
+                  const SizedBox(height: 8),
                   const Divider(height: 1),
+                  const SizedBox(height: 8),
                   // --- Geçiş Reklam Engelle ---
                   _buildSettingsItem(
                     context: context,
@@ -295,7 +300,9 @@ class _AdsScreenState extends State<AdsScreen> {
                       }
                     },
                   ),
+                  const SizedBox(height: 8),
                   const Divider(height: 1),
+                  const SizedBox(height: 8),
                   // --- SÜRELERİ SIFIRLA BUTONU ---
                   _buildSettingsItem(
                     context: context,
@@ -331,7 +338,9 @@ class _AdsScreenState extends State<AdsScreen> {
                       }
                     },
                   ),
+                  const SizedBox(height: 8),
                   const Divider(height: 1),
+                  const SizedBox(height: 8),
                   // --- GELİŞTİRİCİYE DESTEK OL (Buy Me a Coffee) ---
                   _buildSettingsItem(
                     context: context,
@@ -341,7 +350,9 @@ class _AdsScreenState extends State<AdsScreen> {
                     subtitle: Localization.getText('ad_info_support_desc', languageCode) + '\n' + '(Buy Me a Coffee: ' + Localization.getText('soon', languageCode) + ')',
                     onTap: null,
                   ),
+                  const SizedBox(height: 8),
                   const Divider(height: 1),
+                  const SizedBox(height: 8),
                   // --- HATA BİLDİRİMİ ---
                   _buildSettingsItem(
                     context: context,
@@ -361,17 +372,17 @@ class _AdsScreenState extends State<AdsScreen> {
             const SizedBox(height: Constants.space4),
             // --- UYARI ---
             Container(
-              margin: const EdgeInsets.only(bottom: 12),
-              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 16),
+              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: Colors.orange.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
                 border:Border.all(color: Colors.orange, width: 1),
               ),
               child: Row(
                 children: [
                   Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 22),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       Localization.getText('ad_info_warning_text', languageCode),
@@ -381,7 +392,6 @@ class _AdsScreenState extends State<AdsScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: Constants.space4),
             // --- Açıklama ve banner reklam ---
             Text(
               Localization.getText('ads_section_explanation', languageCode),
@@ -432,16 +442,16 @@ class _AdsScreenState extends State<AdsScreen> {
   }) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      margin: const EdgeInsets.only(bottom: 24),
       decoration: BoxDecoration(
         color: isDark ? Constants.kykGray800 : Constants.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: isDark ? Colors.black.withOpacity(0.15) : Constants.kykGray400.withOpacity(0.08),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: isDark ? Colors.black.withOpacity(0.10) : Constants.kykGray400.withOpacity(0.06),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
           ),
         ],
         border: Border.all(color: isDark ? Constants.kykGray700 : Constants.kykGray200, width: 1),
@@ -463,24 +473,24 @@ class _AdsScreenState extends State<AdsScreen> {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(14),
         child: Padding(
-          padding: const EdgeInsets.all(Constants.space4),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: Constants.kykPrimary.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Constants.kykPrimary.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(
                   icon,
                   color: Constants.kykPrimary,
-                  size: 20,
+                  size: 22,
                 ),
               ),
-              const SizedBox(width: Constants.space3),
+              const SizedBox(width: Constants.space3 + 2),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,7 +503,7 @@ class _AdsScreenState extends State<AdsScreen> {
                         color: isDark ? Constants.kykGray200 : Constants.kykGray800,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 3),
                     Text(
                       subtitle,
                       style: GoogleFonts.inter(
@@ -504,12 +514,15 @@ class _AdsScreenState extends State<AdsScreen> {
                   ],
                 ),
               ),
-              if (trailing != null) trailing,
+              if (trailing != null) ...[
+                const SizedBox(width: 8),
+                trailing,
+              ],
               if (onTap != null && trailing == null)
                 Icon(
                   Icons.chevron_right_rounded,
                   color: isDark ? Constants.kykGray400 : Constants.kykGray500,
-                  size: 20,
+                  size: 22,
                 ),
             ],
           ),

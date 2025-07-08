@@ -326,9 +326,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.favorite_rounded,
                     title: Localization.getText('support_developer', languageCode),
                     subtitle: Localization.getText('support_developer_desc_long', languageCode),
-                    onTap: () {
+                    onTap: () async {
                       HapticFeedback.lightImpact();
-                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
+                      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
+                      _loadCoinState();
                     },
                   ),
                   const Divider(height: 1),
@@ -511,8 +512,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.settings_rounded,
                     title: Localization.getText('ad_info_manage_ads', languageCode),
                     subtitle: Localization.getText('ad_info_manage_ads', languageCode),
-                    onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
+                    onTap: () async {
+                      await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
+                      _loadCoinState();
                     },
                   ),
                 ],
