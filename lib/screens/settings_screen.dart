@@ -18,6 +18,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/services/ad_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:yurttaye_mobile/screens/ads_screen.dart';
+import 'dart:async';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -35,14 +37,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _totalCoins = 0;
   DateTime? _adFreeUntil;
   bool _isLoadingCoin = true;
+  DateTime? _bannerBlockUntil;
+  DateTime? _interstitialBlockUntil;
+  int _adsWatched = 0;
+  Timer? _timer;
 
   static const int coinsRequired = 4; // 4 coin = 1 gün reklamsız
+  static const int bannerBlockCost = 1;
+  static const int interstitialBlockCost = 1;
 
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
     _loadCoinState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {}); // Süreleri güncelle
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadNotificationSettings() async {
@@ -66,6 +83,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _totalCoins = prefs.getInt('totalCoins') ?? 0;
       final adFreeMillis = prefs.getInt('adFreeUntil');
       _adFreeUntil = adFreeMillis != null ? DateTime.fromMillisecondsSinceEpoch(adFreeMillis) : null;
+      final bannerMillis = prefs.getInt('bannerAdBlockUntil');
+      _bannerBlockUntil = bannerMillis != null ? DateTime.fromMillisecondsSinceEpoch(bannerMillis) : null;
+      final interstitialMillis = prefs.getInt('interstitialAdBlockUntil');
+      _interstitialBlockUntil = interstitialMillis != null ? DateTime.fromMillisecondsSinceEpoch(interstitialMillis) : null;
+      _adsWatched = prefs.getInt('adsWatched') ?? 0;
       _isLoadingCoin = false;
     });
   }
@@ -75,9 +97,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _coins++;
       _totalCoins++;
+      _adsWatched++;
     });
     await prefs.setInt('coins', _coins);
     await prefs.setInt('totalCoins', _totalCoins);
+    await prefs.setInt('adsWatched', _adsWatched);
   }
 
   Future<void> _spendCoinsForAdFree() async {
@@ -102,15 +126,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String get _adFreeTimeLeft {
     if (!_isAdFreeActive) return '';
     final diff = _adFreeUntil!.difference(DateTime.now());
-    if (diff.inDays > 0) {
-      return '${diff.inDays} gün';
-    } else if (diff.inHours > 0) {
-      return '${diff.inHours} saat';
-    } else if (diff.inMinutes > 0) {
-      return '${diff.inMinutes} dk';
-    } else {
-      return '<1 dk';
-    }
+    return _formatDuration(diff);
+  }
+
+  Future<void> _blockBannerAds() async {
+    if (_coins < bannerBlockCost) return;
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final current = _bannerBlockUntil != null && _bannerBlockUntil!.isAfter(now) ? _bannerBlockUntil! : now;
+    final newUntil = current.add(const Duration(days: 1));
+    setState(() {
+      _coins -= bannerBlockCost;
+      _bannerBlockUntil = newUntil;
+    });
+    await prefs.setInt('coins', _coins);
+    await prefs.setInt('bannerAdBlockUntil', newUntil.millisecondsSinceEpoch);
+  }
+
+  Future<void> _blockInterstitialAds() async {
+    if (_coins < interstitialBlockCost) return;
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final current = _interstitialBlockUntil != null && _interstitialBlockUntil!.isAfter(now) ? _interstitialBlockUntil! : now;
+    final newUntil = current.add(const Duration(days: 1));
+    setState(() {
+      _coins -= interstitialBlockCost;
+      _interstitialBlockUntil = newUntil;
+    });
+    await prefs.setInt('coins', _coins);
+    await prefs.setInt('interstitialAdBlockUntil', newUntil.millisecondsSinceEpoch);
+  }
+
+  bool get _isBannerBlocked => _bannerBlockUntil != null && _bannerBlockUntil!.isAfter(DateTime.now());
+  bool get _isInterstitialBlocked => _interstitialBlockUntil != null && _interstitialBlockUntil!.isAfter(DateTime.now());
+
+  String get _bannerBlockTimeLeft {
+    if (!_isBannerBlocked) return '';
+    final diff = _bannerBlockUntil!.difference(DateTime.now());
+    return _formatDuration(diff);
+  }
+
+  String get _interstitialBlockTimeLeft {
+    if (!_isInterstitialBlocked) return '';
+    final diff = _interstitialBlockUntil!.difference(DateTime.now());
+    return _formatDuration(diff);
+  }
+
+  String _formatDuration(Duration diff) {
+    if (diff.isNegative) return '0 saniye';
+    final days = diff.inDays;
+    final hours = diff.inHours % 24;
+    final minutes = diff.inMinutes % 60;
+    final seconds = diff.inSeconds % 60;
+    final parts = <String>[];
+    if (days > 0) parts.add('$days gün');
+    if (hours > 0) parts.add('$hours saat');
+    if (minutes > 0) parts.add('$minutes dakika');
+    if (seconds > 0 || parts.isEmpty) parts.add('$seconds saniye');
+    return parts.join(' ');
+  }
+
+  Future<void> _resetAdBlocks() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _adFreeUntil = null;
+      _bannerBlockUntil = null;
+      _interstitialBlockUntil = null;
+    });
+    await prefs.remove('adFreeUntil');
+    await prefs.remove('bannerAdBlockUntil');
+    await prefs.remove('interstitialAdBlockUntil');
   }
 
   @override
@@ -241,97 +326,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.favorite_rounded,
                     title: Localization.getText('support_developer', languageCode),
                     subtitle: Localization.getText('support_developer_desc_long', languageCode),
-                    onTap: () async {
+                    onTap: () {
                       HapticFeedback.lightImpact();
-                      await AdService.showRewardedAd(
-                        onRewarded: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(Localization.getText('thank_you_for_support', languageCode)),
-                              backgroundColor: Constants.kykSuccess,
-                            ),
-                          );
-                        },
-                        onClosed: () {},
-                      );
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
                     },
                   ),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.play_circle_fill_rounded,
-                    title: Localization.getText('watch_ad_earn_coin', languageCode),
-                    subtitle: Localization.getText('watch_ad_earn_coin_desc_long', languageCode),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.monetization_on_rounded, color: Constants.kykPrimary, size: 18),
-                        const SizedBox(width: 4),
-                        Text('$_coins', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Constants.kykPrimary)),
-                      ],
-                    ),
-                    onTap: _isLoadingCoin ? null : () async {
-                      await AdService.showRewardedAd(
-                        onRewarded: () async {
-                          await _addCoin();
-                          if (mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(Localization.getText('coin_earned', languageCode)),
-                                backgroundColor: Constants.kykSuccess,
-                              ),
-                            );
-                          }
-                        },
-                        onClosed: () {},
-                      );
-                    },
-                  ),
-                  _buildSettingsItem(
-                    context: context,
-                    isDark: isDark,
-                    icon: Icons.block,
-                    title: Localization.getText('start_adfree', languageCode),
-                    subtitle: Localization.getText('start_adfree_desc_long', languageCode),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.monetization_on_rounded, color: _coins >= coinsRequired ? Constants.kykSuccess : Constants.kykGray400, size: 18),
-                        const SizedBox(width: 4),
-                        Text('$_coins/$coinsRequired', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: _coins >= coinsRequired ? Constants.kykSuccess : Constants.kykGray400)),
-                        if (_isAdFreeActive) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: Constants.kykSuccess.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(Icons.block, color: Constants.kykSuccess, size: 14),
-                                const SizedBox(width: 2),
-                                Text(_adFreeTimeLeft, style: GoogleFonts.inter(fontSize: Constants.textXs, color: Constants.kykSuccess, fontWeight: FontWeight.w600)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                    onTap: _isLoadingCoin || _coins < coinsRequired ? null : () async {
-                      await _spendCoinsForAdFree();
-                      if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(Localization.getText('adfree_started', languageCode)),
-                            backgroundColor: Constants.kykSuccess,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  // Diğer destek butonları aşağıda divider ile devam etsin
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
@@ -371,11 +370,152 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
-              child: Text(
-                Localization.getText('adfree_explanation', languageCode),
-                style: GoogleFonts.inter(fontSize: Constants.textXs, color: isDark ? Constants.kykGray400 : Constants.kykGray600),
+            const SizedBox(height: Constants.space4),
+            // 4. Reklamlar
+            _buildSectionTitle(context, Localization.getText('ads_section', languageCode)),
+            const SizedBox(height: Constants.space3),
+            _buildSettingsCard(
+              context: context,
+              isDark: isDark,
+              child: Column(
+                children: [
+                  // --- Reklam İzle, Coin Kazan ---
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.play_circle_fill_rounded,
+                    title: Localization.getText('ad_info_watch_ad', languageCode),
+                    subtitle: Localization.getText('ad_info_watch_ad_desc', languageCode),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.monetization_on_rounded, color: Constants.kykPrimary, size: 18),
+                        const SizedBox(width: 4),
+                        Text('$_coins', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Constants.kykPrimary)),
+                      ],
+                    ),
+                    onTap: _isLoadingCoin ? null : () async {
+                      await AdService.showRewardedAd(
+                        onRewarded: () async {
+                          await _addCoin();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(Localization.getText('ad_info_thanks', languageCode)),
+                                backgroundColor: Constants.kykSuccess,
+                              ),
+                            );
+                          }
+                        },
+                        onClosed: () {},
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  // --- Banner Reklamı Engelle ---
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.visibility_off_rounded,
+                    title: Localization.getText('ad_info_block_banner', languageCode),
+                    subtitle: Localization.getText('ad_info_block_banner_desc', languageCode) + ' ' + (_bannerBlockTimeLeft.isNotEmpty ? _bannerBlockTimeLeft : Localization.getText('ad_info_none', languageCode)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.monetization_on_rounded, color: _coins >= bannerBlockCost ? Constants.kykPrimary : Constants.kykGray400, size: 18),
+                        const SizedBox(width: 4),
+                        Text('$bannerBlockCost', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: _coins >= bannerBlockCost ? Constants.kykPrimary : Constants.kykGray400)),
+                      ],
+                    ),
+                    onTap: _isLoadingCoin || _coins < bannerBlockCost || _isBannerBlocked ? null : () async {
+                      await _blockBannerAds();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(Localization.getText('ad_info_block_banner_success', languageCode)),
+                            backgroundColor: Constants.kykSuccess,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const Divider(height: 1),
+                  // --- Geçiş Reklamı Engelle ---
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.block,
+                    title: Localization.getText('ad_info_block_interstitial', languageCode),
+                    subtitle: Localization.getText('ad_info_block_interstitial_desc', languageCode) + ' ' + (_interstitialBlockTimeLeft.isNotEmpty ? _interstitialBlockTimeLeft : Localization.getText('ad_info_none', languageCode)),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.monetization_on_rounded, color: _coins >= interstitialBlockCost ? Constants.kykPrimary : Constants.kykGray400, size: 18),
+                        const SizedBox(width: 4),
+                        Text('$interstitialBlockCost', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: _coins >= interstitialBlockCost ? Constants.kykPrimary : Constants.kykGray400)),
+                      ],
+                    ),
+                    onTap: _isLoadingCoin || _coins < interstitialBlockCost || _isInterstitialBlocked ? null : () async {
+                      await _blockInterstitialAds();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(Localization.getText('ad_info_block_interstitial_success', languageCode)),
+                            backgroundColor: Constants.kykSuccess,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const Divider(height: 1),
+                  // --- Reklam Engelleme Sürelerini Sıfırla ---
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.refresh_rounded,
+                    title: Localization.getText('ad_info_reset', languageCode),
+                    subtitle: Localization.getText('ad_info_reset_confirm', languageCode),
+                    onTap: () async {
+                      final confirmed = await showDialog<bool>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(Localization.getText('ad_info_reset', languageCode)),
+                          content: Text(Localization.getText('ad_info_reset_confirm', languageCode)),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(false),
+                              child: Text(Localization.getText('cancel', languageCode)),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text(Localization.getText('ad_info_reset', languageCode)),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirmed == true) {
+                        await _resetAdBlocks();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(Localization.getText('ad_info_reset_success', languageCode))),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  // --- Reklam Yönetimi Butonu ---
+                  const Divider(height: 1),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.settings_rounded,
+                    title: Localization.getText('ad_info_manage_ads', languageCode),
+                    subtitle: Localization.getText('ad_info_manage_ads', languageCode),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
+                    },
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: Constants.space4),
@@ -1452,6 +1592,98 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+} 
+
+class AdInfoScreen extends StatelessWidget {
+  const AdInfoScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageCode = languageProvider.currentLanguageCode;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: isDark ? Constants.kykGray800 : Constants.kykPrimary,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          Localization.getText('ad_info_title', languageCode),
+          style: GoogleFonts.inter(
+            fontSize: Constants.textLg,
+            fontWeight: FontWeight.w600,
+            color: Constants.white,
+          ),
+        ),
+        leading: IconButton(
+          icon: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Constants.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.arrow_back_ios,
+              color: Constants.white,
+              size: 18,
+            ),
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(Constants.space4),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: 24),
+            Icon(Icons.campaign_rounded, color: Constants.kykPrimary, size: 64),
+            const SizedBox(height: 16),
+            Text(
+              Localization.getText('ad_info_heading', languageCode),
+              style: GoogleFonts.inter(fontSize: 22, fontWeight: FontWeight.bold, color: isDark ? Constants.kykGray100 : Constants.kykGray900),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              Localization.getText('ad_info_desc', languageCode),
+              style: GoogleFonts.inter(fontSize: 16, color: isDark ? Constants.kykGray300 : Constants.kykGray700),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Constants.kykPrimary,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 32),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                textStyle: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+              icon: const Icon(Icons.play_circle_fill_rounded, size: 28),
+              label: Text(Localization.getText('ad_info_watch_button', languageCode)),
+              onPressed: () async {
+                await AdService.showInterstitialAd();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(Localization.getText('thank_you_for_support', languageCode)),
+                      backgroundColor: Constants.kykSuccess,
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(height: 32),
+            Text(
+              Localization.getText('ad_info_note', languageCode),
+              style: GoogleFonts.inter(fontSize: 14, color: isDark ? Constants.kykGray400 : Constants.kykGray600),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );

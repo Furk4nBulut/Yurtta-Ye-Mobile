@@ -2,6 +2,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import 'package:yurttaye_mobile/utils/app_config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AdService {
   static String get interstitialAdUnitId {
@@ -48,7 +49,29 @@ class AdService {
     );
   }
 
+  static Future<bool> isAdFreeActive() async {
+    final prefs = await SharedPreferences.getInstance();
+    final adFreeMillis = prefs.getInt('adFreeUntil');
+    if (adFreeMillis == null) return false;
+    return DateTime.now().isBefore(DateTime.fromMillisecondsSinceEpoch(adFreeMillis));
+  }
+
+  static Future<bool> isInterstitialBlocked() async {
+    final prefs = await SharedPreferences.getInstance();
+    final blockMillis = prefs.getInt('interstitialAdBlockUntil');
+    if (blockMillis == null) return false;
+    return DateTime.now().isBefore(DateTime.fromMillisecondsSinceEpoch(blockMillis));
+  }
+
   static Future<void> showInterstitialAd() async {
+    if (await isAdFreeActive()) {
+      print('Ad-free active, interstitial ad not shown.');
+      return;
+    }
+    if (await isInterstitialBlocked()) {
+      print('Interstitial ad block active, not showing interstitial ad.');
+      return;
+    }
     print('=== AD SERVICE DEBUG ===');
     print('Interstitial ad is null: ${_interstitialAd == null}');
     print('Ad unit ID: $interstitialAdUnitId');
