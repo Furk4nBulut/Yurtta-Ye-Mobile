@@ -26,8 +26,8 @@ class _AdsScreenState extends State<AdsScreen> {
   int _adsWatched = 0;
 
   static const int coinsRequired = 4; // 4 coin = 1 gün reklamsız
-  static const int bannerBlockCost = 1;
-  static const int interstitialBlockCost = 1;
+  static const int bannerBlockCost = 2;
+  static const int interstitialBlockCost = 4;
 
   Timer? _timer;
 

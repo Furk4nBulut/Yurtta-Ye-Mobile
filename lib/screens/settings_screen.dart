@@ -43,8 +43,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Timer? _timer;
 
   static const int coinsRequired = 4; // 4 coin = 1 gün reklamsız
-  static const int bannerBlockCost = 1;
-  static const int interstitialBlockCost = 1;
+  static const int bannerBlockCost = 2;
+  static const int interstitialBlockCost = 4;
 
   @override
   void initState() {
