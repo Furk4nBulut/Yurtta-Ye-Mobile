@@ -17,6 +17,7 @@ import 'package:yurttaye_mobile/widgets/banner_ad_widget.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:yurttaye_mobile/providers/menu_provider.dart';
 import 'package:yurttaye_mobile/services/ad_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
@@ -29,10 +30,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final NotificationService _notificationService = NotificationService();
   bool _notificationsEnabled = true;
 
+  // --- Coin & Ad-Free State ---
+  int _coins = 0;
+  int _totalCoins = 0;
+  DateTime? _adFreeUntil;
+  bool _isLoadingCoin = true;
+
+  static const int coinsRequired = 4; // 4 coin = 1 gün reklamsız
+
   @override
   void initState() {
     super.initState();
     _loadNotificationSettings();
+    _loadCoinState();
   }
 
   Future<void> _loadNotificationSettings() async {
@@ -47,6 +57,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _notificationsEnabled = value;
     });
+  }
+
+  Future<void> _loadCoinState() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _coins = prefs.getInt('coins') ?? 0;
+      _totalCoins = prefs.getInt('totalCoins') ?? 0;
+      final adFreeMillis = prefs.getInt('adFreeUntil');
+      _adFreeUntil = adFreeMillis != null ? DateTime.fromMillisecondsSinceEpoch(adFreeMillis) : null;
+      _isLoadingCoin = false;
+    });
+  }
+
+  Future<void> _addCoin() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _coins++;
+      _totalCoins++;
+    });
+    await prefs.setInt('coins', _coins);
+    await prefs.setInt('totalCoins', _totalCoins);
+  }
+
+  Future<void> _spendCoinsForAdFree() async {
+    if (_coins < coinsRequired) return;
+    final prefs = await SharedPreferences.getInstance();
+    final now = DateTime.now();
+    final currentAdFree = _adFreeUntil != null && _adFreeUntil!.isAfter(now) ? _adFreeUntil! : now;
+    final newAdFreeUntil = currentAdFree.add(const Duration(days: 1));
+    setState(() {
+      _coins -= coinsRequired;
+      _adFreeUntil = newAdFreeUntil;
+    });
+    await prefs.setInt('coins', _coins);
+    await prefs.setInt('adFreeUntil', newAdFreeUntil.millisecondsSinceEpoch);
+  }
+
+  bool get _isAdFreeActive {
+    if (_adFreeUntil == null) return false;
+    return _adFreeUntil!.isAfter(DateTime.now());
+  }
+
+  String get _adFreeTimeLeft {
+    if (!_isAdFreeActive) return '';
+    final diff = _adFreeUntil!.difference(DateTime.now());
+    if (diff.inDays > 0) {
+      return '${diff.inDays} gün';
+    } else if (diff.inHours > 0) {
+      return '${diff.inHours} saat';
+    } else if (diff.inMinutes > 0) {
+      return '${diff.inMinutes} dk';
+    } else {
+      return '<1 dk';
+    }
   }
 
   @override
@@ -170,12 +234,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
               isDark: isDark,
               child: Column(
                 children: [
+                  // --- DESTEK BUTONLARI ALT ALTA ---
                   _buildSettingsItem(
                     context: context,
                     isDark: isDark,
                     icon: Icons.favorite_rounded,
                     title: Localization.getText('support_developer', languageCode),
-                    subtitle: Localization.getText('support_developer_desc', languageCode),
+                    subtitle: Localization.getText('support_developer_desc_long', languageCode),
                     onTap: () async {
                       HapticFeedback.lightImpact();
                       await AdService.showRewardedAd(
@@ -191,6 +256,82 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.play_circle_fill_rounded,
+                    title: Localization.getText('watch_ad_earn_coin', languageCode),
+                    subtitle: Localization.getText('watch_ad_earn_coin_desc_long', languageCode),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.monetization_on_rounded, color: Constants.kykPrimary, size: 18),
+                        const SizedBox(width: 4),
+                        Text('$_coins', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: Constants.kykPrimary)),
+                      ],
+                    ),
+                    onTap: _isLoadingCoin ? null : () async {
+                      await AdService.showRewardedAd(
+                        onRewarded: () async {
+                          await _addCoin();
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(Localization.getText('coin_earned', languageCode)),
+                                backgroundColor: Constants.kykSuccess,
+                              ),
+                            );
+                          }
+                        },
+                        onClosed: () {},
+                      );
+                    },
+                  ),
+                  _buildSettingsItem(
+                    context: context,
+                    isDark: isDark,
+                    icon: Icons.block,
+                    title: Localization.getText('start_adfree', languageCode),
+                    subtitle: Localization.getText('start_adfree_desc_long', languageCode),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.monetization_on_rounded, color: _coins >= coinsRequired ? Constants.kykSuccess : Constants.kykGray400, size: 18),
+                        const SizedBox(width: 4),
+                        Text('$_coins/$coinsRequired', style: GoogleFonts.inter(fontWeight: FontWeight.w700, color: _coins >= coinsRequired ? Constants.kykSuccess : Constants.kykGray400)),
+                        if (_isAdFreeActive) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Constants.kykSuccess.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.block, color: Constants.kykSuccess, size: 14),
+                                const SizedBox(width: 2),
+                                Text(_adFreeTimeLeft, style: GoogleFonts.inter(fontSize: Constants.textXs, color: Constants.kykSuccess, fontWeight: FontWeight.w600)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    onTap: _isLoadingCoin || _coins < coinsRequired ? null : () async {
+                      await _spendCoinsForAdFree();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(Localization.getText('adfree_started', languageCode)),
+                            backgroundColor: Constants.kykSuccess,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  // Diğer destek butonları aşağıda divider ile devam etsin
                   const Divider(height: 1),
                   _buildSettingsItem(
                     context: context,
@@ -230,7 +371,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0, left: 8.0, right: 8.0),
+              child: Text(
+                Localization.getText('adfree_explanation', languageCode),
+                style: GoogleFonts.inter(fontSize: Constants.textXs, color: isDark ? Constants.kykGray400 : Constants.kykGray600),
+              ),
+            ),
             const SizedBox(height: Constants.space4),
             // 4. Geliştirici
             _buildSectionTitle(context, Localization.getText('developer_section', languageCode)),
