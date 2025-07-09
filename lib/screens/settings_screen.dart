@@ -328,6 +328,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     subtitle: Localization.getText('support_developer_desc_long', languageCode),
                     onTap: () async {
                       HapticFeedback.lightImpact();
+                      await AdService.showInterstitialAd();
                       await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
                       _loadCoinState();
                     },
@@ -513,6 +514,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     title: Localization.getText('ad_info_manage_ads', languageCode),
                     subtitle: Localization.getText('ad_info_manage_ads', languageCode),
                     onTap: () async {
+                      await AdService.showInterstitialAd();
                       await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const AdsScreen()));
                       _loadCoinState();
                     },

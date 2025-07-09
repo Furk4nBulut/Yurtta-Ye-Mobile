@@ -348,7 +348,17 @@ class _AdsScreenState extends State<AdsScreen> {
                     icon: Icons.coffee_rounded,
                     title: Localization.getText('ad_info_support', languageCode),
                     subtitle: Localization.getText('ad_info_support_desc', languageCode) + '\n' + '(Buy Me a Coffee: ' + Localization.getText('soon', languageCode) + ')',
-                    onTap: null,
+                    onTap: () async {
+                      await AdService.showInterstitialAd();
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(Localization.getText('thank_you_for_support', languageCode)),
+                            backgroundColor: Constants.kykSuccess,
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 8),
                   const Divider(height: 1),
