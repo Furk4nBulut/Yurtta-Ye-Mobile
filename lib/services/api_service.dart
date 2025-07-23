@@ -10,7 +10,10 @@ class ApiService {
   Future<List<City>> getCities() async {
     final uri = Uri.parse('${Constants.apiUrl}/City');
     print('Fetching cities from: $uri');
-    final response = await http.get(uri);
+    final response = await http.get(
+      uri,
+      headers: {'x-api-key': Constants.apiKey},
+    );
     print('Cities response: status=${response.statusCode}, body=${response.body}');
     if (response.statusCode == 200) {
       final List<dynamic> json = jsonDecode(response.body);
@@ -37,7 +40,10 @@ class ApiService {
 
     final uri = Uri.parse('${Constants.apiUrl}/Menu').replace(queryParameters: queryParams);
     print('Fetching menus from: $uri');
-    final response = await http.get(uri);
+    final response = await http.get(
+      uri,
+      headers: {'x-api-key': Constants.apiKey},
+    );
     print('Menus response: status=${response.statusCode}, body=${response.body}');
 
     if (response.statusCode == 200) {

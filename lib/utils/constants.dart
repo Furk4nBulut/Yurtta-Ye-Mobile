@@ -2,6 +2,7 @@ import 'dart:ui';
 
 class Constants {
   static const String apiUrl = 'https://yurttaye.onrender.com/Api';
+  static const String apiKey = 'YOUR_API_KEY_HERE'; // Add your actual API key here
 
   // KYK Kurumsal Renk Paleti
   static const Color kykPrimary = Color(0xFF1E3A8A);      // Koyu mavi - Ana renk
