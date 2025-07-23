@@ -179,6 +179,8 @@ class MenuProvider with ChangeNotifier {
   void setSelectedCity(int? cityId) {
     _selectedCityId = cityId;
     print('Setting cityId: $cityId');
+    // Yeni şehir verileri için şehirleri de yenile
+    fetchCities();
     fetchMenus(reset: true);
   }
 
@@ -208,6 +210,8 @@ class MenuProvider with ChangeNotifier {
     _selectedMealType = null;
     _selectedDate = null;
     print('Clearing filters');
+    // Filtreleri temizlerken şehirleri de yenile
+    fetchCities();
     fetchMenus(reset: true);
   }
 
